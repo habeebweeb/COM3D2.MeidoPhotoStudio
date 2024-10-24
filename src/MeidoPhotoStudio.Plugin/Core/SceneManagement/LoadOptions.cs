@@ -16,6 +16,7 @@ public readonly record struct LoadOptions(
             Lights = true,
             Effects = new()
             {
+                Load = true,
                 Bloom = true,
                 DepthOfField = true,
                 Vignette = true,
