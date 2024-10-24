@@ -5,7 +5,7 @@ public class DeskPropModelSchema(short version = DeskPropModelSchema.SchemaVersi
     public const short SchemaVersion = 1;
 
     public PropType Type =>
-        PropType.Background;
+        PropType.Desk;
 
     public short Version { get; } = version;
 
