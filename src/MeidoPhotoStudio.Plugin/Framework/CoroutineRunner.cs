@@ -4,15 +4,29 @@ public class CoroutineRunner(Func<IEnumerator> coroutine)
 {
     private static GameObject coroutineRunnerParent;
 
-    private readonly Func<IEnumerator> coroutine = coroutine ?? throw new ArgumentNullException(nameof(coroutine));
-
+    private Func<IEnumerator> coroutine = coroutine ?? throw new ArgumentNullException(nameof(coroutine));
     private string name;
+    private GameObject coroutineContainer;
+    private CoroutineBehaviour runnerBehaviour;
 
     public string Name
     {
         get => name;
         set => name = string.IsNullOrEmpty(value) ? "[Coroutine Runner]" : value;
     }
+
+    public Func<IEnumerator> Coroutine
+    {
+        get => coroutine;
+        set
+        {
+            coroutine = value ?? throw new ArgumentNullException(nameof(value));
+
+            Stop();
+        }
+    }
+
+    public bool Running { get; private set; }
 
     private static GameObject CoroutineRunnerParent
     {
@@ -29,38 +43,68 @@ public class CoroutineRunner(Func<IEnumerator> coroutine)
         }
     }
 
+    private CoroutineBehaviour RunnerBehaviour
+    {
+        get
+        {
+            if (!coroutineContainer)
+            {
+                coroutineContainer = new GameObject(Name)
+                {
+                    hideFlags = HideFlags.HideAndDontSave,
+                };
+
+                coroutineContainer.transform.SetParent(CoroutineRunnerParent.transform);
+            }
+
+            if (!runnerBehaviour)
+                runnerBehaviour = coroutineContainer.GetOrAddComponent<CoroutineBehaviour>();
+
+            return runnerBehaviour;
+        }
+    }
+
     public void Start()
     {
-        var coroutineContainer = new GameObject(Name)
-        {
-            hideFlags = HideFlags.HideAndDontSave,
-        };
+        Stop();
 
-        coroutineContainer.transform.SetParent(CoroutineRunnerParent.transform);
-
-        var coroutineRunner = coroutineContainer.AddComponent<CoroutineBehaviour>();
-
-        coroutineRunner.StartCoroutine(RunCoroutine());
+        RunnerBehaviour.StartCoroutine(RunCoroutine());
 
         IEnumerator RunCoroutine()
         {
             IEnumerator result;
 
+            Running = true;
+
             try
             {
-                result = coroutine();
+                result = Coroutine();
             }
             catch
             {
-                Object.Destroy(coroutineContainer);
+                Object.Destroy(RunnerBehaviour.gameObject);
+
+                Running = false;
 
                 throw;
             }
 
             yield return result;
 
-            Object.Destroy(coroutineContainer);
+            Object.Destroy(RunnerBehaviour.gameObject);
+
+            Running = false;
         }
+    }
+
+    public void Stop()
+    {
+        if (!Running)
+            return;
+
+        RunnerBehaviour.StopAllCoroutines();
+
+        Running = false;
     }
 
     internal static void DestroyParent()
