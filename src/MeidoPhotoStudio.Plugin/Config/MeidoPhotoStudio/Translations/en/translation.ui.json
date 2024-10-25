@@ -220,7 +220,7 @@
     "filenameHeader": "Name",
     "categorySearchBarPlaceholder": "Blend Set Category",
     "nameTextFieldPlaceholder": "Blend Set Name",
-    "savedBlendSetLabel": "Saved blendset!"
+    "savedBlendSetLabel": "Saved blend set!"
   },
   "expressionPane": {
     "header": "Facial Expression",
@@ -277,7 +277,7 @@
   "faceSave": {
     "categoryHeader": "Category",
     "nameHeader": "Name",
-    "saveButton": "Save Blendset",
+    "saveButton": "Save Blend Set",
     "deleteButton": "D"
   },
   "backgroundWindow": {
@@ -356,7 +356,7 @@
     "searchBarPlaceholder": "Search other props"
   },
   "favouritePropsPane": {
-    "noFavouritePropsLabel": "No favouirte props",
+    "noFavouritePropsLabel": "No favourite props",
     "descendingToggle": "Descending",
     "searchBarPlaceholder": "Search favourite props",
     "refreshButton": "Refresh",
