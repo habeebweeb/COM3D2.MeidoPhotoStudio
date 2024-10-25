@@ -52,8 +52,8 @@ public partial class MainWindow : BaseWindow
         tabsPane.TabChange += (_, _) =>
             ChangeTab();
 
-        settingsButtonLabel = Translation.Get("settingsLabels", "settingsButton");
-        closeButtonLabel = Translation.Get("settingsLabels", "closeSettingsButton");
+        settingsButtonLabel = Translation.Get("mainWindow", "settingsButton");
+        closeButtonLabel = Translation.Get("mainWindow", "closeSettingsButton");
 
         settingsButton = new(settingsButtonLabel);
         settingsButton.ControlEvent += (_, _) =>
@@ -200,8 +200,8 @@ public partial class MainWindow : BaseWindow
 
     protected override void ReloadTranslation()
     {
-        settingsButtonLabel = Translation.Get("settingsLabels", "settingsButton");
-        closeButtonLabel = Translation.Get("settingsLabels", "closeSettingsButton");
+        settingsButtonLabel = Translation.Get("mainWindow", "settingsButton");
+        closeButtonLabel = Translation.Get("mainWindow", "closeSettingsButton");
         settingsButton.Label = selectedWindow == Constants.Window.Settings ? closeButtonLabel : settingsButtonLabel;
     }
 
@@ -210,7 +210,7 @@ public partial class MainWindow : BaseWindow
 
     private void ChangeTab()
     {
-        settingsButton.Label = Translation.Get("settingsLabels", "settingsButton");
+        settingsButton.Label = settingsButtonLabel;
         SetCurrentWindow(tabsPane.SelectedTab);
     }
 

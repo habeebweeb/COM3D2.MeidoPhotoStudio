@@ -501,7 +501,11 @@ public partial class PluginCore : MonoBehaviour
                     new PropShapeKeyPane(propSelectionController),
                     new AttachPropPane(characterService, propAttachmentService, propSelectionController),
                 },
-            [Constants.Window.Settings] = new SettingsWindowPane(inputConfiguration, inputRemapper),
+            [Constants.Window.Settings] = new SettingsWindowPane()
+            {
+                new InputSettingsPane(inputConfiguration, inputRemapper),
+                new TranslationSettingsPane(),
+            },
         };
 
         AddPluginActiveInputHandler(new MainWindow.InputHandler(mainWindow, inputConfiguration));

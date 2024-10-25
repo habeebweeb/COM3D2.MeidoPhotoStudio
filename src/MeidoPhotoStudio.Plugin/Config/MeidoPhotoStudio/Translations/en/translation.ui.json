@@ -679,26 +679,22 @@
     "undo": "Undo",
     "redo": "Redo"
   },
-  "settingsLabels": {
+  "mainWindow": {
     "settingsButton": "Settings",
-    "closeSettingsButton": "Close",
-    "reloadTranslation": "Reload Translation",
-    "reloadAllPresets": "Reload Presets",
-    "pushAnyKey": "Push any key combo",
-    "cancelRebind": "Cancel"
+    "closeSettingsButton": "Close"
   },
-  "settingsHeaders": {
-    "controls": "Controls",
-    "controlsGeneral": "General",
-    "controlsMaids": "Maids",
-    "controlsCamera": "Camera",
-    "controlsDragPoint": "Drag Handles",
-    "controlsScene": "Scene Management",
-    "reload": "Reload",
-    "generalControls": "General",
-    "cameraControls": "Camera",
-    "generalDragHandleControls": "General Drag Handles",
-    "maidDragHandleControls": "Maid Drag Handles"
+  "translationSettingsPane": {
+    "header": "Translation",
+    "reloadTranslationButton": "Reload Translation"
+  },
+  "inputSettingsPane": {
+    "header": "Controls",
+    "generalControlsHeader": "General",
+    "cameraControlsHeader": "Camera",
+    "transformDragHandleControlsHeader": "Transform Drag Handle",
+    "characterControlsHeader": "Character",
+    "pushAnyKeyLabel": "Push Any Key Combo",
+    "cancelRebindLabel": "Cancel"
   },
   "transformControl": {
     "copyButton": "Copy",
