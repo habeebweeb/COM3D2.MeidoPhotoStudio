@@ -69,6 +69,7 @@ public partial class PluginCore : MonoBehaviour
     private UndoRedoService undoRedoService;
     private ScreenSizeChecker screenSizeChecker;
     private FavouritePropRepository favouritePropRepository;
+    private AutoSaveService autoSaveService;
 
     public bool UIActive
     {
@@ -412,6 +413,11 @@ public partial class PluginCore : MonoBehaviour
             quickSaveService,
             inputConfiguration));
 
+        autoSaveService = new(characterService, sceneRepository, screenshotService, sceneSchemaBuilder)
+        {
+            Enabled = true,
+        };
+
         var messageWindow = new MessageWindow(messageWindowManager);
 
         AddPluginActiveInputHandler(new MessageWindow.InputHandler(messageWindow, inputConfiguration));
@@ -553,6 +559,8 @@ public partial class PluginCore : MonoBehaviour
         blurController.Activate();
         sepiaToneController.Activate();
 
+        autoSaveService.Activate();
+
         windowManager.Activate();
 
         characterService.CallingCharacters += OnCallingCharacters;
@@ -646,6 +654,8 @@ public partial class PluginCore : MonoBehaviour
             fogController.Deactivate();
             blurController.Deactivate();
             sepiaToneController.Deactivate();
+
+            autoSaveService.Deactivate();
 
             editModeMaidService.Deactivate();
 
