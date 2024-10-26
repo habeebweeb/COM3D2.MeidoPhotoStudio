@@ -175,6 +175,9 @@ public class IKDragHandleService : INotifyPropertyChanged
         foreach (var dragHandleController in ikDragHandleController)
             characterDragHandleInputService.AddController(dragHandleController);
 
+        ikDragHandleController.SmallHandle = SmallHandle;
+        ikDragHandleController.CubeEnabled = CubeEnabled;
+
         return ikDragHandleController;
 
         static (DragHandle DragHandle, CustomGizmo Gizmo, Transform IKTarget) BuildIKDragHandleAndGizmo(

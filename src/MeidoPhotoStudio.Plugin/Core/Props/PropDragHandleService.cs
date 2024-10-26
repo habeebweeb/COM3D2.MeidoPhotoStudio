@@ -8,7 +8,6 @@ public class PropDragHandleService : IEnumerable<PropDragHandleController>
 {
     private readonly (float Small, float Normal) handleSize = (0.5f, 1f);
     private readonly (float Small, float Normal) gizmoSize = (0.225f, 0.45f);
-
     private readonly GeneralDragHandleInputHandler generalDragHandleInputService;
     private readonly PropService propService;
     private readonly SelectionController<PropController> propSelectionController;
@@ -27,6 +26,7 @@ public class PropDragHandleService : IEnumerable<PropDragHandleController>
         this.propService = propService ?? throw new ArgumentNullException(nameof(propService));
         this.propSelectionController = propSelectionController ?? throw new ArgumentNullException(nameof(propSelectionController));
         this.tabSelectionController = tabSelectionController ?? throw new ArgumentNullException(nameof(tabSelectionController));
+
         this.propService.AddedProp += OnAddedProp;
         this.propService.RemovingProp += OnRemovingProp;
     }

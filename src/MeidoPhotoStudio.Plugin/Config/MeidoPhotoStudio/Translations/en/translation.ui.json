@@ -398,13 +398,6 @@
   "propShapeKeyPane": {
     "header": "Prop Shape Keys"
   },
-  "movementCube": {
-    "header": "Movement Cube",
-    "props": "Props",
-    "small": "Small",
-    "maid": "Maid",
-    "bg": "BG"
-  },
   "lights": {
     "x": "Light X",
     "y": "Light Y",
@@ -696,6 +689,11 @@
     "characterControlsHeader": "Character",
     "pushAnyKeyLabel": "Push Any Key Combo",
     "cancelRebindLabel": "Cancel"
+  },
+  "dragHandleSettingsPane": {
+    "header": "Drag Handle",
+    "smallDragHandleToggle": "Small transform drag handles",
+    "characterCubeDragHandleToggle": "Character transform cube drag handle"
   },
   "transformControl": {
     "copyButton": "Copy",

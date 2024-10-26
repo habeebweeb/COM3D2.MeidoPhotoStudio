@@ -179,6 +179,8 @@ public partial class PluginCore : MonoBehaviour
 
         undoRedoService = new();
 
+        var dragHandleConfiguration = new DragHandleConfiguration(configuration);
+
         AddPluginActiveInputHandler(new UndoRedoInputHandler(undoRedoService, inputConfiguration));
 
         var generalDragHandleInputService = new GeneralDragHandleInputHandler(inputConfiguration);
@@ -230,7 +232,11 @@ public partial class PluginCore : MonoBehaviour
             characterService,
             characterUndoRedoService,
             characterSelectionController,
-            tabSelectionController);
+            tabSelectionController)
+        {
+            SmallHandle = dragHandleConfiguration.SmallTransformCube.Value,
+            CubeEnabled = dragHandleConfiguration.CharacterTransformCube.Value,
+        };
 
         var configRoot = Path.Combine(BepInEx.Paths.ConfigPath, Plugin.PluginName);
         var presetsPath = Path.Combine(configRoot, "Presets");
@@ -284,7 +290,13 @@ public partial class PluginCore : MonoBehaviour
 
         var propSelectionController = new SelectionController<PropController>(propService);
         var propDragHandleService = new PropDragHandleService(
-            generalDragHandleInputService, propService, propSelectionController, tabSelectionController);
+            generalDragHandleInputService,
+            propService,
+            propSelectionController,
+            tabSelectionController)
+        {
+            SmallHandle = dragHandleConfiguration.SmallTransformCube.Value,
+        };
 
         var gamePropRepository = new PhotoBgPropRepository();
         var deskPropRepository = new DeskPropRepository();
@@ -502,6 +514,7 @@ public partial class PluginCore : MonoBehaviour
             {
                 new InputSettingsPane(inputConfiguration, inputRemapper),
                 new TranslationSettingsPane(),
+                new DragHandleSettingsPane(dragHandleConfiguration, ikDragHandleService, propDragHandleService),
             },
         };
 
