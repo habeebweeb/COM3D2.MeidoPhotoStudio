@@ -422,33 +422,34 @@ public partial class PluginCore : MonoBehaviour
 
         AddPluginActiveInputHandler(new MessageWindow.InputHandler(messageWindow, inputConfiguration));
 
-        var characterWindowPane = new CharacterWindowPane(
-            characterService,
+        var characterWindowPane = new CharacterWindowPane()
+        {
             new CharacterSwitcherPane(
                 characterService, characterSelectionController, customMaidSceneService, editModeMaidService),
-            tabSelectionController)
-        {
-            [CharacterWindowPane.CharacterWindowTab.Pose] =
-            [
-                new AnimationSelectorPane(gameAnimationRepository, customAnimationRepository, characterUndoRedoService, characterSelectionController),
-                new IKPane(ikDragHandleService, characterUndoRedoService,  characterSelectionController),
-                new AnimationPane(characterUndoRedoService, characterSelectionController),
-                new FreeLookPane(characterSelectionController),
-                new DressingPane(characterSelectionController),
-                new GravityControlPane(gravityDragHandleService, globalGravityService, characterSelectionController),
-                new AttachedAccessoryPane(menuPropRepository, characterSelectionController),
-                new HandPresetSelectorPane(new(customHandPresetPath), characterUndoRedoService, characterSelectionController),
-                new CopyPosePane(characterService, characterUndoRedoService, characterSelectionController),
-            ],
-            [CharacterWindowPane.CharacterWindowTab.Face] =
-            [
-                new BlendSetSelectorPane(
-                    gameBlendSetRepository,
-                    customBlendSetRepository,
-                    facialExpressionBuilder,
-                    characterSelectionController),
-                new ExpressionPane(characterSelectionController, faceShapeKeyConfiguration, faceShapekeyRangeConfiguration),
-            ],
+            new CharacterPane(tabSelectionController, characterSelectionController)
+            {
+                [CharacterPane.CharacterWindowTab.Pose] =
+                [
+                    new AnimationSelectorPane(gameAnimationRepository, customAnimationRepository, characterUndoRedoService, characterSelectionController),
+                    new IKPane(ikDragHandleService, characterUndoRedoService,  characterSelectionController),
+                    new AnimationPane(characterUndoRedoService, characterSelectionController),
+                    new FreeLookPane(characterSelectionController),
+                    new DressingPane(characterSelectionController),
+                    new GravityControlPane(gravityDragHandleService, globalGravityService, characterSelectionController),
+                    new AttachedAccessoryPane(menuPropRepository, characterSelectionController),
+                    new HandPresetSelectorPane(new(customHandPresetPath), characterUndoRedoService, characterSelectionController),
+                    new CopyPosePane(characterService, characterUndoRedoService, characterSelectionController),
+                ],
+                [CharacterPane.CharacterWindowTab.Face] =
+                [
+                    new BlendSetSelectorPane(
+                        gameBlendSetRepository,
+                        customBlendSetRepository,
+                        facialExpressionBuilder,
+                        characterSelectionController),
+                    new ExpressionPane(characterSelectionController, faceShapeKeyConfiguration, faceShapekeyRangeConfiguration),
+                ],
+            },
         };
 
         var mainWindow = new MainWindow(tabSelectionController, customMaidSceneService, inputRemapper)

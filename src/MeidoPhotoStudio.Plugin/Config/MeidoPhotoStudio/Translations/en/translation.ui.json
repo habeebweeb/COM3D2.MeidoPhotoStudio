@@ -1,7 +1,7 @@
 {
   "tabs": {
     "call": "Call",
-    "pose": "Pose",
+    "pose": "Character",
     "face": "Face",
     "bg": "Env",
     "bg2": "Props"
@@ -46,9 +46,10 @@
     "focusBodyButton": "Focus Character",
     "focusFaceButton": "Focus on Face"
   },
-  "characterWindowPane": {
+  "characterPane": {
     "bodyTab": "Body",
-    "faceTab": "Face"
+    "faceTab": "Face",
+    "noCharactersLabel": "No Characters Called"
   },
   "characterAnimationPane": {
     "header": "Animation"
@@ -220,7 +221,7 @@
     "filenameHeader": "Name",
     "categorySearchBarPlaceholder": "Blend Set Category",
     "nameTextFieldPlaceholder": "Blend Set Name",
-    "savedBlendSetLabel": "Saved blend set!"
+    "savedBlendSetLabel": "Saved blendset!"
   },
   "expressionPane": {
     "header": "Facial Expression",
@@ -277,7 +278,7 @@
   "faceSave": {
     "categoryHeader": "Category",
     "nameHeader": "Name",
-    "saveButton": "Save Blend Set",
+    "saveButton": "Save Blendset",
     "deleteButton": "D"
   },
   "backgroundWindow": {
@@ -356,7 +357,7 @@
     "searchBarPlaceholder": "Search other props"
   },
   "favouritePropsPane": {
-    "noFavouritePropsLabel": "No favourite props",
+    "noFavouritePropsLabel": "No favouirte props",
     "descendingToggle": "Descending",
     "searchBarPlaceholder": "Search favourite props",
     "refreshButton": "Refresh",

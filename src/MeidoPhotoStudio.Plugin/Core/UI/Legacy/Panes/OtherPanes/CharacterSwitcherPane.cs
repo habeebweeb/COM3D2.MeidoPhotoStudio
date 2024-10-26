@@ -123,6 +123,8 @@ public class CharacterSwitcherPane : BasePane
         focusFaceButton.Draw();
 
         GUILayout.EndHorizontal();
+
+        MpsGui.BlackLine();
     }
 
     protected override void ReloadTranslation()
