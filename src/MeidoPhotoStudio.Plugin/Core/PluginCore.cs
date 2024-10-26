@@ -462,7 +462,6 @@ public partial class PluginCore : MonoBehaviour
                 {
                     new SceneManagementPane(sceneBrowser, quickSaveService),
                     new BackgroundsPane(backgroundService, backgroundRepository, backgroundDragHandleService),
-                    new DragPointPane(propDragHandleService, ikDragHandleService),
                     new CameraPane(cameraController, cameraSaveSlotController),
                     new LightsPane(lightRepository, lightSelectionController),
                     new EffectsPane()
