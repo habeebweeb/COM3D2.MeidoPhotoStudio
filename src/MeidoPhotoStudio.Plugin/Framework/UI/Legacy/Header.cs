@@ -6,10 +6,11 @@ public class Header(string text) : BaseControl
     private GUIContent content = new(text);
 
     public static LazyStyle Style { get; } = new(
-        14,
+        13,
         () => new(GUI.skin.label)
         {
             padding = new(7, 0, 0, -5),
+            fontStyle = FontStyle.Bold,
             normal = { textColor = Color.white },
         });
 

@@ -4,13 +4,12 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
 public class PaneHeader(string label, bool open = true) : BaseControl
 {
-    public const int FontSize = 14;
-
     private static readonly LazyStyle ToggleStyle = new(
-        FontSize,
+        15,
         () => new(GUI.skin.toggle)
         {
             padding = new(15, 0, 2, 0),
+            fontStyle = FontStyle.Bold,
             normal = { textColor = Color.white },
         });
 
