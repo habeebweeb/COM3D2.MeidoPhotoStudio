@@ -425,9 +425,13 @@ public partial class PluginCore : MonoBehaviour
             quickSaveService,
             inputConfiguration));
 
+        var autoSaveConfiguration = new AutoSaveConfiguration(configuration);
+
         autoSaveService = new(characterService, sceneRepository, screenshotService, sceneSchemaBuilder)
         {
-            Enabled = true,
+            Enabled = autoSaveConfiguration.Enabled.Value,
+            AutoSaveInterval = autoSaveConfiguration.Frequency.Value,
+            Slots = autoSaveConfiguration.Slots.Value,
         };
 
         var messageWindow = new MessageWindow(messageWindowManager);
@@ -515,6 +519,7 @@ public partial class PluginCore : MonoBehaviour
                 new InputSettingsPane(inputConfiguration, inputRemapper),
                 new TranslationSettingsPane(),
                 new DragHandleSettingsPane(dragHandleConfiguration, ikDragHandleService, propDragHandleService),
+                new AutoSaveSettingsPane(autoSaveConfiguration, autoSaveService),
             },
         };
 

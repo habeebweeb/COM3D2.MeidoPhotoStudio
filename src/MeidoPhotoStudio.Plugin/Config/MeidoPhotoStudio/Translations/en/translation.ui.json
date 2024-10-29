@@ -695,6 +695,16 @@
     "smallDragHandleToggle": "Small transform drag handles",
     "characterCubeDragHandleToggle": "Character transform cube drag handle"
   },
+  "autoSaveSettingsPane": {
+    "header": "Auto-Save",
+    "enabledToggle": "Automatically save scenes",
+    "saveFrequencyHeader": "Auto-save frequency in seconds",
+    "saveFrequencyHint": "Frequency must be at least {0} seconds",
+    "slotsHeader": "Maximum number of save slots",
+    "slotsHint": "There must be at least {0} slots",
+    "saveButton": "Save",
+    "resetButton": "Reset"
+  },
   "transformControl": {
     "copyButton": "Copy",
     "pasteButton": "Paste",
