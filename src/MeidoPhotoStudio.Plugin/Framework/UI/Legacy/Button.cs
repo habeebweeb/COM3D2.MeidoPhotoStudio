@@ -13,7 +13,12 @@ public class Button : BaseControl
     public Button(Texture icon) =>
         Icon = icon;
 
-    public static LazyStyle Style { get; } = new(13, () => GUI.skin.button);
+    public static LazyStyle Style { get; } = new(
+        13,
+        () => new(GUI.skin.button)
+        {
+            wordWrap = true,
+        });
 
     public string Label
     {

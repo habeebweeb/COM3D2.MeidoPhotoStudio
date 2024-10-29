@@ -11,6 +11,7 @@ public class PaneHeader(string label, bool open = true) : BaseControl
             padding = new(15, 0, 2, 0),
             fontStyle = FontStyle.Bold,
             normal = { textColor = Color.white },
+            wordWrap = true,
         });
 
     private string label = label;

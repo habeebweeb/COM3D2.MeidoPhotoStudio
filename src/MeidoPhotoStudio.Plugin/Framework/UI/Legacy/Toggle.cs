@@ -18,7 +18,12 @@ public class Toggle : BaseControl
     private Toggle(bool state = false) =>
         value = state;
 
-    public static LazyStyle Style { get; } = new(13, () => new(GUI.skin.toggle));
+    public static LazyStyle Style { get; } = new(
+        13,
+        () => new(GUI.skin.toggle)
+        {
+            wordWrap = true,
+        });
 
     public string Label
     {

@@ -5,7 +5,12 @@ public class Label(string text) : BaseControl
     private string text = text;
     private GUIContent content = new(text);
 
-    public static LazyStyle Style { get; } = new(13, () => new(GUI.skin.label));
+    public static LazyStyle Style { get; } = new(
+        13,
+        () => new(GUI.skin.label)
+        {
+            wordWrap = true,
+        });
 
     public string Text
     {
