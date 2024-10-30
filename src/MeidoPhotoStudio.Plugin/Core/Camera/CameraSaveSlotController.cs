@@ -86,17 +86,9 @@ public class CameraSaveSlotController : IEnumerable<CameraInfo>
         MainCamera.StopAll();
     }
 
-    public IEnumerator<CameraInfo> GetEnumerator()
-    {
-        cameraInfoSelectList.Current = MainCamera.GetCameraInfo();
+    public IEnumerator<CameraInfo> GetEnumerator() =>
+        cameraInfoSelectList.GetEnumerator();
 
-        return ((IEnumerable<CameraInfo>)cameraInfoSelectList).GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        cameraInfoSelectList.Current = MainCamera.GetCameraInfo();
-
-        return ((IEnumerable)cameraInfoSelectList).GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() =>
+        cameraInfoSelectList.GetEnumerator();
 }

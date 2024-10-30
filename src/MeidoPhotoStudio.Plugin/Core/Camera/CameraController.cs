@@ -31,7 +31,8 @@ public class CameraController(CustomMaidSceneService customMaidSceneService)
 
     internal void Activate()
     {
-        MainCamera.m_UOCamera.enabled = true;
+        if (MainCamera.m_UOCamera)
+            MainCamera.m_UOCamera.enabled = true;
 
         if (customMaidSceneService.OfficeScene)
             ResetCamera();

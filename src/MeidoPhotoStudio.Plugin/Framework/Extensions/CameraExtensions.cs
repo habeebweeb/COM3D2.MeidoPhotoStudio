@@ -6,7 +6,10 @@ public static class CameraExtensions
 {
     public static void StopSpin(this CameraMain camera)
     {
-        var uoCamera = camera.GetComponent<UltimateOrbitCamera>();
+        if (!camera.m_UOCamera)
+            return;
+
+        var uoCamera = camera.m_UOCamera;
 
         uoCamera.xVelocity = 0f;
         uoCamera.yVelocity = 0f;

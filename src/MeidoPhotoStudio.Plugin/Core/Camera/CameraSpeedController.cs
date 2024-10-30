@@ -14,27 +14,33 @@ public class CameraSpeedController
 
     public CameraSpeedController()
     {
+        if (VRMode)
+            return;
+
         defaultMoveSpeed = UltimateOrbitCamera.moveSpeed;
         defaultZoomSpeed = UltimateOrbitCamera.zoomSpeed;
     }
 
-    public enum Speed
+    private enum Speed
     {
         Default,
         Fast,
         Slow,
     }
 
-    private UltimateOrbitCamera UltimateOrbitCamera =>
-        ultimateOrbitCamera
-            ? ultimateOrbitCamera
-            : ultimateOrbitCamera = GameMain.Instance.MainCamera.GetComponent<UltimateOrbitCamera>();
+    private static bool VRMode =>
+        GameMain.Instance.VRMode;
 
-    public void Deactivate() =>
-        ApplyDefaultSpeed();
+    private UltimateOrbitCamera UltimateOrbitCamera =>
+        VRMode ? null :
+        ultimateOrbitCamera ? ultimateOrbitCamera :
+        ultimateOrbitCamera = GameMain.Instance.MainCamera.GetComponent<UltimateOrbitCamera>();
 
     public void ApplyFastSpeed()
     {
+        if (VRMode)
+            return;
+
         if (currentCameraSpeed is Speed.Fast)
             return;
 
@@ -46,6 +52,9 @@ public class CameraSpeedController
 
     public void ApplySlowSpeed()
     {
+        if (VRMode)
+            return;
+
         if (currentCameraSpeed is Speed.Slow)
             return;
 
@@ -57,6 +66,9 @@ public class CameraSpeedController
 
     public void ApplyDefaultSpeed()
     {
+        if (VRMode)
+            return;
+
         if (currentCameraSpeed is Speed.Default)
             return;
 
@@ -65,4 +77,7 @@ public class CameraSpeedController
         UltimateOrbitCamera.moveSpeed = defaultMoveSpeed;
         UltimateOrbitCamera.zoomSpeed = defaultZoomSpeed;
     }
+
+    internal void Deactivate() =>
+        ApplyDefaultSpeed();
 }
