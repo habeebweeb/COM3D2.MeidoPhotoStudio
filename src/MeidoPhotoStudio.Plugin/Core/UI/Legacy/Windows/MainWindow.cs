@@ -6,8 +6,9 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 /// <summary>Main window.</summary>
 public partial class MainWindow : BaseWindow
 {
+    public const int MinimumWindowWidth = 255;
+
     private const float ResizeHandleSize = 15f;
-    private const float MinimumWindowWidth = 255f;
     private const float MinimumWindowHeight = 400f;
 
     private readonly LazyStyle pluginInfoStyle = new(
@@ -25,6 +26,7 @@ public partial class MainWindow : BaseWindow
     private readonly TabsPane tabsPane;
     private readonly Button settingsButton;
 
+    private int windowWidth = MinimumWindowWidth;
     private Rect resizeHandleRect = new(0f, 0f, ResizeHandleSize, ResizeHandleSize);
     private bool resizing;
     private BaseMainWindowPane currentWindowPane;
@@ -46,7 +48,7 @@ public partial class MainWindow : BaseWindow
         this.inputRemapper = inputRemapper ? inputRemapper : throw new ArgumentNullException(nameof(inputRemapper));
 
         windowPanes = [];
-        WindowRect = new(Screen.width, Screen.height * 0.08f, MinimumWindowWidth, Screen.height * 0.9f);
+        WindowRect = new(Screen.width, Screen.height * 0.08f, WindowWidth, Screen.height * 0.9f);
 
         tabsPane = AddPane<TabsPane>(new());
         tabsPane.TabChange += (_, _) =>
@@ -78,6 +80,27 @@ public partial class MainWindow : BaseWindow
             value.y = Mathf.Clamp(value.y, -value.height + 30, Screen.height - 50);
 
             windowRect = value;
+        }
+    }
+
+    public int WindowWidth
+    {
+        get => windowWidth;
+        set
+        {
+            var newWidth = value;
+
+            if (newWidth < MinimumWindowWidth)
+                newWidth = MinimumWindowWidth;
+
+            windowWidth = newWidth;
+
+            var clampedWidth = ClampWindowWidth(Screen.width * 0.13f);
+
+            WindowRect = WindowRect with
+            {
+                xMin = WindowRect.xMax - clampedWidth,
+            };
         }
     }
 
@@ -158,7 +181,7 @@ public partial class MainWindow : BaseWindow
 
             if (resizing)
             {
-                var minimumWindowWidth = Mathf.Max(MinimumWindowWidth, Utility.GetPix(MinimumWindowWidth));
+                var minimumWindowWidth = Mathf.Max(WindowWidth, Utility.GetPix(WindowWidth));
                 var xMin = Mathf.Max(0f, Mathf.Min(windowRect.xMax - minimumWindowWidth, Input.mousePosition.x - ResizeHandleSize / 2f));
                 var height = Mathf.Max(MinimumWindowHeight, Event.current.mousePosition.y + ResizeHandleSize / 2f);
 
@@ -206,7 +229,7 @@ public partial class MainWindow : BaseWindow
     }
 
     private float ClampWindowWidth(float width) =>
-        Mathf.Max(MinimumWindowWidth, Mathf.Min(Utility.GetPix(MinimumWindowWidth), width));
+        Mathf.Min(Screen.width - 20f, Mathf.Max(WindowWidth, Mathf.Min(Utility.GetPix(WindowWidth), width)));
 
     private void ChangeTab()
     {

@@ -16,6 +16,16 @@ public static class BepInExConfigExtensions
             defaultValue,
             new ConfigDescription(description, acceptableValues));
 
+    public static T Clamp<T>(this ConfigEntry<T> entry, T value)
+        where T : IComparable
+    {
+        _ = entry ?? throw new ArgumentNullException(nameof(entry));
+
+        return entry.Description?.AcceptableValues is AcceptableValueRange<T> range
+            ? (T)range.Clamp(value)
+            : value;
+    }
+
     public static T MinimumValue<T>(this ConfigEntry<T> entry)
         where T : IComparable
     {

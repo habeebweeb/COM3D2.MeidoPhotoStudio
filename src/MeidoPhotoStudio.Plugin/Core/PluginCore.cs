@@ -438,8 +438,12 @@ public partial class PluginCore : MonoBehaviour
 
         AddPluginActiveInputHandler(new MessageWindow.InputHandler(messageWindow, inputConfiguration));
 
+        var uiConfiguration = new UIConfiguration(configuration);
+
         var mainWindow = new MainWindow(tabSelectionController, customMaidSceneService, inputRemapper)
         {
+            WindowWidth = uiConfiguration.WindowWidth.Value,
+
             [Constants.Window.Call] = new CallWindowPane()
             {
                 new CharacterPlacementPane(new(characterService)),
@@ -522,6 +526,9 @@ public partial class PluginCore : MonoBehaviour
                 new AutoSaveSettingsPane(autoSaveConfiguration, autoSaveService),
             },
         };
+
+        // TODO: lol
+        mainWindow[Constants.Window.Settings].Add(new UISettingsPane(uiConfiguration, mainWindow));
 
         AddPluginActiveInputHandler(new MainWindow.InputHandler(mainWindow, inputConfiguration));
 

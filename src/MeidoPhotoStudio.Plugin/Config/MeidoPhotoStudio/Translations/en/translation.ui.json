@@ -705,6 +705,13 @@
     "saveButton": "Save",
     "resetButton": "Reset"
   },
+  "uiSettingsPane": {
+    "header": "UI",
+    "mainWindowWidthHeader": "Main window width",
+    "mainWindowWidthHint": "Width must be at least {0} units wide",
+    "saveButton": "Save",
+    "resetButton": "Reset"
+  },
   "transformControl": {
     "copyButton": "Copy",
     "pasteButton": "Paste",
