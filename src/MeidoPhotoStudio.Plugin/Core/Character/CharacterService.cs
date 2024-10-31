@@ -225,10 +225,10 @@ public class CharacterService(
 
     internal void Activate()
     {
-        if (!customMaidSceneService.EditScene)
-            return;
-
-        Call(new CharacterModel[] { editModeMaidService.OriginalEditingCharacter });
+        if (customMaidSceneService.EditScene)
+            Call(new CharacterModel[] { editModeMaidService.OriginalEditingCharacter });
+        else if (customMaidSceneService.OfficeScene)
+            GameMain.Instance.CharacterMgr.DeactivateMaid(0);
     }
 
     internal void Deactivate()
