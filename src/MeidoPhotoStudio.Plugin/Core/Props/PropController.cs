@@ -1,6 +1,7 @@
 using System.ComponentModel;
 
 using MeidoPhotoStudio.Plugin.Core.Database.Props;
+using MeidoPhotoStudio.Plugin.Core.Database.Props.Menu;
 using MeidoPhotoStudio.Plugin.Framework;
 using MeidoPhotoStudio.Plugin.Framework.Service;
 using UnityEngine.Rendering;
@@ -73,6 +74,27 @@ public class PropController : INotifyPropertyChanged
     internal void Destroy()
     {
         transformWatcher.Unsubscribe(GameObject.transform);
+
+        if (PropModel is MenuFilePropModel)
+        {
+            var renderer = GameObject.GetComponentInChildren<SkinnedMeshRenderer>();
+
+            if (renderer)
+            {
+                foreach (var material in renderer.materials)
+                {
+                    if (material)
+                    {
+                        Object.DestroyImmediate(material.mainTexture);
+                        Object.DestroyImmediate(material);
+                    }
+                }
+
+                Object.DestroyImmediate(renderer.sharedMesh);
+
+                Object.DestroyImmediate(renderer);
+            }
+        }
 
         Object.Destroy(GameObject);
     }

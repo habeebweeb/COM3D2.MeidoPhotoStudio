@@ -1,6 +1,5 @@
 using MeidoPhotoStudio.Plugin.Core.Database.Props.Menu;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
-using MeidoPhotoStudio.Plugin.Framework.Menu;
 using UnityEngine.Rendering;
 
 namespace MeidoPhotoStudio.Plugin.Core.Props;
@@ -47,8 +46,8 @@ public class MenuFilePropInstantiator
             if (!aFileBase.IsValid() || aFileBase.GetSize() is 0)
                 return null;
 
-            using var aFileBaseStream = new AFileBaseStream(aFileBase);
-            using var reader = new BinaryReader(aFileBaseStream, Encoding.UTF8);
+            using var memoryStream = aFileBase.OpenStream();
+            using var reader = new BinaryReader(memoryStream, Encoding.UTF8);
 
             if (reader.ReadString() is not "CM3D2_MESH")
                 return null;
@@ -379,22 +378,26 @@ public class MenuFilePropInstantiator
             foreach (var textureChange in materialTextureChanges)
                 foreach (var renderer in renderers)
                     if (textureChange.MaterialIndex < renderer.materials.Length)
-                        renderer.materials[textureChange.MaterialIndex].SetTexture(
-                            textureChange.MaterialPropertyName, LoadTexture(textureChange.TextureFilename));
+                    {
+                        var newTexture = ImportCM.CreateTexture(textureChange.TextureFilename);
 
-            static Texture2D LoadTexture(string filename)
-            {
-                var textureResource = ImportCM.LoadTexture(GameUty.FileSystem, filename, false);
+                        if (!newTexture)
+                            continue;
 
-                return textureResource.CreateTexture2D();
-            }
+                        var originalTexture = renderer.materials[textureChange.MaterialIndex].GetTexture(textureChange.MaterialPropertyName);
+
+                        if (originalTexture)
+                            Object.DestroyImmediate(originalTexture);
+
+                        renderer.materials[textureChange.MaterialIndex].SetTexture(textureChange.MaterialPropertyName, newTexture);
+                    }
         }
 
         static IList<Renderer> GetRenderers(GameObject gameObject) =>
             gameObject.transform
                 .GetComponentsInChildren<Transform>(true)
-                .Select(transform => transform.GetComponent<Renderer>())
-                .Where(renderer => renderer && renderer.material)
+                .Select(static transform => transform.GetComponent<Renderer>())
+                .Where(static renderer => renderer && renderer.material)
                 .ToList();
     }
 }
