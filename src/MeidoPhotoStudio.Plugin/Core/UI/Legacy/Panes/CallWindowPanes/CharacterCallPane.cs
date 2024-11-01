@@ -185,6 +185,7 @@ public class CharacterCallPane : BasePane, IVirtualListHandler
 
     protected override void ReloadTranslation()
     {
+        sortTypeDropdown.Reformat();
         clearSelectedButton.Label = Translation.Get("maidCallWindow", "clearButton");
         callButton.Label = Translation.Get("maidCallWindow", "callButton");
         activeCharacterToggle.Label = Translation.Get("maidCallWindow", "activeOnlyToggle");

@@ -281,6 +281,7 @@ public class ExpressionPane : BasePane
 
     protected override void ReloadTranslation()
     {
+        modifyShapeKeysToggle.Label = Translation.Get("expressionPane", "modifyShapeKeysToggle");
         deleteShapeKeysToggle.Label = Translation.Get("expressionPane", "deleteShapeKeysToggle");
 
         foreach (var (hashKey, control) in EyeHashes.Concat(MouthHashes).Concat(FaceHashes).Select(hashKey => (hashKey, controls[hashKey])))
