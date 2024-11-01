@@ -129,6 +129,8 @@ public partial class PluginCore : MonoBehaviour
         gizmoClickHandler.enabled = false;
         screenSizeChecker = gameObject.AddComponent<ScreenSizeChecker>();
         screenSizeChecker.enabled = false;
+
+        Initialize();
     }
 
     private void Update()
