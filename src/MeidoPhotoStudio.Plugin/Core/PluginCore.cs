@@ -91,7 +91,7 @@ public partial class PluginCore : MonoBehaviour
 
         customMaidSceneService = new();
 
-        SceneManager.activeSceneChanged += OnSceneChanged;
+        SceneManager.sceneUnloaded += OnSceneUnloaded;
     }
 
     private void OnDestroy()
@@ -101,7 +101,7 @@ public partial class PluginCore : MonoBehaviour
 
         GameMain.Instance.MainCamera.ResetCalcNearClip();
 
-        SceneManager.activeSceneChanged -= OnSceneChanged;
+        SceneManager.sceneUnloaded -= OnSceneUnloaded;
 
         iconCache.Destroy();
 
@@ -710,6 +710,8 @@ public partial class PluginCore : MonoBehaviour
             propService.Clear();
             undoRedoService.Clear();
 
+            transformWatcher.Clear();
+
             Modal.Close();
 
             configuration.Save();
@@ -727,7 +729,7 @@ public partial class PluginCore : MonoBehaviour
         }
     }
 
-    private void OnSceneChanged(Scene current, Scene next)
+    private void OnSceneUnloaded(Scene arg0)
     {
         if (active)
             Deactivate(true);

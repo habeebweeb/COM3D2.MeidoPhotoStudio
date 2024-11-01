@@ -33,9 +33,12 @@ public class LightController : INotifyPropertyChanged
 
     public bool Enabled
     {
-        get => Light.enabled;
+        get => Light && Light.enabled;
         set
         {
+            if (!Light)
+                return;
+
             Light.enabled = value;
 
             RaisePropertyChanged(nameof(Enabled));
@@ -44,15 +47,24 @@ public class LightController : INotifyPropertyChanged
 
     public Vector3 Position
     {
-        get => Light.transform.position;
-        set => Light.transform.position = value;
+        get => Light ? Light.transform.position : Vector3.zero;
+        set
+        {
+            if (!Light)
+                return;
+
+            Light.transform.position = value;
+        }
     }
 
     public Quaternion Rotation
     {
-        get => Light.transform.rotation;
+        get => Light ? Light.transform.rotation : Quaternion.identity;
         set
         {
+            if (!Light)
+                return;
+
             Light.transform.rotation = value;
             CurrentLightProperties = CurrentLightProperties with { Rotation = value };
         }
@@ -60,9 +72,12 @@ public class LightController : INotifyPropertyChanged
 
     public float Intensity
     {
-        get => Light.intensity;
+        get => Light ? Light.intensity : 0f;
         set
         {
+            if (!Light)
+                return;
+
             Light.intensity = value;
             CurrentLightProperties = CurrentLightProperties with { Intensity = value };
 
@@ -72,9 +87,12 @@ public class LightController : INotifyPropertyChanged
 
     public float Range
     {
-        get => Light.range;
+        get => Light ? Light.range : 0f;
         set
         {
+            if (!Light)
+                return;
+
             Light.range = value;
             CurrentLightProperties = CurrentLightProperties with { Range = value };
 
@@ -84,9 +102,12 @@ public class LightController : INotifyPropertyChanged
 
     public float SpotAngle
     {
-        get => Light.spotAngle;
+        get => Light ? Light.spotAngle : 0f;
         set
         {
+            if (!Light)
+                return;
+
             Light.spotAngle = value;
             CurrentLightProperties = CurrentLightProperties with { SpotAngle = value };
 
@@ -96,9 +117,12 @@ public class LightController : INotifyPropertyChanged
 
     public float ShadowStrength
     {
-        get => Light.shadowStrength;
+        get => Light ? Light.shadowStrength : 0f;
         set
         {
+            if (!Light)
+                return;
+
             Light.shadowStrength = value;
             CurrentLightProperties = CurrentLightProperties with { ShadowStrength = value };
 
@@ -108,9 +132,12 @@ public class LightController : INotifyPropertyChanged
 
     public Color Colour
     {
-        get => Light.color;
+        get => Light ? Light.color : Color.white;
         set
         {
+            if (!Light)
+                return;
+
             Light.color = value;
             CurrentLightProperties = CurrentLightProperties with { Colour = value };
 
@@ -120,11 +147,14 @@ public class LightController : INotifyPropertyChanged
 
     public LightType Type
     {
-        get => Light.type;
+        get => Light ? Light.type : LightType.Directional;
         set
         {
             if (!ValidLightType(value))
                 throw new NotSupportedException($"{value} is not supported");
+
+            if (!Light)
+                return;
 
             if (Light.type == value)
                 return;
@@ -191,8 +221,13 @@ public class LightController : INotifyPropertyChanged
         }
     }
 
-    internal void Destroy() =>
+    internal void Destroy()
+    {
+        if (!Light)
+            return;
+
         transformWatcher.Unsubscribe(Light.transform);
+    }
 
     private static int LightPropertiesIndex(LightType lightType) =>
         lightType switch

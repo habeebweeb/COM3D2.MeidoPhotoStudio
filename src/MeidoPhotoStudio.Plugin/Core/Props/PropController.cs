@@ -60,10 +60,15 @@ public class PropController : INotifyPropertyChanged
     }
 
     private IEnumerable<Renderer> Renderers =>
-        GameObject.GetComponentsInChildren<Renderer>();
+        GameObject
+            ? GameObject.GetComponentsInChildren<Renderer>()
+            : [];
 
     public void Focus()
     {
+        if (!GameObject)
+            return;
+
         var propPosition = GameObject.transform.position;
         var cameraAngle = GameMain.Instance.MainCamera.transform.eulerAngles;
         var cameraDistance = GameMain.Instance.MainCamera.GetDistance();
@@ -73,6 +78,9 @@ public class PropController : INotifyPropertyChanged
 
     internal void Destroy()
     {
+        if (!GameObject)
+            return;
+
         transformWatcher.Unsubscribe(GameObject.transform);
 
         if (PropModel is MenuFilePropModel)

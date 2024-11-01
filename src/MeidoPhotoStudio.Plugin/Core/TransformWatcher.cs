@@ -37,6 +37,14 @@ public class TransformWatcher : MonoBehaviour
             enabled = false;
     }
 
+    internal void Clear()
+    {
+        subscribedTransforms.Clear();
+        transformBackups.Clear();
+
+        enabled = false;
+    }
+
     private void LateUpdate()
     {
         foreach (var (transform, callback) in subscribedTransforms)

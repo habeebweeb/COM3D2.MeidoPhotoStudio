@@ -286,6 +286,9 @@ public class PropManagerPane : BasePane
         gizmoToggle.SetEnabledWithoutNotify(dragHandleController.GizmoEnabled);
         gizmoMode.SetValueWithoutNotify((int)dragHandleController.GizmoMode);
 
+        if (!CurrentProp.GameObject)
+            return;
+
         var propTransform = CurrentProp.GameObject.transform;
 
         positionTransformControl.SetValueWithoutNotify(propTransform.position);
