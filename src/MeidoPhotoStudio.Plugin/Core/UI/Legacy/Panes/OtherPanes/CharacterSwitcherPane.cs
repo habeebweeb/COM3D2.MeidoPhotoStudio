@@ -80,9 +80,15 @@ public class CharacterSwitcherPane : BasePane
 
         if (customMaidSceneService.EditScene)
         {
+            var originalColour = GUI.color;
+
             GUI.enabled = guiEnabled && characterSelectionController.Current?.CharacterModel != editModeMaidService.EditingCharacter;
 
+            GUI.color = originalColour with { a = 2f };
+
             editToggle.Draw();
+
+            GUI.color = originalColour;
 
             GUI.enabled = guiEnabled;
         }
