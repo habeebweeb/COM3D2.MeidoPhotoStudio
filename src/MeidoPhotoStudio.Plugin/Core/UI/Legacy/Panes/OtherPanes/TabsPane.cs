@@ -14,6 +14,7 @@ public class TabsPane : BasePane
     ];
 
     private readonly SelectionGrid tabs;
+    private readonly LazyStyle tabsStyle = new(13, static () => new(GUI.skin.button));
 
     private Constants.Window selectedTab;
 
@@ -47,7 +48,7 @@ public class TabsPane : BasePane
 
     public override void Draw()
     {
-        tabs.Draw();
+        tabs.Draw(tabsStyle);
         MpsGui.BlackLine();
     }
 

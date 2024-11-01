@@ -14,6 +14,7 @@ public class CharacterPane : BasePane
 
     private readonly Label noCharactersLabel;
     private readonly SelectionGrid tabs;
+    private readonly LazyStyle tabStyle = new(13, static () => new(GUI.skin.button));
     private readonly LazyStyle labelStyle = new(
         13,
         () => new(GUI.skin.label)
@@ -60,7 +61,7 @@ public class CharacterPane : BasePane
             return;
         }
 
-        tabs.Draw();
+        tabs.Draw(tabStyle);
         MpsGui.WhiteLine();
 
         currentTab.Draw();
