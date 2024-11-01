@@ -55,18 +55,6 @@ public abstract class CharacterDragHandleController : DragHandleControllerBase, 
         }
     }
 
-    public override bool Enabled
-    {
-        get => base.Enabled && IKEnabled;
-        set => base.Enabled = value;
-    }
-
-    public override bool GizmoEnabled
-    {
-        get => base.GizmoEnabled && IKEnabled;
-        set => base.GizmoEnabled = value;
-    }
-
     public bool IKEnabled
     {
         get =>
@@ -79,8 +67,6 @@ public abstract class CharacterDragHandleController : DragHandleControllerBase, 
                 throw new InvalidOperationException("Drag handle controller is destroyed.");
 
             iKEnabled = value;
-            Enabled = value;
-            GizmoEnabled = value;
 
             CurrentMode.OnModeEnter();
         }
@@ -171,28 +157,16 @@ public abstract class CharacterDragHandleController : DragHandleControllerBase, 
             controller.ApplyBackupBoneRotations();
     }
 
+    // TODO: Refactor various controls with a "none" mode to use this instead
     protected class IgnoreMode(CharacterDragHandleController controller)
         : PoseableMode(controller)
     {
         private readonly CharacterDragHandleController controller = controller;
 
-        private bool exiting;
-
         public override void OnModeEnter()
         {
-            if (exiting)
-                return;
-
-            controller.Enabled = false;
-            controller.GizmoEnabled = false;
-        }
-
-        public override void OnModeExit()
-        {
-            exiting = true;
-            controller.Enabled = true;
-            controller.GizmoEnabled = true;
-            exiting = false;
+            controller.DragHandleActive = false;
+            controller.GizmoActive = false;
         }
     }
 }

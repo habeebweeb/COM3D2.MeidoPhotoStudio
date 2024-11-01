@@ -15,6 +15,7 @@ public class LowerLimbDragHandleController(
 {
     private DragHandleMode drag;
     private RotateMode rotate;
+    private RotateBoneMode rotateBone;
     private RotateAlternateMode rotateAlternate;
     private DragMode constrained;
 
@@ -22,10 +23,12 @@ public class LowerLimbDragHandleController(
         drag ??= new DragMode(this, Chain);
 
     public DragHandleMode Rotate =>
-        rotate ??= new RotateMode(this, Bone.name.EndsWith("Foot"));
+        BoneMode
+            ? rotateBone ??= new(this)
+            : rotate ??= new(this, Bone.name.EndsWith("Foot"));
 
     public DragHandleMode RotateAlternate =>
-        rotateAlternate ??= new RotateAlternateMode(this);
+        BoneMode ? Ignore : rotateAlternate ??= new RotateAlternateMode(this);
 
     public DragHandleMode Constrained =>
         constrained ??= new DragMode(this, [Bone.parent, Bone]);
@@ -53,12 +56,10 @@ public class LowerLimbDragHandleController(
 
         public override void OnModeEnter()
         {
-            controller.DragHandleActive = !controller.BoneMode;
+            controller.DragHandleActive = true;
             controller.DragHandle.MovementType = DragHandle.MoveType.None;
             controller.DragHandle.Visible = controller.BoneMode;
-            controller.GizmoActive = controller.BoneMode;
-            controller.GizmoMode = CustomGizmo.GizmoMode.Local;
-            controller.Gizmo.CurrentGizmoType = CustomGizmo.GizmoType.Rotate;
+            controller.GizmoActive = false;
             controller.IKController.LockSolver();
         }
 
@@ -75,6 +76,19 @@ public class LowerLimbDragHandleController(
 
             controller.Bone.Rotate(Vector3.forward, invert * deltaY * 7f);
             controller.Bone.Rotate(Vector3.up, invert * deltaX * 7f);
+        }
+    }
+
+    private class RotateBoneMode(LowerLimbDragHandleController controller)
+        : PoseableMode(controller)
+    {
+        public override void OnModeEnter()
+        {
+            controller.DragHandleActive = false;
+            controller.GizmoActive = true;
+            controller.GizmoMode = CustomGizmo.GizmoMode.Local;
+            controller.Gizmo.CurrentGizmoType = CustomGizmo.GizmoType.Rotate;
+            controller.IKController.LockSolver();
         }
 
         public override void OnGizmoClicked()

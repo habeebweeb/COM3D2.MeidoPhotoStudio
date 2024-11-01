@@ -29,6 +29,13 @@ public class HeadDragHandleController(
     private RotateMode rotate;
     private RotateEyesMode rotateEyes;
 
+    public override bool Enabled
+    {
+        set
+        {
+        }
+    }
+
     public DragHandleMode None =>
         none ??= new NoneMode(this);
 
@@ -36,13 +43,19 @@ public class HeadDragHandleController(
         select ??= new SelectMode(this);
 
     public DragHandleMode Rotate =>
-        BoneMode ? none : rotate ??= new RotateMode(this);
+        (!IKEnabled || BoneMode)
+            ? none
+            : rotate ??= new RotateMode(this);
 
     public DragHandleMode RotateAlternate =>
-        BoneMode ? none : rotateAlternate ??= new RotateAlternateMode(this);
+        (!IKEnabled || BoneMode)
+            ? none
+            : rotateAlternate ??= new RotateAlternateMode(this);
 
     public DragHandleMode RotateEyes =>
-        rotateEyes ??= new RotateEyesMode(this);
+        IKEnabled
+            ? rotateEyes ??= new RotateEyesMode(this)
+            : None;
 
     protected override Transform[] Transforms { get; } = [neckBone];
 

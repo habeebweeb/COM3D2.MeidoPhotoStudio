@@ -30,23 +30,23 @@ public class CharacterGeneralDragHandleController : GeneralDragHandleController,
         TransformBackup = new(Space.World, Vector3.zero, Quaternion.identity, Vector3.one);
     }
 
+    public override bool Enabled
+    {
+        get => !IsCube || base.Enabled;
+        set
+        {
+            if (!IsCube)
+                return;
+
+            base.Enabled = value;
+        }
+    }
+
     public bool IsCube { get; init; }
 
     public bool ScalesWithCharacter { get; init; }
 
     public bool BoneMode { get; set; }
-
-    public override bool Enabled
-    {
-        get => base.Enabled && IKEnabled;
-        set => base.Enabled = value;
-    }
-
-    public override bool GizmoEnabled
-    {
-        get => base.GizmoEnabled && IKEnabled;
-        set => base.GizmoEnabled = value;
-    }
 
     public float HandleSize
     {
@@ -79,28 +79,41 @@ public class CharacterGeneralDragHandleController : GeneralDragHandleController,
     {
         get => Destroyed
             ? throw new InvalidOperationException("Drag handle controller is destroyed.")
-            : IsCube || ikEnabled;
+            : ikEnabled;
         set
         {
             if (Destroyed)
                 throw new InvalidOperationException("Drag handle controller is destroyed.");
 
-            if (IsCube)
-                return;
-
             ikEnabled = value;
-            Enabled = ikEnabled;
-            GizmoEnabled = ikEnabled;
 
             CurrentMode.OnModeEnter();
         }
     }
 
-    public override DragHandleMode Delete =>
-        None;
+    public override DragHandleMode MoveWorldXZ =>
+        IKEnabled ? base.MoveWorldXZ : None;
+
+    public override DragHandleMode MoveWorldY =>
+        IKEnabled ? base.MoveWorldY : None;
+
+    public override DragHandleMode RotateLocalXZ =>
+        IKEnabled ? base.RotateLocalXZ : None;
+
+    public override DragHandleMode RotateWorldY =>
+        IKEnabled ? base.RotateWorldY : None;
+
+    public override DragHandleMode RotateLocalY =>
+        IKEnabled ? base.RotateLocalY : None;
+
+    public override DragHandleMode Scale =>
+        IKEnabled ? base.Scale : None;
 
     public override DragHandleMode Select =>
-        IKEnabled ? select ??= new CharacterSelectMode(this) : None;
+        select ??= new CharacterSelectMode(this);
+
+    public override DragHandleMode Delete =>
+        None;
 
     protected override void OnDestroying() =>
         character.ChangedTransform -= OnTransformChanged;

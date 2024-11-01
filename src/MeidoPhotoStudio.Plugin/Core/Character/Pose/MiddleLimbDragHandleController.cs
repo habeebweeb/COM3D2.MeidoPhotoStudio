@@ -21,7 +21,7 @@ public class MiddleLimbDragHandleController(
         drag ??= new DragMode(this, Chain);
 
     public DragHandleMode Rotate =>
-        rotate ??= new RotateMode(this);
+        BoneMode ? Ignore : rotate ??= new RotateMode(this);
 
     public DragHandleMode RotateBone =>
         rotateBone ??= new RotateBoneMode(this);

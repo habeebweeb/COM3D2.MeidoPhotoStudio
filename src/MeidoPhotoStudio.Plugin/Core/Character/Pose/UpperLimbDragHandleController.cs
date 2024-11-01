@@ -15,12 +15,15 @@ public class UpperLimbDragHandleController(
 {
     private DragHandleMode drag;
     private RotateMode rotate;
+    private RotateBoneMode rotateBone;
 
     public override DragHandleMode Drag =>
         drag ??= new DragMode(this, Chain);
 
     public DragHandleMode Rotate =>
-        rotate ??= new RotateMode(this);
+        BoneMode
+            ? rotateBone ??= new(this)
+            : rotate ??= new(this);
 
     protected override Transform[] Chain { get; } = [bone.parent, bone];
 
@@ -43,11 +46,11 @@ public class UpperLimbDragHandleController(
 
         public override void OnModeEnter()
         {
-            controller.DragHandleActive = !controller.BoneMode;
+            controller.DragHandleActive = true;
             controller.DragHandle.MovementType = DragHandle.MoveType.None;
             controller.DragHandle.Visible = controller.BoneMode;
-            controller.GizmoActive = controller.BoneMode;
-            controller.Gizmo.CurrentGizmoType = CustomGizmo.GizmoType.Rotate;
+            controller.GizmoActive = false;
+            controller.IKController.LockSolver();
         }
 
         public override void OnClicked()
@@ -63,6 +66,26 @@ public class UpperLimbDragHandleController(
             var (deltaX, _) = MouseDelta;
 
             parent.Rotate(Vector3.right, -deltaX * 7f);
+        }
+
+        public override void OnGizmoClicked()
+        {
+            base.OnGizmoClicked();
+
+            controller.AnimationController.Playing = false;
+        }
+    }
+
+    private class RotateBoneMode(UpperLimbDragHandleController controller)
+        : PoseableMode(controller)
+    {
+        public override void OnModeEnter()
+        {
+            controller.DragHandleActive = false;
+            controller.GizmoActive = true;
+            controller.GizmoMode = CustomGizmo.GizmoMode.Local;
+            controller.Gizmo.CurrentGizmoType = CustomGizmo.GizmoType.Rotate;
+            controller.IKController.LockSolver();
         }
 
         public override void OnGizmoClicked()
