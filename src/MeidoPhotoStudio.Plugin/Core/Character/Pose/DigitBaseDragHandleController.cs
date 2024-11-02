@@ -43,7 +43,7 @@ public class DigitBaseDragHandleController : CharacterIKDragHandleController
         digitIndex == (isFoot ? 1 : 3) ? Drag : None;
 
     public DragHandleMode Drag3 =>
-        digitIndex is 2 && !isFoot ? Drag : None;
+        digitIndex is 2 ? Drag : None;
 
     public DragHandleMode Drag4 =>
         digitIndex is 1 && !isFoot ? Drag : None;
