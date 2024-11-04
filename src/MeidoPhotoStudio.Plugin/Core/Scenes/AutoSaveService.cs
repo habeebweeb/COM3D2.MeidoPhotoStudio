@@ -142,7 +142,7 @@ public class AutoSaveService
 
             screenshotService.TakeScreenshotToTexture(
                 screenshot => OnScreenshotTaken(screenshot, CurrentSceneModel),
-                new(true, true));
+                new(true, true, false));
         }
 
         void OnScreenshotTaken(Texture2D screenshot, SceneModel existingScene)

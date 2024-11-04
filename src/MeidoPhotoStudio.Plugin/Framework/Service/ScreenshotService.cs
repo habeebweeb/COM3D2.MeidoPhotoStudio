@@ -128,7 +128,8 @@ public class ScreenshotService : MonoBehaviour
             throw;
         }
 
-        PlayScreenshotSound();
+        if (screenshotOptions.PlaySound)
+            PlayScreenshotSound();
 
         yield return new WaitForEndOfFrame();
 
