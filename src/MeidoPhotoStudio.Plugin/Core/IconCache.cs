@@ -6,6 +6,8 @@ namespace MeidoPhotoStudio.Plugin.Core;
 
 public class IconCache
 {
+    private static readonly Dictionary<string, Texture2D> TextureCache = new(StringComparer.OrdinalIgnoreCase);
+
     private readonly Dictionary<MPN, Dictionary<int, Texture2D>> menuTextureCache = new(EnumEqualityComparer<MPN>.Instance);
     private readonly Dictionary<int, Dictionary<int, Texture>> myRoomTextureCache = [];
 
@@ -39,9 +41,14 @@ public class IconCache
 
             static bool TryCreateTexture(string filename, out Texture2D texture)
             {
+                if (TextureCache.TryGetValue(filename, out texture))
+                    return true;
+
                 try
                 {
                     texture = ImportCM.CreateTexture(filename);
+
+                    TextureCache[filename] = texture;
 
                     return true;
                 }
@@ -89,7 +96,11 @@ public class IconCache
         foreach (var texture in myRoomTextureCache.Values.SelectMany(cache => cache.Values))
             Object.DestroyImmediate(texture);
 
+        foreach (var texture in TextureCache.Values.Where(texture => texture))
+            Object.DestroyImmediate(texture);
+
         menuTextureCache.Clear();
         myRoomTextureCache.Clear();
+        TextureCache.Clear();
     }
 }
