@@ -376,11 +376,12 @@ public class BlendSetSelectorPane : BasePane
         {
             blendSetSourceGrid.SetValueWithoutNotify(blendSetSource);
 
-            var categoryIndex = GetCategoryIndex(blendSet);
-            var custom = blendSetSourceGrid.SelectedItemIndex is CustomBlendSet;
+            blendSetCategoryDropdown.SetItemsWithoutNotify(BlendSetCategoryList(blendSet.Custom));
+            blendSetCategoryDropdown.Formatter = GetBlendSetCategoryFormatter(blendSet.Custom);
 
-            blendSetCategoryDropdown.SetItemsWithoutNotify(BlendSetCategoryList(blendSet.Custom), categoryIndex);
-            blendSetCategoryDropdown.Formatter = GetBlendSetCategoryFormatter(custom);
+            var categoryIndex = GetCategoryIndex(blendSet);
+
+            blendSetCategoryDropdown.SetSelectedIndexWithoutNotify(categoryIndex);
 
             var newBlendSets = BlendSetList(blendSet.Custom);
             var blendSetIndex = GetBlendSetIndex(newBlendSets, blendSet);

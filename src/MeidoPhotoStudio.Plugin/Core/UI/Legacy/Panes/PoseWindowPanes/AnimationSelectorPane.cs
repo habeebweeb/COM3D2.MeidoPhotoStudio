@@ -424,11 +424,12 @@ public class AnimationSelectorPane : BasePane
         {
             animationSourceGrid.SetValueWithoutNotify(animationSource);
 
-            var categoryIndex = GetCategoryIndex(animation);
-            var custom = animationSourceGrid.SelectedItemIndex is CustomAnimation;
+            animationCategoryDropdown.SetItemsWithoutNotify(AnimationCategoryList(animation.Custom));
+            animationCategoryDropdown.Formatter = GetAnimationCategoryFormatter(animation.Custom);
 
-            animationCategoryDropdown.SetItemsWithoutNotify(AnimationCategoryList(animation.Custom), categoryIndex);
-            animationCategoryDropdown.Formatter = GetAnimationCategoryFormatter(custom);
+            var categoryIndex = GetCategoryIndex(animation);
+
+            animationCategoryDropdown.SetSelectedIndexWithoutNotify(categoryIndex);
 
             var newAnimationList = AnimationList(animation.Custom);
             var animationIndex = GetAnimationIndex(newAnimationList, animation);
