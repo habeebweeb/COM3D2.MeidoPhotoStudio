@@ -206,7 +206,7 @@ public class AnimationPane : BasePane
     }
 
     private void UpdateSliderRange() =>
-        animationSlider.Right = CurrentAnimation.Length - 0.0001f;
+        animationSlider.SetRightBoundWithoutNotify(CurrentAnimation.Length - 0.0001f);
 
     private void OnPlayPauseButtonPushed(object sender, EventArgs e)
     {
