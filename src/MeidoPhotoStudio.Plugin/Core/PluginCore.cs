@@ -254,7 +254,6 @@ public partial class PluginCore : MonoBehaviour
             new ShapeKeyRangeSerializer(Path.Combine(databasePath, "face_shapekey_range.json")));
 
         messageWindowManager = new();
-        messageWindowManager.Activate();
 
         // TODO: Game hangs when first initializing. This happened before too but was hidden because MPS was initialized
         // while the game was starting up so you don't really notice.
