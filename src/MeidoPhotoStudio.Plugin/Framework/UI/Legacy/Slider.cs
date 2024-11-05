@@ -84,21 +84,13 @@ public class Slider : BaseControl
     public float Left
     {
         get => left;
-        set
-        {
-            left = value;
-            Value = this.value;
-        }
+        set => SetBounds(left: value);
     }
 
     public float Right
     {
         get => right;
-        set
-        {
-            right = value;
-            Value = this.value;
-        }
+        set => SetBounds(right: value);
     }
 
     public float DefaultValue
@@ -196,6 +188,18 @@ public class Slider : BaseControl
     public void SetValueWithoutNotify(float value) =>
         SetValue(value, false);
 
+    public void SetBounds(float left, float right) =>
+        SetBounds(left, right, true);
+
+    public void SetBoundsWithoutNotify(float left, float right) =>
+        SetBounds(left, right, false);
+
+    public void SetLeftBoundWithoutNotify(float left) =>
+        SetBounds(left: left, notify: false);
+
+    public void SetRightBoundWithoutNotify(float right) =>
+        SetBounds(right: right, notify: false);
+
     public void ResetValue() =>
         Value = DefaultValue;
 
@@ -212,6 +216,17 @@ public class Slider : BaseControl
 
         if (notify)
             OnControlEvent(EventArgs.Empty);
+    }
+
+    private void SetBounds(float? left = null, float? right = null, bool notify = true)
+    {
+        if (left.HasValue)
+            this.left = (float)left;
+
+        if (right.HasValue)
+            this.right = (float)right;
+
+        SetValue(value, notify);
     }
 
     private void TextFieldInputChangedHandler(object sender, EventArgs e) =>
