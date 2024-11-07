@@ -22,6 +22,7 @@ public class AnimationSelectorPane : BasePane
     private readonly CustomAnimationRepository customAnimationRepository;
     private readonly CharacterUndoRedoService characterUndoRedoService;
     private readonly SelectionController<CharacterController> characterSelectionController;
+    private readonly CustomAnimationRepositorySorter customAnimationRepositorySorter;
     private readonly PaneHeader paneHeader;
     private readonly Framework.UI.Legacy.ComboBox animationCategoryComboBox;
     private readonly TextField animationNameTextField;
@@ -42,12 +43,14 @@ public class AnimationSelectorPane : BasePane
         GameAnimationRepository gameAnimationRepository,
         CustomAnimationRepository customAnimationRepository,
         CharacterUndoRedoService characterUndoRedoService,
-        SelectionController<CharacterController> characterSelectionController)
+        SelectionController<CharacterController> characterSelectionController,
+        CustomAnimationRepositorySorter customAnimationRepositorySorter)
     {
         this.gameAnimationRepository = gameAnimationRepository ?? throw new ArgumentNullException(nameof(gameAnimationRepository));
         this.customAnimationRepository = customAnimationRepository ?? throw new ArgumentNullException(nameof(customAnimationRepository));
         this.characterUndoRedoService = characterUndoRedoService ?? throw new ArgumentNullException(nameof(characterUndoRedoService));
         this.characterSelectionController = characterSelectionController ?? throw new ArgumentNullException(nameof(characterSelectionController));
+        this.customAnimationRepositorySorter = customAnimationRepositorySorter ?? throw new ArgumentNullException(nameof(customAnimationRepositorySorter));
 
         this.customAnimationRepository.AddedAnimation += OnAnimationAdded;
         this.customAnimationRepository.Refreshed += OnCustomAnimationRepositoryRefreshed;
@@ -534,9 +537,7 @@ public class AnimationSelectorPane : BasePane
     }
 
     private IEnumerable<string> AnimationCategoryList(bool custom) =>
-        custom ? customAnimationRepository.Categories
-            .OrderBy(category => !string.Equals(category, customAnimationRepository.RootCategoryName, StringComparison.Ordinal))
-            .ThenBy(category => category, new WindowsLogicalStringComparer()) :
+        custom ? customAnimationRepositorySorter.GetCategories(customAnimationRepository) :
         gameAnimationRepository.Busy ? [] :
         gameAnimationRepository.Categories;
 
@@ -549,8 +550,8 @@ public class AnimationSelectorPane : BasePane
             gameAnimationRepository[animationCategoryDropdown.SelectedItem].Cast<IAnimationModel>();
 
         IEnumerable<IAnimationModel> GetCustomAnimtions() =>
-            animationCategoryDropdown.Any() ? customAnimationRepository[animationCategoryDropdown.SelectedItem]
-                .OrderBy(model => model.Name, new WindowsLogicalStringComparer())
+            animationCategoryDropdown.Any() ? customAnimationRepositorySorter.GetAnimations(
+                animationCategoryDropdown.SelectedItem, customAnimationRepository)
                 .Cast<IAnimationModel>() :
             [];
     }

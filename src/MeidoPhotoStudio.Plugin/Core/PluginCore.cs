@@ -439,6 +439,8 @@ public partial class PluginCore : MonoBehaviour
 
         AddPluginActiveInputHandler(new MessageWindow.InputHandler(messageWindow, inputConfiguration));
 
+        var customAnimationRepositorySorter = new CustomAnimationRepositorySorter(customAnimationRepository.RootCategoryName);
+
         var uiConfiguration = new UIConfiguration(configuration);
 
         var mainWindow = new MainWindow(tabSelectionController, customMaidSceneService, inputRemapper)
@@ -458,7 +460,7 @@ public partial class PluginCore : MonoBehaviour
                 {
                     [CharacterPane.CharacterWindowTab.Pose] =
                     [
-                        new AnimationSelectorPane(gameAnimationRepository, customAnimationRepository, characterUndoRedoService, characterSelectionController),
+                        new AnimationSelectorPane(gameAnimationRepository, customAnimationRepository, characterUndoRedoService, characterSelectionController, customAnimationRepositorySorter),
                         new IKPane(ikDragHandleService, characterUndoRedoService,  characterSelectionController),
                         new AnimationPane(characterUndoRedoService, characterSelectionController),
                         new FreeLookPane(characterSelectionController),
