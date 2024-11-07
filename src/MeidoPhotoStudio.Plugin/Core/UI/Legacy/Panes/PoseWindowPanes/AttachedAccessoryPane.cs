@@ -207,7 +207,7 @@ public class AttachedAccessoryPane : BasePane
 
         accessoryIndex = accessoryDropdown
             .Skip(1)
-            .IndexOf(accessory => string.Equals(accessory.ID, changedAccessory.ID, StringComparison.OrdinalIgnoreCase));
+            .FindIndex(accessory => string.Equals(accessory.ID, changedAccessory.ID, StringComparison.OrdinalIgnoreCase));
 
         if (accessoryIndex < 0)
             return;
@@ -233,7 +233,7 @@ public class AttachedAccessoryPane : BasePane
 
         var accessoryIndex = accessoryDropdown
             .Skip(1)
-            .IndexOf(accessory => string.Equals(accessory.ID, currentAccessory.ID, StringComparison.OrdinalIgnoreCase));
+            .FindIndex(accessory => string.Equals(accessory.ID, currentAccessory.ID, StringComparison.OrdinalIgnoreCase));
 
         if (accessoryIndex < 0)
             return;

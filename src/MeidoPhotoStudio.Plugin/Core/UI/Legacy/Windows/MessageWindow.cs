@@ -179,7 +179,7 @@ public partial class MessageWindow : BaseWindow
         else if (e.PropertyName is nameof(MessageWindowManager.MessageAlignment))
         {
             alignmentDropdown.SetSelectedIndexWithoutNotify(
-                alignmentDropdown.IndexOf(alignment => alignment == messageWindowManager.MessageAlignment));
+                alignmentDropdown.FindIndex(alignment => alignment == messageWindowManager.MessageAlignment));
 
             textAreaStyle.TrySet(style => style.alignment = NGUIAlignmentToTextAnchor(messageWindowManager.MessageAlignment));
         }

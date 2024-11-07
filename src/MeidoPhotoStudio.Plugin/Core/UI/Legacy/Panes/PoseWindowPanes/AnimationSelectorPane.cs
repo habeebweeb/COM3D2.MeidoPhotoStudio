@@ -288,8 +288,8 @@ public class AnimationSelectorPane : BasePane
         if (!animationCategoryDropdown.Contains(e.Animation.Category))
             animationCategoryDropdown.SetItemsWithoutNotify(AnimationCategoryList(e.Animation.Custom));
 
-        var currentCategoryIndex = animationCategoryDropdown
-            .IndexOf(category => string.Equals(category, currentCategory, StringComparison.Ordinal));
+        var currentCategoryIndex = animationCategoryDropdown.FindIndex(
+            category => string.Equals(category, currentCategory, StringComparison.Ordinal));
 
         animationCategoryDropdown.SetSelectedIndexWithoutNotify(currentCategoryIndex);
 
@@ -300,8 +300,8 @@ public class AnimationSelectorPane : BasePane
 
         animationDropdown.SetItemsWithoutNotify(AnimationList(e.Animation.Custom));
 
-        var currentAnimationIndex = animationDropdown
-            .IndexOf(animation => animation.Equals(currentAnimation));
+        var currentAnimationIndex = animationDropdown.FindIndex(
+            animation => animation.Equals(currentAnimation));
 
         animationDropdown.SetSelectedIndexWithoutNotify(currentAnimationIndex);
     }
@@ -318,7 +318,7 @@ public class AnimationSelectorPane : BasePane
 
             animationCategoryComboBox.SetItems(newCategories);
 
-            var categoryIndex = newCategories.IndexOf(category => string.Equals(currentCategory, category, StringComparison.Ordinal));
+            var categoryIndex = newCategories.FindIndex(category => string.Equals(currentCategory, category, StringComparison.Ordinal));
 
             if (categoryIndex < 0)
             {
@@ -333,7 +333,7 @@ public class AnimationSelectorPane : BasePane
             var currentAnimationModel = animationDropdown.SelectedItem;
 
             var newAnimations = AnimationList(custom: true).ToArray();
-            var animationIndex = newAnimations.IndexOf(animation => animation == currentAnimationModel);
+            var animationIndex = newAnimations.FindIndex(animation => animation == currentAnimationModel);
 
             if (animationIndex < 0)
                 animationIndex = 0;
@@ -456,7 +456,7 @@ public class AnimationSelectorPane : BasePane
 
         int GetCategoryIndex(IAnimationModel currentAnimation)
         {
-            var categoryIndex = animationCategoryDropdown.IndexOf(category =>
+            var categoryIndex = animationCategoryDropdown.FindIndex(category =>
                 string.Equals(category, currentAnimation.Category, StringComparison.OrdinalIgnoreCase));
 
             return categoryIndex < 0 ? 0 : categoryIndex;
@@ -471,7 +471,7 @@ public class AnimationSelectorPane : BasePane
                 return customAnimationRepository.ContainsCategory(currentAnimation.Category)
                     ? animationList
                         .Cast<CustomAnimationModel>()
-                        .IndexOf(animation => animation.ID == customAnimation.ID)
+                        .FindIndex(animation => animation.ID == customAnimation.ID)
                     : 0;
             }
             else
@@ -481,7 +481,7 @@ public class AnimationSelectorPane : BasePane
                 return gameAnimationRepository.ContainsCategory(currentAnimation.Category)
                     ? animationList
                         .Cast<GameAnimationModel>()
-                        .IndexOf(animation => string.Equals(animation.ID, gameAnimation.ID, StringComparison.OrdinalIgnoreCase))
+                        .FindIndex(animation => string.Equals(animation.ID, gameAnimation.ID, StringComparison.OrdinalIgnoreCase))
                     : 0;
             }
         }

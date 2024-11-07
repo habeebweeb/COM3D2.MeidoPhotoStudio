@@ -53,7 +53,7 @@ public static class EnumerableExtensions
             yield return (index++, enumerator.Current);
     }
 
-    public static int IndexOf<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
+    public static int FindIndex<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
     {
         if (source == null)
             throw new ArgumentNullException(nameof(source));

@@ -242,7 +242,7 @@ public class BlendSetSelectorPane : BasePane
         }
 
         var currentCategoryIndex = blendSetCategoryDropdown
-            .IndexOf(category => string.Equals(category, currentCategory, StringComparison.Ordinal));
+            .FindIndex(category => string.Equals(category, currentCategory, StringComparison.Ordinal));
 
         blendSetCategoryDropdown.SetSelectedIndexWithoutNotify(currentCategoryIndex);
 
@@ -254,7 +254,7 @@ public class BlendSetSelectorPane : BasePane
         blendSetDropdown.SetItemsWithoutNotify(BlendSetList(e.BlendSet.Custom));
 
         var currentBlendSetIndex = blendSetDropdown
-            .IndexOf(blendSet => blendSet.Equals(currentBlendSet));
+            .FindIndex(blendSet => blendSet.Equals(currentBlendSet));
 
         blendSetDropdown.SetSelectedIndexWithoutNotify(currentBlendSetIndex);
     }
@@ -271,7 +271,7 @@ public class BlendSetSelectorPane : BasePane
 
             blendSetCategoryComboBox.SetItems(newCategories);
 
-            var categoryIndex = newCategories.IndexOf(category => string.Equals(currentCategory, category, StringComparison.Ordinal));
+            var categoryIndex = newCategories.FindIndex(category => string.Equals(currentCategory, category, StringComparison.Ordinal));
 
             if (categoryIndex < 0)
             {
@@ -286,7 +286,7 @@ public class BlendSetSelectorPane : BasePane
             var currentblendSetModel = blendSetDropdown.SelectedItem;
 
             var newblendSets = BlendSetList(custom: true).ToArray();
-            var blendSetIndex = newblendSets.IndexOf(blendSet => blendSet == currentblendSetModel);
+            var blendSetIndex = newblendSets.FindIndex(blendSet => blendSet == currentblendSetModel);
 
             if (blendSetIndex < 0)
                 blendSetIndex = 0;
@@ -405,7 +405,7 @@ public class BlendSetSelectorPane : BasePane
 
         int GetCategoryIndex(IBlendSetModel blendSet)
         {
-            var categoryIndex = blendSetCategoryDropdown.IndexOf(category =>
+            var categoryIndex = blendSetCategoryDropdown.FindIndex(category =>
                 string.Equals(category, blendSet.Category, StringComparison.OrdinalIgnoreCase));
 
             return categoryIndex < 0 ? 0 : categoryIndex;
@@ -420,7 +420,7 @@ public class BlendSetSelectorPane : BasePane
                 return customBlendSetRepository.ContainsCategory(blendSetToFind.Category)
                     ? blendSetList
                         .Cast<CustomBlendSetModel>()
-                        .IndexOf(blendSet => blendSet.ID == customBlendSet.ID)
+                        .FindIndex(blendSet => blendSet.ID == customBlendSet.ID)
                     : 0;
             }
             else
@@ -430,7 +430,7 @@ public class BlendSetSelectorPane : BasePane
                 return gameBlendSetRepository.ContainsCategory(blendSetToFind.Category)
                     ? blendSetList
                         .Cast<GameBlendSetModel>()
-                        .IndexOf(blendSet => blendSet.ID == gameBlendSet.ID)
+                        .FindIndex(blendSet => blendSet.ID == gameBlendSet.ID)
                     : 0;
             }
         }

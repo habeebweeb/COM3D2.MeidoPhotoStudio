@@ -251,8 +251,8 @@ public class HandPresetSelectorPane : BasePane
             handPresetCategoryComboBox.SetItems(handPresetRepository.Categories);
         }
 
-        var currentCategoryIndex = presetCategoryDropdown
-            .IndexOf(category => string.Equals(category, currentCategory, StringComparison.Ordinal));
+        var currentCategoryIndex = presetCategoryDropdown.FindIndex(
+            category => string.Equals(category, currentCategory, StringComparison.Ordinal));
 
         presetCategoryDropdown.SetSelectedIndexWithoutNotify(currentCategoryIndex);
 
@@ -263,8 +263,8 @@ public class HandPresetSelectorPane : BasePane
 
         presetDropdown.SetItemsWithoutNotify(PresetList());
 
-        var currentpresetIndex = presetDropdown
-            .IndexOf(preset => preset.Equals(currentPreset));
+        var currentpresetIndex = presetDropdown.FindIndex(
+            preset => preset.Equals(currentPreset));
 
         presetDropdown.SetSelectedIndexWithoutNotify(currentpresetIndex);
     }
@@ -278,7 +278,7 @@ public class HandPresetSelectorPane : BasePane
 
             handPresetCategoryComboBox.SetItems(newCategories);
 
-            var categoryIndex = newCategories.IndexOf(category => string.Equals(currentCategory, category, StringComparison.Ordinal));
+            var categoryIndex = newCategories.FindIndex(category => string.Equals(currentCategory, category, StringComparison.Ordinal));
 
             if (categoryIndex < 0)
             {
@@ -292,7 +292,7 @@ public class HandPresetSelectorPane : BasePane
 
             var currentPresetModel = presetDropdown.SelectedItem;
             var newPresets = PresetList().ToArray();
-            var presetIndex = newPresets.IndexOf(preset => preset == currentPresetModel);
+            var presetIndex = newPresets.FindIndex(preset => preset == currentPresetModel);
 
             if (presetIndex < 0)
                 presetIndex = 0;
