@@ -74,6 +74,30 @@ public static class EnumerableExtensions
         return -1;
     }
 
+    public static int IndexOf<TSource>(this IEnumerable<TSource> source, TSource item, IEqualityComparer<TSource> comparer = null)
+        where TSource : IEquatable<TSource>
+    {
+        if (source == null)
+            throw new ArgumentNullException(nameof(source));
+
+        if (item is null)
+            throw new ArgumentNullException(nameof(item));
+
+        comparer ??= EqualityComparer<TSource>.Default;
+
+        var index = 0;
+
+        foreach (var value in source)
+        {
+            if (comparer.Equals(value, item))
+                return index;
+
+            index++;
+        }
+
+        return -1;
+    }
+
     public static IOrderedEnumerable<TSource> OrderBy<TSource>(
         this IEnumerable<TSource> source, IComparer<TSource> comparer) =>
             source == null ? throw new ArgumentNullException(nameof(source)) :
