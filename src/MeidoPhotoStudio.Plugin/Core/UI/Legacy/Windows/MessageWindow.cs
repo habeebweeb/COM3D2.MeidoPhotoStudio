@@ -1,7 +1,6 @@
 using System.ComponentModel;
 
 using MeidoPhotoStudio.Plugin.Core.Message;
-using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 using Alignment = NGUIText.Alignment;
@@ -178,8 +177,7 @@ public partial class MessageWindow : BaseWindow
         }
         else if (e.PropertyName is nameof(MessageWindowManager.MessageAlignment))
         {
-            alignmentDropdown.SetSelectedIndexWithoutNotify(
-                alignmentDropdown.FindIndex(alignment => alignment == messageWindowManager.MessageAlignment));
+            alignmentDropdown.SetSelectedIndexWithoutNotify(alignmentDropdown.IndexOf(messageWindowManager.MessageAlignment));
 
             textAreaStyle.TrySet(style => style.alignment = NGUIAlignmentToTextAnchor(messageWindowManager.MessageAlignment));
         }

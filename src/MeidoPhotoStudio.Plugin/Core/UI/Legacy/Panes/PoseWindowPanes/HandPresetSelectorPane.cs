@@ -226,8 +226,7 @@ public class HandPresetSelectorPane : BasePane
 
         if (!string.Equals(preset.Category, presetCategoryDropdown.SelectedItem))
         {
-            var categoryIndex = presetCategoryDropdown
-                .FindIndex(category => string.Equals(preset.Category, category, StringComparison.Ordinal));
+            var categoryIndex = presetCategoryDropdown.IndexOf(preset.Category, StringComparer.Ordinal);
 
             if (presetCategoryDropdown.SelectedItemIndex != categoryIndex)
                 presetCategoryDropdown.SelectedItemIndex = categoryIndex;
@@ -251,8 +250,7 @@ public class HandPresetSelectorPane : BasePane
             handPresetCategoryComboBox.SetItems(handPresetRepository.Categories);
         }
 
-        var currentCategoryIndex = presetCategoryDropdown.FindIndex(
-            category => string.Equals(category, currentCategory, StringComparison.Ordinal));
+        var currentCategoryIndex = presetCategoryDropdown.IndexOf(currentCategory, StringComparer.Ordinal);
 
         presetCategoryDropdown.SetSelectedIndexWithoutNotify(currentCategoryIndex);
 
@@ -263,8 +261,7 @@ public class HandPresetSelectorPane : BasePane
 
         presetDropdown.SetItemsWithoutNotify(PresetList());
 
-        var currentpresetIndex = presetDropdown.FindIndex(
-            preset => preset.Equals(currentPreset));
+        var currentpresetIndex = presetDropdown.IndexOf(currentPreset);
 
         presetDropdown.SetSelectedIndexWithoutNotify(currentpresetIndex);
     }
@@ -278,7 +275,7 @@ public class HandPresetSelectorPane : BasePane
 
             handPresetCategoryComboBox.SetItems(newCategories);
 
-            var categoryIndex = newCategories.FindIndex(category => string.Equals(currentCategory, category, StringComparison.Ordinal));
+            var categoryIndex = newCategories.IndexOf(currentCategory, StringComparer.Ordinal);
 
             if (categoryIndex < 0)
             {
@@ -292,7 +289,7 @@ public class HandPresetSelectorPane : BasePane
 
             var currentPresetModel = presetDropdown.SelectedItem;
             var newPresets = PresetList().ToArray();
-            var presetIndex = newPresets.FindIndex(preset => preset == currentPresetModel);
+            var presetIndex = Array.IndexOf(newPresets, currentPresetModel);
 
             if (presetIndex < 0)
                 presetIndex = 0;

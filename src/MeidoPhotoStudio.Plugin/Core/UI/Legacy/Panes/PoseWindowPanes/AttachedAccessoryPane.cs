@@ -196,8 +196,6 @@ public class AttachedAccessoryPane : BasePane
         if (changedCategory is MPN.null_mpn || CurrentCategory != changedCategory)
             return;
 
-        var accessoryIndex = 0;
-
         if (changedAccessory is null)
         {
             accessoryDropdown.SetSelectedIndexWithoutNotify(0);
@@ -205,9 +203,7 @@ public class AttachedAccessoryPane : BasePane
             return;
         }
 
-        accessoryIndex = accessoryDropdown
-            .Skip(1)
-            .FindIndex(accessory => string.Equals(accessory.ID, changedAccessory.ID, StringComparison.OrdinalIgnoreCase));
+        var accessoryIndex = accessoryDropdown.Skip(1).IndexOf(changedAccessory);
 
         if (accessoryIndex < 0)
             return;
@@ -231,14 +227,12 @@ public class AttachedAccessoryPane : BasePane
             return;
         }
 
-        var accessoryIndex = accessoryDropdown
-            .Skip(1)
-            .FindIndex(accessory => string.Equals(accessory.ID, currentAccessory.ID, StringComparison.OrdinalIgnoreCase));
+        var accessoryIndex = accessoryDropdown.Skip(1).IndexOf(currentAccessory);
 
         if (accessoryIndex < 0)
             return;
 
-        accessoryDropdown.SetSelectedIndexWithoutNotify(accessoryIndex);
+        accessoryDropdown.SetSelectedIndexWithoutNotify(accessoryIndex + 1);
     }
 
     private IEnumerable<MenuFilePropModel> AccessoryList() =>

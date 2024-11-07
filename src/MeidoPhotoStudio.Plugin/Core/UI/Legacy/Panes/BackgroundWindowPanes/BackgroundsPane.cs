@@ -118,10 +118,9 @@ public class BackgroundsPane : BasePane
 
         void InitializeCategoryDropdown(BackgroundModel background)
         {
-            var categoryIndex = 0;
             var categories = backgroundRepository.Categories.ToArray();
 
-            categoryIndex = categories.FindIndex(category => category == background.Category);
+            var categoryIndex = Array.IndexOf(categories, background.Category);
 
             if (categoryIndex < 0)
                 categoryIndex = 0;
@@ -131,10 +130,9 @@ public class BackgroundsPane : BasePane
 
         void InitializeBackgroundDropdown(BackgroundModel background)
         {
-            var backgroundIndex = 0;
             var backgrounds = backgroundRepository[background.Category].ToArray();
 
-            backgroundIndex = backgrounds.FindIndex(model => background == model);
+            var backgroundIndex = Array.IndexOf(backgrounds, background);
 
             if (backgroundIndex < 0)
                 backgroundIndex = 0;
@@ -254,14 +252,14 @@ public class BackgroundsPane : BasePane
 
             int GetCategoryIndex(BackgroundModel background)
             {
-                var categoryIndex = backgroundCategoryDropdown.FindIndex(category => category == background.Category);
+                var categoryIndex = backgroundCategoryDropdown.IndexOf(background.Category);
 
                 return categoryIndex < 0 ? 0 : categoryIndex;
             }
 
             int GetBackgroundIndex(BackgroundModel currentBackground)
             {
-                var backgroundIndex = backgroundDropdown.FindIndex(background => currentBackground == background);
+                var backgroundIndex = backgroundDropdown.IndexOf(currentBackground);
 
                 return backgroundIndex < 0 ? 0 : backgroundIndex;
             }
