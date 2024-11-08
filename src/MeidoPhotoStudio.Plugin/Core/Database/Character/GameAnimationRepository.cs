@@ -117,6 +117,8 @@ public class GameAnimationRepository : IEnumerable<GameAnimationModel>
                     if (animationSet.Contains(file))
                         continue;
 
+                    animationSet.Add(file);
+
                     if (file.StartsWith("edit_"))
                     {
                         animations.Add(new("normal", file));
