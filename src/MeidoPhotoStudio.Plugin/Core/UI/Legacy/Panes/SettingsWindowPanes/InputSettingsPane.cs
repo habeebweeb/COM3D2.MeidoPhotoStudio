@@ -111,7 +111,7 @@ public class InputSettingsPane : BasePane
             if (!generalControlsHeader.Enabled)
                 return;
 
-            for (var shortcut = Shortcut.ActivatePlugin; shortcut <= Shortcut.Redo; shortcut++)
+            for (var shortcut = Shortcut.ActivatePlugin; shortcut <= Shortcut.CyclePreviousAnimation; shortcut++)
                 DrawControl(shortcut);
         }
 

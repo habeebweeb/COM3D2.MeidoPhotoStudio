@@ -441,6 +441,12 @@ public partial class PluginCore : MonoBehaviour
 
         var customAnimationRepositorySorter = new CustomAnimationRepositorySorter(customAnimationRepository.RootCategoryName);
 
+        AddPluginActiveInputHandler(new AnimationCycler(
+            characterService,
+            new AnimationCyclingService(
+                characterService, gameAnimationRepository, customAnimationRepository, customAnimationRepositorySorter),
+            inputConfiguration));
+
         var uiConfiguration = new UIConfiguration(configuration);
 
         var mainWindow = new MainWindow(tabSelectionController, customMaidSceneService, inputRemapper)

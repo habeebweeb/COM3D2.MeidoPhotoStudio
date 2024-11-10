@@ -31,8 +31,10 @@ public class InputConfiguration
         BindShortcut(Shortcut.ToggleMainWindow, "Toggle Main Window Visible", new KeyboardShortcut(KeyCode.Tab));
         BindShortcut(Shortcut.ToggleSceneWindow, "Toggle Scene Window Visible", new KeyboardShortcut(KeyCode.F8));
 
-        // Meido Manager
+        // Characters
         BindShortcut(Shortcut.CycleMaidDressing, "Cycle All Maid Dressing", new KeyboardShortcut(KeyCode.H));
+        BindShortcut(Shortcut.CycleNextAnimation, "Cycle Next Animation", new KeyboardShortcut(KeyCode.N));
+        BindShortcut(Shortcut.CyclePreviousAnimation, "Cycle Previous Animation", new KeyboardShortcut(KeyCode.N, KeyCode.LeftShift));
 
         // Scene management
         BindShortcut(Shortcut.QuickSaveScene, "Quick Save Scene", new KeyboardShortcut(KeyCode.S, KeyCode.LeftControl));

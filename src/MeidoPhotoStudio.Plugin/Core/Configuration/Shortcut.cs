@@ -12,6 +12,8 @@ public enum Shortcut
     QuickLoadScene,
     Undo,
     Redo,
+    CycleNextAnimation,
+    CyclePreviousAnimation,
     SaveCamera,
     LoadCamera,
     ResetCamera,

@@ -671,7 +671,9 @@
     "hipBoneRotation": "Hip Bone Rotation",
     "moveLocalY": "Move Local Y",
     "undo": "Undo",
-    "redo": "Redo"
+    "redo": "Redo",
+    "cycleNextAnimation": "Cycle Next Animation",
+    "cyclePreviousAnimation": "Cycle Previous Animation"
   },
   "mainWindow": {
     "settingsButton": "Settings",
