@@ -305,16 +305,19 @@ public class AnimationSelectorPane : BasePane
 
     private void OnCustomAnimationRepositoryRefreshed(object sender, EventArgs e)
     {
+        var newCategories = AnimationCategoryList(custom: true).ToArray();
+
+        animationCategoryComboBox.SetItems(newCategories);
+
         if (animationSourceGrid.SelectedItemIndex is not CustomAnimation)
             return;
 
-        if (customAnimationRepository.ContainsCategory(animationCategoryDropdown.SelectedItem))
+        if (CurrentAnimation?.Animation is not CustomAnimationModel animation)
+            return;
+
+        if (customAnimationRepository.ContainsCategory(animation.Category))
         {
-            var currentCategory = animationCategoryDropdown.SelectedItem;
-            var newCategories = AnimationCategoryList(custom: true).ToArray();
-
-            animationCategoryComboBox.SetItems(newCategories);
-
+            var currentCategory = animation.Category;
             var categoryIndex = newCategories.IndexOf(currentCategory, StringComparer.Ordinal);
 
             if (categoryIndex < 0)
@@ -327,10 +330,8 @@ public class AnimationSelectorPane : BasePane
 
             animationCategoryDropdown.SetItemsWithoutNotify(newCategories, categoryIndex);
 
-            var currentAnimationModel = animationDropdown.SelectedItem;
-
-            var newAnimations = AnimationList(custom: true).ToArray();
-            var animationIndex = newAnimations.IndexOf(currentAnimationModel);
+            var newAnimations = AnimationList(custom: true).Cast<CustomAnimationModel>().ToArray();
+            var animationIndex = newAnimations.FindIndex(newAnimation => newAnimation.ID == animation.ID);
 
             if (animationIndex < 0)
                 animationIndex = 0;
@@ -339,10 +340,8 @@ public class AnimationSelectorPane : BasePane
         }
         else
         {
-            var newCategories = AnimationCategoryList(custom: true).ToArray();
-
-            animationCategoryDropdown.SetItems(newCategories, 0);
-            animationCategoryComboBox.SetItems(newCategories);
+            animationCategoryDropdown.SetItemsWithoutNotify(newCategories, 0);
+            animationDropdown.SetItemsWithoutNotify(AnimationList(custom: true), 0);
         }
     }
 

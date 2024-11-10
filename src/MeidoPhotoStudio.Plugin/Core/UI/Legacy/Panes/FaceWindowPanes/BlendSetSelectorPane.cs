@@ -259,16 +259,19 @@ public class BlendSetSelectorPane : BasePane
 
     private void OnCustomBlendSetRepositoryRefreshed(object sender, EventArgs e)
     {
+        var newCategories = BlendSetCategoryList(custom: true).ToArray();
+
+        blendSetCategoryComboBox.SetItems(newCategories);
+
         if (blendSetSourceGrid.SelectedItemIndex is not CustomBlendSet)
             return;
 
-        if (customBlendSetRepository.ContainsCategory(blendSetCategoryDropdown.SelectedItem))
+        if (CurrentFace?.BlendSet is not CustomBlendSetModel blendSet)
+            return;
+
+        if (customBlendSetRepository.ContainsCategory(blendSet.Category))
         {
-            var currentCategory = blendSetCategoryDropdown.SelectedItem;
-            var newCategories = BlendSetCategoryList(custom: true).ToArray();
-
-            blendSetCategoryComboBox.SetItems(newCategories);
-
+            var currentCategory = blendSet.Category;
             var categoryIndex = newCategories.IndexOf(currentCategory, StringComparer.Ordinal);
 
             if (categoryIndex < 0)
@@ -281,10 +284,8 @@ public class BlendSetSelectorPane : BasePane
 
             blendSetCategoryDropdown.SetItemsWithoutNotify(newCategories, categoryIndex);
 
-            var currentblendSetModel = blendSetDropdown.SelectedItem;
-
-            var newblendSets = BlendSetList(custom: true).ToArray();
-            var blendSetIndex = newblendSets.IndexOf(currentblendSetModel);
+            var newblendSets = BlendSetList(custom: true).Cast<CustomBlendSetModel>().ToArray();
+            var blendSetIndex = newblendSets.FindIndex(newBlendSet => blendSet.ID == newBlendSet.ID);
 
             if (blendSetIndex < 0)
                 blendSetIndex = 0;
@@ -293,10 +294,8 @@ public class BlendSetSelectorPane : BasePane
         }
         else
         {
-            var newCategories = BlendSetCategoryList(custom: true).ToArray();
-
-            blendSetCategoryDropdown.SetItems(newCategories, 0);
-            blendSetCategoryComboBox.SetItems(newCategories);
+            blendSetCategoryDropdown.SetItemsWithoutNotify(newCategories, 0);
+            blendSetDropdown.SetItemsWithoutNotify(BlendSetList(custom: true), 0);
         }
     }
 

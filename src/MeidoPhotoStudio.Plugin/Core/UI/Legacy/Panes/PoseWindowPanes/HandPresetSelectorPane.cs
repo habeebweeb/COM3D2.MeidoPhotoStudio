@@ -268,12 +268,13 @@ public class HandPresetSelectorPane : BasePane
 
     private void OnHandPresetRepositoryRefreshed(object sender, EventArgs e)
     {
+        var newCategories = PresetCategoryList().ToArray();
+
+        handPresetCategoryComboBox.SetItems(newCategories);
+
         if (handPresetRepository.ContainsCategory(presetCategoryDropdown.SelectedItem))
         {
             var currentCategory = presetCategoryDropdown.SelectedItem;
-            var newCategories = PresetCategoryList().ToArray();
-
-            handPresetCategoryComboBox.SetItems(newCategories);
 
             var categoryIndex = newCategories.IndexOf(currentCategory, StringComparer.Ordinal);
 
@@ -289,7 +290,7 @@ public class HandPresetSelectorPane : BasePane
 
             var currentPresetModel = presetDropdown.SelectedItem;
             var newPresets = PresetList().ToArray();
-            var presetIndex = Array.IndexOf(newPresets, currentPresetModel);
+            var presetIndex = newPresets.FindIndex(newPreset => currentPresetModel.ID == newPreset.ID);
 
             if (presetIndex < 0)
                 presetIndex = 0;
@@ -298,10 +299,7 @@ public class HandPresetSelectorPane : BasePane
         }
         else
         {
-            var newCategories = PresetCategoryList().ToArray();
-
             presetCategoryDropdown.SetItemsWithoutNotify(newCategories, 0);
-            handPresetCategoryComboBox.SetItems(newCategories);
         }
     }
 
