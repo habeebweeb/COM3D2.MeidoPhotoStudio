@@ -257,11 +257,25 @@ public class AnimationPane : BasePane
         CharacterUndoRedo.EndPoseChange();
     }
 
-    private void OnStepRightButtonPushed(object sender, EventArgs e) =>
+    private void OnStepRightButtonPushed(object sender, EventArgs e)
+    {
+        if (Character.IK.Dirty)
+            CharacterUndoRedo.StartPoseChange();
+
         animationSlider.Value += stepAmountField.Value;
 
-    private void OnStepLeftButtonPushed(object sender, EventArgs e) =>
+        CharacterUndoRedo.EndPoseChange();
+    }
+
+    private void OnStepLeftButtonPushed(object sender, EventArgs e)
+    {
+        if (Character.IK.Dirty)
+            CharacterUndoRedo.StartPoseChange();
+
         animationSlider.Value -= stepAmountField.Value;
+
+        CharacterUndoRedo.EndPoseChange();
+    }
 
     private void OnStepAmountFieldChanged(object sender, EventArgs e)
     {
