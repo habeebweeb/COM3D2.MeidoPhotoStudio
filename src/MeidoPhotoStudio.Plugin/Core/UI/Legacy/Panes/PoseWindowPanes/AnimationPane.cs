@@ -108,8 +108,9 @@ public class AnimationPane : BasePane
         }
 
         var animationStopped = !currentAnimation?.Playing ?? false;
+        var animationValid = currentAnimation?.Length is > 0f;
 
-        GUI.enabled = guiEnabled && animationStopped;
+        GUI.enabled = guiEnabled && animationStopped && animationValid;
 
         animationSlider.Draw();
 
@@ -121,7 +122,7 @@ public class AnimationPane : BasePane
 
         playPauseButton.Draw(buttonStyle, GUILayout.Width(45f));
 
-        GUI.enabled = guiEnabled && animationStopped;
+        GUI.enabled = guiEnabled && animationValid && animationStopped;
 
         stepLeftButton.Draw(noExpandWidth);
         stepRightButton.Draw(noExpandWidth);
@@ -205,8 +206,18 @@ public class AnimationPane : BasePane
         }
     }
 
-    private void UpdateSliderRange() =>
-        animationSlider.SetRightBoundWithoutNotify(CurrentAnimation.Length - 0.0001f);
+    private void UpdateSliderRange()
+    {
+        if (CurrentAnimation is null)
+            return;
+
+        var length = CurrentAnimation.Length - 0.0001f;
+
+        if (length < 0f)
+            length = 0f;
+
+        animationSlider.SetRightBoundWithoutNotify(length);
+    }
 
     private void OnPlayPauseButtonPushed(object sender, EventArgs e)
     {

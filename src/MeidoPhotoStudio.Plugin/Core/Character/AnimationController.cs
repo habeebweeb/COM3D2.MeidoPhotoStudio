@@ -35,7 +35,10 @@ public class AnimationController : INotifyPropertyChanged
 
     public float Time
     {
-        get => AnimationState is var state ? state.time % state.length : -1f;
+        get =>
+            AnimationState is not AnimationState state ? -1f :
+            float.IsNaN(state.time) ? 0f :
+            state.time % state.length;
 
         set
         {
@@ -66,7 +69,7 @@ public class AnimationController : INotifyPropertyChanged
     }
 
     public float Length =>
-        AnimationState?.length ?? -1f;
+        AnimationState?.length ?? 0f;
 
     public bool Playing
     {
