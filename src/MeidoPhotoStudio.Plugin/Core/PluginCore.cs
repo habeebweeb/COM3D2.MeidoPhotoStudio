@@ -444,7 +444,7 @@ public partial class PluginCore : MonoBehaviour
         AddPluginActiveInputHandler(new AnimationCycler(
             characterService,
             new AnimationCyclingService(
-                characterService, gameAnimationRepository, customAnimationRepository, customAnimationRepositorySorter),
+                characterService, characterUndoRedoService, gameAnimationRepository, customAnimationRepository, customAnimationRepositorySorter),
             inputConfiguration));
 
         var uiConfiguration = new UIConfiguration(configuration);

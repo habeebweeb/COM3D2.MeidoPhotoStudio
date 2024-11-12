@@ -9,10 +9,12 @@ public class AnimationCyclingService
     private const int Next = 1;
 
     private readonly CharacterService characterService;
+    private readonly CharacterUndoRedoService characterUndoRedoService;
     private readonly GameAnimationRepository gameAnimationRepository;
     private readonly CustomAnimationRepository customAnimationRepository;
     private readonly CustomAnimationRepositorySorter customAnimationRepositorySorter;
-    private readonly Dictionary<AnimationController, AnimationPointer> animationPointers = [];
+    private readonly Dictionary<CharacterController, AnimationPointer> animationPointers = [];
+    private readonly Dictionary<AnimationController, CharacterController> animationControllerToCharcter = [];
     private readonly List<string> customAnimationCategoryCache = [];
     private readonly List<string> gameAnimationCategoryCache = [];
     private readonly Dictionary<string, List<IAnimationModel>> customAnimationCache = new(StringComparer.Ordinal);
@@ -20,11 +22,13 @@ public class AnimationCyclingService
 
     public AnimationCyclingService(
         CharacterService characterService,
+        CharacterUndoRedoService characterUndoRedoService,
         GameAnimationRepository gameAnimationRepository,
         CustomAnimationRepository customAnimationRepository,
         CustomAnimationRepositorySorter customAnimationRepositorySorter)
     {
         this.characterService = characterService ?? throw new ArgumentNullException(nameof(characterService));
+        this.characterUndoRedoService = characterUndoRedoService ?? throw new ArgumentNullException(nameof(characterUndoRedoService));
         this.gameAnimationRepository = gameAnimationRepository ?? throw new ArgumentNullException(nameof(gameAnimationRepository));
         this.customAnimationRepository = customAnimationRepository ?? throw new ArgumentNullException(nameof(customAnimationRepository));
         this.customAnimationRepositorySorter = customAnimationRepositorySorter ?? throw new ArgumentNullException(nameof(customAnimationRepositorySorter));
@@ -51,38 +55,38 @@ public class AnimationCyclingService
 
     public void CycleAllNext()
     {
-        var animations = animationPointers.Keys.ToArray();
+        var characters = animationPointers.Keys.ToArray();
 
-        foreach (var animation in animations)
-            Cycle(animation, Next);
+        foreach (var character in characters)
+            Cycle(character, Next);
     }
 
     public void CycleAllPrevious()
     {
-        var animations = animationPointers.Keys.ToArray();
+        var characters = animationPointers.Keys.ToArray();
 
-        foreach (var animation in animations)
-            Cycle(animation, Previous);
+        foreach (var character in characters)
+            Cycle(character, Previous);
     }
 
     public void CycleNext(CharacterController character)
     {
         _ = character ?? throw new ArgumentNullException(nameof(character));
 
-        if (!animationPointers.ContainsKey(character.Animation))
+        if (!animationPointers.ContainsKey(character))
             return;
 
-        Cycle(character.Animation, Next);
+        Cycle(character, Next);
     }
 
     public void CyclePrevious(CharacterController character)
     {
         _ = character ?? throw new ArgumentNullException(nameof(character));
 
-        if (!animationPointers.ContainsKey(character.Animation))
+        if (!animationPointers.ContainsKey(character))
             return;
 
-        Cycle(character.Animation, Previous);
+        Cycle(character, Previous);
     }
 
     private static int Mod(int value, int length)
@@ -94,19 +98,21 @@ public class AnimationCyclingService
 
     private void OnCalledCharacters(object sender, CharacterServiceEventArgs e)
     {
-        var oldControllers = animationPointers.Keys.ToArray();
+        var oldCharacters = animationPointers.Keys.ToArray();
 
-        foreach (var controller in oldControllers.Except(e.LoadedCharacters.Select(static character => character.Animation)))
+        foreach (var controller in oldCharacters.Except(e.LoadedCharacters))
         {
-            controller.ChangedAnimation -= OnAnimationChanged;
+            controller.Animation.ChangedAnimation -= OnAnimationChanged;
 
             animationPointers.Remove(controller);
+            animationControllerToCharcter.Remove(controller.Animation);
         }
 
-        foreach (var animationController in e.LoadedCharacters.Select(static character => character.Animation).Except(oldControllers))
+        foreach (var characterController in e.LoadedCharacters.Except(oldCharacters))
         {
-            animationController.ChangedAnimation += OnAnimationChanged;
-            animationPointers.Add(animationController, new(animationController.Animation, 0, 0));
+            characterController.Animation.ChangedAnimation += OnAnimationChanged;
+            animationPointers.Add(characterController, new(characterController.Animation.Animation, 0, 0));
+            animationControllerToCharcter.Add(characterController.Animation, characterController);
         }
     }
 
@@ -192,7 +198,15 @@ public class AnimationCyclingService
     {
         var animationController = (AnimationController)sender;
 
-        if (!animationPointers.ContainsKey(animationController))
+        if (!animationControllerToCharcter.TryGetValue(animationController, out var characterController))
+        {
+            animationController.ChangedAnimation -= OnAnimationChanged;
+            animationControllerToCharcter.Remove(animationController);
+
+            return;
+        }
+
+        if (!animationPointers.ContainsKey(characterController))
         {
             animationController.ChangedAnimation -= OnAnimationChanged;
 
@@ -201,21 +215,26 @@ public class AnimationCyclingService
 
         var animation = animationController.Animation;
 
-        if (animationPointers[animationController].Animation.Equals(animation))
+        if (animationPointers[characterController].Animation.Equals(animation))
             return;
 
         if (gameAnimationRepository.Busy && !animation.Custom)
             return;
 
-        animationPointers[animationController] = new(
+        animationPointers[characterController] = new(
             animation,
             GetCategories(animation.Custom).IndexOf(animation.Category),
             GetAnimations(animation.Category, animation.Custom).IndexOf(animation));
     }
 
-    private void Cycle(AnimationController animationController, int direction)
+    private void Cycle(CharacterController character, int direction)
     {
-        var (animation, categoryIndex, animationIndex) = animationPointers[animationController];
+        var animationController = character.Animation;
+
+        var (animation, categoryIndex, animationIndex) = animationPointers[character];
+
+        if (character.IK.Dirty)
+            characterUndoRedoService[character].StartPoseChange();
 
         if (animationIndex + direction < 0)
         {
@@ -241,6 +260,8 @@ public class AnimationCyclingService
 
             animationController.Apply(animations[animationIndex + direction]);
         }
+
+        characterUndoRedoService[character].EndPoseChange();
 
         List<IAnimationModel> CycleAnimation(int currentCategory, bool custom)
         {
