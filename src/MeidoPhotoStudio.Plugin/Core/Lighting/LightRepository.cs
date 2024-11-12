@@ -8,6 +8,8 @@ public class LightRepository(TransformWatcher transformWatcher) : IEnumerable<Li
     private readonly TransformWatcher transformWatcher =
         transformWatcher ? transformWatcher : throw new ArgumentNullException(nameof(transformWatcher));
 
+    private LightProperties initialMainLightProperties;
+
     public event EventHandler<LightRepositoryEventArgs> AddedLight;
 
     public event EventHandler<LightRepositoryEventArgs> RemovingLight;
@@ -55,7 +57,10 @@ public class LightRepository(TransformWatcher transformWatcher) : IEnumerable<Li
         light.transform.position = LightController.DefaultPosition;
 
         if (IsMainLight(lightController))
+        {
+            BackupMainLight(lightController);
             ResetMainLight();
+        }
 
         lightControllers.Add(lightController);
 
@@ -75,7 +80,10 @@ public class LightRepository(TransformWatcher transformWatcher) : IEnumerable<Li
         var lightController = lightControllers[index];
 
         if (IsMainLight(lightController))
+        {
+            RestoreMainLight(lightController);
             ResetMainLight();
+        }
 
         RemovingLight?.Invoke(this, new(lightController, index));
 
@@ -129,9 +137,24 @@ public class LightRepository(TransformWatcher transformWatcher) : IEnumerable<Li
     {
         var light = GameMain.Instance.MainLight.GetComponent<Light>();
 
+        light.enabled = true;
         light.type = LightType.Directional;
         light.transform.position = LightController.DefaultPosition;
+    }
 
-        GameMain.Instance.MainLight.Reset();
+    private void BackupMainLight(LightController lightController)
+    {
+        if (!IsMainLight(lightController))
+            return;
+
+        initialMainLightProperties = LightProperties.FromLight(lightController.Light);
+    }
+
+    private void RestoreMainLight(LightController lightController)
+    {
+        if (!IsMainLight(lightController))
+            return;
+
+        lightController[LightType.Directional] = initialMainLightProperties;
     }
 }

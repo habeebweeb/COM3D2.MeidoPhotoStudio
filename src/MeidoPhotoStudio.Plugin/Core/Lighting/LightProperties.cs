@@ -9,4 +9,14 @@ public readonly record struct LightProperties(
         : this(DefaultRotation, 0.95f, 10f, 50f, 0.098f, Color.white)
     {
     }
+
+    public static LightProperties FromLight(Light light) =>
+        light ? new(
+            light.transform.rotation,
+            light.intensity,
+            light.range,
+            light.spotAngle,
+            light.shadowStrength,
+            light.color)
+        : throw new ArgumentNullException(nameof(light));
 }

@@ -20,9 +20,9 @@ public class LightController : INotifyPropertyChanged
         this.transformWatcher = transformWatcher ? transformWatcher : throw new ArgumentNullException(nameof(transformWatcher));
         this.transformWatcher.Subscribe(Light.transform, RaiseTransformChanged);
 
-        Type = LightType.Directional;
+        lightProperties[LightPropertiesIndex(LightType.Directional)] = LightProperties.FromLight(Light);
 
-        Apply(CurrentLightProperties);
+        Type = LightType.Directional;
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
