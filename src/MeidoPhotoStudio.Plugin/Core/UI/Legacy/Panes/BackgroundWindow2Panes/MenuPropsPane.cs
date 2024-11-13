@@ -159,13 +159,13 @@ public class MenuPropsPane : BasePane, IVirtualListHandler
 
         void DrawPropList()
         {
-            buttonSize = Vector2.one * Mathf.Min(80f, (parent.WindowRect.width - 18f) / 4);
-
             var scrollRect = GUILayoutUtility.GetRect(0f, parent.WindowRect.width, 100f, parent.WindowRect.height);
+
+            buttonSize = Vector2.one * Mathf.Min(80f, (scrollRect.width - 18f) / 4);
 
             scrollPosition = virtualList.BeginScrollView(scrollRect, scrollPosition);
 
-            var xOffset = (scrollRect.width - buttonSize.x * virtualList.ColumnCount) / 2f;
+            var xOffset = Mathf.Max(0f, (scrollRect.width - buttonSize.x * virtualList.ColumnCount) / 2f - 9f);
 
             foreach (var (i, offset) in virtualList)
             {

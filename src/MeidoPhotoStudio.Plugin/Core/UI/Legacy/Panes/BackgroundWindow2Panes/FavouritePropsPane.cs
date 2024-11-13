@@ -146,10 +146,11 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
 
         scrollPosition = virtualList.BeginScrollView(scrollRect, scrollPosition);
 
+        var windowWidth = scrollRect.width - 18f;
+
         foreach (var (i, offset) in virtualList)
         {
             var propDimensions = ItemDimensions(i);
-            var windowWidth = windowRect.width - 25f;
 
             if (editModeToggle.Value)
             {

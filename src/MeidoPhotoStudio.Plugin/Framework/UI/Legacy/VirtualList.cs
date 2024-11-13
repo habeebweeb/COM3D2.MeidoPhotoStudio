@@ -131,7 +131,7 @@ public class VirtualList(int bucketSize = 100) : IEnumerable<(int Index, Vector2
             {
                 var itemDimensions = handler.ItemDimensions(0);
 
-                columnCount = (int)((scrollRect.width + Spacing.x) / (itemDimensions.x + Spacing.x));
+                columnCount = (int)((scrollRect.width - 18f + Spacing.x) / (itemDimensions.x + Spacing.x));
 
                 scrollViewHeight = (itemDimensions.y + Spacing.x) * Mathf.CeilToInt((float)handler.Count / columnCount) - Spacing.x;
 
