@@ -108,7 +108,7 @@ public class CharacterSwitcherPane : BasePane
 
         GUILayout.FlexibleSpace();
 
-        var windowWidth = parent.WindowRect.width;
+        var windowWidth = Parent.WindowRect.width;
         var dropdownWidth = windowWidth - 95f;
 
         characterDropdown.Draw(GUILayout.Width(dropdownWidth), GUILayout.Height(Utility.GetPix(BoxSize)));

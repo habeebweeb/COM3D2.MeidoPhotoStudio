@@ -160,8 +160,8 @@ public class ExpressionPane : BasePane
             const int SliderColumnCount = 2;
             const int ToggleColumnCount = 3;
 
-            var maxWidth = GUILayout.MaxWidth(parent.WindowRect.width - 10f);
-            var sliderWidth = GUILayout.MaxWidth(parent.WindowRect.width / SliderColumnCount - 10f);
+            var maxWidth = GUILayout.MaxWidth(Parent.WindowRect.width - 10f);
+            var sliderWidth = GUILayout.MaxWidth(Parent.WindowRect.width / SliderColumnCount - 10f);
 
             foreach (var chunk in EyeHashes
                 .Where(CurrentFace.ContainsExpressionKey)
@@ -242,7 +242,7 @@ public class ExpressionPane : BasePane
                 GUI.enabled = guiEnabled;
 
                 var noExpandWidth = GUILayout.ExpandWidth(false);
-                var maxWidth = GUILayout.MaxWidth(parent.WindowRect.width);
+                var maxWidth = GUILayout.MaxWidth(Parent.WindowRect.width);
 
                 foreach (var shapeKey in shapeKeys.Where(CurrentFace.ContainsExpressionKey))
                 {
@@ -263,8 +263,8 @@ public class ExpressionPane : BasePane
 
                 const int SliderColumnCount = 2;
 
-                var maxWidth = GUILayout.MaxWidth(parent.WindowRect.width - 10f);
-                var sliderWidth = GUILayout.MaxWidth(parent.WindowRect.width / SliderColumnCount - 10f);
+                var maxWidth = GUILayout.MaxWidth(Parent.WindowRect.width - 10f);
+                var sliderWidth = GUILayout.MaxWidth(Parent.WindowRect.width / SliderColumnCount - 10f);
 
                 foreach (var chunk in shapeKeys.Where(CurrentFace.ContainsExpressionKey).Select(hash => controls[hash]).Chunk(2))
                 {

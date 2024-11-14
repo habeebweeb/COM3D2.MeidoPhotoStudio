@@ -107,40 +107,6 @@ public class BackgroundsPane : BasePane
             new LabelledDropdownItem(model.Name);
     }
 
-    public override void Activate()
-    {
-        base.Activate();
-
-        var background = backgroundService.CurrentBackground;
-
-        InitializeCategoryDropdown(background);
-        InitializeBackgroundDropdown(background);
-
-        void InitializeCategoryDropdown(BackgroundModel background)
-        {
-            var categories = backgroundRepository.Categories.ToArray();
-
-            var categoryIndex = Array.IndexOf(categories, background.Category);
-
-            if (categoryIndex < 0)
-                categoryIndex = 0;
-
-            backgroundCategoryDropdown.SetItemsWithoutNotify(categories, categoryIndex);
-        }
-
-        void InitializeBackgroundDropdown(BackgroundModel background)
-        {
-            var backgrounds = backgroundRepository[background.Category].ToArray();
-
-            var backgroundIndex = Array.IndexOf(backgrounds, background);
-
-            if (backgroundIndex < 0)
-                backgroundIndex = 0;
-
-            backgroundDropdown.SetItemsWithoutNotify(backgrounds, backgroundIndex);
-        }
-    }
-
     public override void Draw()
     {
         paneHeader.Draw();
@@ -182,6 +148,40 @@ public class BackgroundsPane : BasePane
             redSlider.Draw();
             greenSlider.Draw();
             blueSlider.Draw();
+        }
+    }
+
+    public override void Activate()
+    {
+        base.Activate();
+
+        var background = backgroundService.CurrentBackground;
+
+        InitializeCategoryDropdown(background);
+        InitializeBackgroundDropdown(background);
+
+        void InitializeCategoryDropdown(BackgroundModel background)
+        {
+            var categories = backgroundRepository.Categories.ToArray();
+
+            var categoryIndex = Array.IndexOf(categories, background.Category);
+
+            if (categoryIndex < 0)
+                categoryIndex = 0;
+
+            backgroundCategoryDropdown.SetItemsWithoutNotify(categories, categoryIndex);
+        }
+
+        void InitializeBackgroundDropdown(BackgroundModel background)
+        {
+            var backgrounds = backgroundRepository[background.Category].ToArray();
+
+            var backgroundIndex = Array.IndexOf(backgrounds, background);
+
+            if (backgroundIndex < 0)
+                backgroundIndex = 0;
+
+            backgroundDropdown.SetItemsWithoutNotify(backgrounds, backgroundIndex);
         }
     }
 

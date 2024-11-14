@@ -97,7 +97,7 @@ public class CharacterCallPane : BasePane, IVirtualListHandler
 
         GUILayout.BeginHorizontal();
 
-        sortTypeDropdown.Draw(GUILayout.Width(parent.WindowRect.width - Utility.GetPix(125)));
+        sortTypeDropdown.Draw(GUILayout.Width(Parent.WindowRect.width - Utility.GetPix(125)));
 
         GUILayout.FlexibleSpace();
 
@@ -123,7 +123,7 @@ public class CharacterCallPane : BasePane, IVirtualListHandler
 
         callButton.Draw();
 
-        var windowRect = parent.WindowRect;
+        var windowRect = Parent.WindowRect;
         var buttonWidth = windowRect.width - 25f;
 
         buttonSize = new(buttonWidth, Utility.GetPix(85f));
@@ -168,8 +168,15 @@ public class CharacterCallPane : BasePane, IVirtualListHandler
         GUI.EndScrollView();
     }
 
-    public override void OnScreenDimensionsChanged(Vector2 newScreenDimensions) =>
+    public override void OnScreenDimensionsChanged(Vector2 newScreenDimensions)
+    {
+        base.OnScreenDimensionsChanged(newScreenDimensions);
+
         virtualList.Invalidate();
+    }
+
+    Vector2 IVirtualListHandler.ItemDimensions(int index) =>
+        buttonSize;
 
     public override void Activate()
     {
@@ -179,9 +186,6 @@ public class CharacterCallPane : BasePane, IVirtualListHandler
         activeCharactersListScrollPosition = Vector2.zero;
         searchBar.Value = string.Empty;
     }
-
-    Vector2 IVirtualListHandler.ItemDimensions(int index) =>
-        buttonSize;
 
     protected override void ReloadTranslation()
     {

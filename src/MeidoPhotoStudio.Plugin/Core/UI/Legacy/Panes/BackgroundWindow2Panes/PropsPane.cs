@@ -1,9 +1,10 @@
 using MeidoPhotoStudio.Plugin.Framework;
+using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
-public class PropsPane : BasePane, IEnumerable<KeyValuePair<PropsPane.PropCategory, BasePane>>
+public class PropsPane : BasePane
 {
     private readonly Dropdown<PropCategory> propTypeDropdown;
     private readonly Dictionary<PropCategory, BasePane> propPanes = new(EnumEqualityComparer<PropCategory>.Instance);
@@ -17,7 +18,7 @@ public class PropsPane : BasePane, IEnumerable<KeyValuePair<PropsPane.PropCatego
         paneHeader = new(Translation.Get("propsPane", "header"), true);
 
         static LabelledDropdownItem CategoryFormatter(PropCategory category, int index) =>
-            new(Translation.Get("propTypes", EnumToLower(category)));
+            new(Translation.Get("propTypes", category.ToLower()));
     }
 
     public enum PropCategory
@@ -52,37 +53,6 @@ public class PropsPane : BasePane, IEnumerable<KeyValuePair<PropsPane.PropCatego
         propPanes[propTypes[propTypeDropdown.SelectedItemIndex]].Draw();
     }
 
-    public IEnumerator<KeyValuePair<PropCategory, BasePane>> GetEnumerator() =>
-        propPanes.GetEnumerator();
-
-    IEnumerator IEnumerable.GetEnumerator() =>
-        GetEnumerator();
-
-    public void Add(PropCategory key, BasePane pane)
-    {
-        _ = pane ?? throw new ArgumentNullException(nameof(pane));
-
-        propPanes[key] = pane;
-
-        propTypes.Add(key);
-
-        propTypeDropdown.SetItemsWithoutNotify(propTypes, 0);
-    }
-
-    public override void SetParent(BaseWindow window)
-    {
-        base.SetParent(window);
-
-        foreach (var pane in propPanes.Values)
-            pane.SetParent(window);
-    }
-
-    public override void OnScreenDimensionsChanged(Vector2 newScreenDimensions)
-    {
-        foreach (var pane in propPanes.Values)
-            pane.OnScreenDimensionsChanged(newScreenDimensions);
-    }
-
     protected override void ReloadTranslation()
     {
         base.ReloadTranslation();
@@ -92,11 +62,18 @@ public class PropsPane : BasePane, IEnumerable<KeyValuePair<PropsPane.PropCatego
         paneHeader.Label = Translation.Get("propsPane", "header");
     }
 
-    private static string EnumToLower<T>(T enumValue)
-        where T : Enum
+    private void Add(PropCategory key, BasePane pane)
     {
-        var enumString = enumValue.ToString();
+        if (propPanes.ContainsKey(key))
+            return;
 
-        return char.ToLower(enumString[0]) + enumString.Substring(1);
+        _ = pane ?? throw new ArgumentNullException(nameof(pane));
+
+        propPanes[key] = pane;
+
+        propTypes.Add(key);
+        Add(pane);
+
+        propTypeDropdown.SetItemsWithoutNotify(propTypes, 0);
     }
 }

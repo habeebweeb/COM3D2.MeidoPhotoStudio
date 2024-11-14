@@ -207,7 +207,7 @@ public class LightsPane : BasePane
 
             GUILayout.BeginHorizontal();
 
-            lightDropdown.Draw(GUILayout.Width(parent.WindowRect.width - Utility.GetPix(175)));
+            lightDropdown.Draw(GUILayout.Width(Parent.WindowRect.width - Utility.GetPix(175)));
 
             var noExpandWidth = GUILayout.ExpandWidth(false);
 

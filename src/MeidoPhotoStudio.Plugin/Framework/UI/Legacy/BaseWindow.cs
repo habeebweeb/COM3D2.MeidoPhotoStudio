@@ -1,41 +1,33 @@
 namespace MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
-public abstract class BaseWindow : BasePane
+public abstract class BaseWindow
 {
-    public readonly int WindowID = ID;
-
-    protected readonly List<BasePane> Panes = [];
-
-    protected Vector2 scrollPos;
-    protected Rect windowRect = new(0f, 0f, 480f, 270f);
-
     private static int id = 765;
 
-    public bool ActiveWindow { get; set; }
+    private Rect rect;
+
+    public BaseWindow()
+    {
+        ID = id++;
+
+        Translation.ReloadTranslationEvent += OnTranslationReloaded;
+    }
+
+    public int ID { get; }
 
     public virtual Rect WindowRect
     {
-        get => windowRect;
-        set
+        get => rect;
+        set => rect = value with
         {
-            value.x =
-                Mathf.Clamp(value.x, -value.width + Utility.GetPix(20), Screen.width - Utility.GetPix(20));
-
-            value.y =
-                Mathf.Clamp(value.y, -value.height + Utility.GetPix(20), Screen.height - Utility.GetPix(20));
-
-            windowRect = value;
-        }
+            x = Mathf.Clamp(value.x, -value.width + Utility.GetPix(20), Screen.width - Utility.GetPix(20)),
+            y = Mathf.Clamp(value.y, -value.height + Utility.GetPix(20), Screen.height - Utility.GetPix(20)),
+        };
     }
 
-    protected Vector2 MiddlePosition =>
-        new((float)Screen.width / 2 - windowRect.width / 2, (float)Screen.height / 2 - windowRect.height / 2);
+    public virtual bool Visible { get; set; }
 
-    private static int ID =>
-        id++;
-
-    public virtual void Update() =>
-        HandleZoom();
+    public virtual bool Enabled { get; set; }
 
     public virtual void GUIFunc(int id)
     {
@@ -43,54 +35,23 @@ public abstract class BaseWindow : BasePane
         GUI.DragWindow();
     }
 
-    public virtual void UpdatePanes()
+    public abstract void Draw();
+
+    public virtual void Activate()
     {
-        foreach (var pane in Panes)
-            pane.UpdatePane();
     }
 
-    public override void SetParent(BaseWindow window)
+    public virtual void Deactivate()
     {
-        foreach (var pane in Panes)
-            pane.SetParent(window);
     }
 
-    public override void Activate()
+    public virtual void OnScreenDimensionsChanged(Vector2 newScreenDimensions)
     {
-        base.Activate();
-
-        foreach (var pane in Panes)
-            pane.Activate();
     }
 
-    public override void Deactivate()
+    internal void Update()
     {
-        base.Deactivate();
-
-        foreach (var pane in Panes)
-            pane.Deactivate();
-    }
-
-    public override void OnScreenDimensionsChanged(Vector2 newScreenDimensions)
-    {
-        base.OnScreenDimensionsChanged(newScreenDimensions);
-
-        foreach (var pane in Panes)
-            pane.OnScreenDimensionsChanged(newScreenDimensions);
-    }
-
-    protected T AddPane<T>(T pane)
-        where T : BasePane
-    {
-        Panes.Add(pane);
-        pane.SetParent(this);
-
-        return pane;
-    }
-
-    private void HandleZoom()
-    {
-        if (UnityEngine.Input.mouseScrollDelta.y is 0f || !Visible)
+        if (!Visible || UnityEngine.Input.mouseScrollDelta.y is 0f)
             return;
 
         var mousePos = new Vector2(UnityEngine.Input.mousePosition.x, Screen.height - UnityEngine.Input.mousePosition.y);
@@ -98,4 +59,11 @@ public abstract class BaseWindow : BasePane
         if (WindowRect.Contains(mousePos))
             UnityEngine.Input.ResetInputAxes();
     }
+
+    protected virtual void ReloadTranslation()
+    {
+    }
+
+    private void OnTranslationReloaded(object sender, EventArgs e) =>
+        ReloadTranslation();
 }

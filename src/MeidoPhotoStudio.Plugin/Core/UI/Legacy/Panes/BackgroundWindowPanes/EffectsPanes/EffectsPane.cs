@@ -4,7 +4,7 @@ using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
-public class EffectsPane : BasePane, IEnumerable<KeyValuePair<EffectsPane.EffectType, BasePane>>
+public class EffectsPane : BasePane
 {
     private readonly Dropdown<EffectType> effectTypesDropdown;
     private readonly Dictionary<EffectType, BasePane> effectsPanes = new(EnumEqualityComparer<EffectType>.Instance);
@@ -45,35 +45,25 @@ public class EffectsPane : BasePane, IEnumerable<KeyValuePair<EffectsPane.Effect
         effectsPanes[effectTypesDropdown.SelectedItem].Draw();
     }
 
-    public IEnumerator<KeyValuePair<EffectType, BasePane>> GetEnumerator() =>
-        effectsPanes.GetEnumerator();
-
-    IEnumerator IEnumerable.GetEnumerator() =>
-        GetEnumerator();
-
-    public override void SetParent(BaseWindow window)
-    {
-        base.SetParent(window);
-
-        foreach (var pane in effectsPanes.Values)
-            pane.SetParent(parent);
-    }
-
-    public void Add(EffectType type, BasePane pane)
-    {
-        _ = pane ?? throw new ArgumentNullException(nameof(pane));
-
-        effectsPanes[type] = pane;
-
-        var effects = effectTypesDropdown.Concat(new[] { type });
-
-        effectTypesDropdown.SetItemsWithoutNotify(effects, 0);
-    }
-
     protected override void ReloadTranslation()
     {
         effectTypesDropdown.Reformat();
 
         paneHeader.Label = Translation.Get("effectsPane", "header");
+    }
+
+    private void Add(EffectType type, BasePane pane)
+    {
+        if (effectsPanes.ContainsKey(type))
+            return;
+
+        _ = pane ?? throw new ArgumentNullException(nameof(pane));
+
+        effectsPanes[type] = pane;
+        Add(pane);
+
+        var effects = effectTypesDropdown.Concat(new[] { type });
+
+        effectTypesDropdown.SetItemsWithoutNotify(effects, 0);
     }
 }

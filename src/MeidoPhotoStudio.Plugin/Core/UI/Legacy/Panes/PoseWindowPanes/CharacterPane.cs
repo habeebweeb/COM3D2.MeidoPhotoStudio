@@ -49,7 +49,11 @@ public class CharacterPane : BasePane
     public CharacterWindowTabPane this[CharacterWindowTab tab]
     {
         get => windowPanes[tab];
-        set => windowPanes[tab] = value;
+        set
+        {
+            windowPanes[tab] = value;
+            Add(value);
+        }
     }
 
     public override void Draw()
@@ -74,14 +78,6 @@ public class CharacterPane : BasePane
         base.Activate();
 
         tabs.SelectedItemIndex = 0;
-    }
-
-    public override void SetParent(BaseWindow window)
-    {
-        base.SetParent(window);
-
-        foreach (var pane in windowPanes.Values)
-            pane.SetParent(window);
     }
 
     protected override void ReloadTranslation()

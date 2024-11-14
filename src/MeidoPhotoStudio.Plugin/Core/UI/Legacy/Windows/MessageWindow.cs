@@ -23,14 +23,21 @@ public partial class MessageWindow : BaseWindow
     private readonly Label fontPointLabel;
     private readonly LazyStyle textAreaStyle;
 
+    private Vector2 scrollPosition;
+
     public MessageWindow(MessageWindowManager messageWindowManager)
     {
         this.messageWindowManager = messageWindowManager;
         this.messageWindowManager.PropertyChanged += OnMessageWindowPropertyChanged;
 
-        WindowRect = WindowRect;
-        windowRect.x = MiddlePosition.x;
-        windowRect.y = Screen.height - WindowRect.height;
+        var width = Mathf.Max(Screen.width * 0.5f, 440);
+        var height = Mathf.Max(Screen.height * 0.17f, 150);
+
+        WindowRect = new(
+            Screen.width / 2f - width / 2f,
+            Screen.height - height,
+            width,
+            height);
 
         nameTextField = new();
 
@@ -67,16 +74,6 @@ public partial class MessageWindow : BaseWindow
             new(Translation.Get("messageWindow", string.Concat("align", alignment.ToString())));
     }
 
-    public override Rect WindowRect
-    {
-        set
-        {
-            value.width = Mathf.Clamp(Screen.width * 0.5f, 440, Mathf.Infinity);
-            value.height = Mathf.Clamp(Screen.height * 0.17f, 150, Mathf.Infinity);
-            base.WindowRect = value;
-        }
-    }
-
     public override void Draw()
     {
         GUILayout.BeginHorizontal();
@@ -101,7 +98,7 @@ public partial class MessageWindow : BaseWindow
 
         GUILayout.EndHorizontal();
 
-        scrollPos = GUILayout.BeginScrollView(scrollPos);
+        scrollPosition = GUILayout.BeginScrollView(scrollPosition);
 
         messageTextArea.Draw(textAreaStyle, GUILayout.ExpandHeight(true));
 
@@ -110,27 +107,35 @@ public partial class MessageWindow : BaseWindow
         okButton.Draw(GUILayout.ExpandWidth(false), GUILayout.Width(Utility.GetPix(60)));
     }
 
-    public override void Deactivate()
-    {
-        messageWindowManager.CloseMessagePanel();
-        Visible = false;
-    }
-
     public override void OnScreenDimensionsChanged(Vector2 newScreenDimensions)
     {
         base.OnScreenDimensionsChanged(newScreenDimensions);
 
-        if (WindowRect.xMax > newScreenDimensions.x)
-            WindowRect = WindowRect with
+        var newRect = WindowRect with
+        {
+            width = Mathf.Max(Screen.width * 0.5f, 440f),
+            height = Mathf.Max(Screen.height * 0.17f, 150f),
+        };
+
+        if (newRect.xMax > newScreenDimensions.x)
+            newRect = newRect with
             {
                 x = newScreenDimensions.x - WindowRect.width - 5f,
             };
 
-        if (WindowRect.yMax > newScreenDimensions.y)
-            WindowRect = WindowRect with
+        if (newRect.yMax > newScreenDimensions.y)
+            newRect = WindowRect with
             {
                 y = newScreenDimensions.y - WindowRect.height - 5f,
             };
+
+        WindowRect = newRect;
+    }
+
+    public override void Deactivate()
+    {
+        messageWindowManager.CloseMessagePanel();
+        Visible = false;
     }
 
     protected override void ReloadTranslation()

@@ -52,9 +52,9 @@ public static class Modal
             return;
 
         currentModal.WindowRect =
-            GUI.Window(currentModal.WindowID, currentModal.WindowRect, currentModal.GUIFunc, string.Empty, WindowStyle);
+            GUI.Window(currentModal.ID, currentModal.WindowRect, currentModal.GUIFunc, string.Empty, WindowStyle);
 
-        GUI.BringWindowToFront(currentModal.WindowID);
+        GUI.BringWindowToFront(currentModal.ID);
     }
 
     internal static bool MouseOverModal()

@@ -1,7 +1,7 @@
 using MeidoPhotoStudio.Plugin.Framework.UI;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
-using static MeidoPhotoStudio.Plugin.Constants;
+using Window = MeidoPhotoStudio.Plugin.Constants.Window;
 
 namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
@@ -46,7 +46,7 @@ public class WindowManager
             if (!window.Visible)
                 continue;
 
-            window.WindowRect = GUI.Window(window.WindowID, window.WindowRect, window.GUIFunc, string.Empty, WindowStyle);
+            window.WindowRect = GUI.Window(window.ID, window.WindowRect, window.GUIFunc, string.Empty, WindowStyle);
         }
     }
 

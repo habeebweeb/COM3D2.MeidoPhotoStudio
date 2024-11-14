@@ -13,7 +13,7 @@ public partial class MainWindow : BaseWindow
 
     private readonly LazyStyle pluginInfoStyle = new(
         10,
-        () => new(GUI.skin.label)
+        static () => new(GUI.skin.label)
         {
             alignment = TextAnchor.LowerLeft,
         });
@@ -50,7 +50,7 @@ public partial class MainWindow : BaseWindow
         windowPanes = [];
         WindowRect = new(Screen.width, Screen.height * 0.08f, WindowWidth, Screen.height * 0.9f);
 
-        tabsPane = AddPane<TabsPane>(new());
+        tabsPane = new TabsPane();
         tabsPane.TabChange += (_, _) =>
             ChangeTab();
 
@@ -79,7 +79,7 @@ public partial class MainWindow : BaseWindow
             value.x = Mathf.Clamp(value.x, 0, Screen.width - value.width);
             value.y = Mathf.Clamp(value.y, -value.height + 30, Screen.height - 50);
 
-            windowRect = value;
+            base.WindowRect = value;
         }
     }
 
@@ -110,90 +110,6 @@ public partial class MainWindow : BaseWindow
         set => AddWindow(id, value);
     }
 
-    public void AddWindow(Constants.Window id, BaseMainWindowPane window)
-    {
-        if (windowPanes.ContainsKey(id))
-            Panes.Remove(windowPanes[id]);
-
-        windowPanes[id] = window;
-        windowPanes[id].SetTabsPane(tabsPane);
-        windowPanes[id].SetParent(this);
-
-        Panes.Add(windowPanes[id]);
-    }
-
-    public override void OnScreenDimensionsChanged(Vector2 newScreenDimensions)
-    {
-        base.OnScreenDimensionsChanged(newScreenDimensions);
-
-        var newWindowRect = new Rect(
-            Screen.width,
-            Screen.height * 0.08f,
-            ClampWindowWidth(Screen.width * 0.13f),
-            Screen.height * 0.9f);
-
-        if (customMaidSceneService.EditScene)
-            newWindowRect.height *= 0.85f;
-
-        WindowRect = newWindowRect;
-    }
-
-    public override void Activate()
-    {
-        base.Activate();
-
-        tabsPane.SelectedTab = Constants.Window.Call;
-        Visible = true;
-
-        var newWindowRect = new Rect(
-            Screen.width,
-            Screen.height * 0.08f,
-            ClampWindowWidth(Screen.width * 0.13f),
-            Screen.height * 0.9f);
-
-        if (customMaidSceneService.EditScene)
-            newWindowRect.height *= 0.85f;
-
-        WindowRect = newWindowRect;
-    }
-
-    public override void GUIFunc(int id)
-    {
-        HandleResize();
-
-        Draw();
-
-        if (!resizing)
-            GUI.DragWindow();
-
-        void HandleResize()
-        {
-            resizeHandleRect = resizeHandleRect with
-            {
-                x = 0f,
-                y = windowRect.height - ResizeHandleSize,
-            };
-
-            if (resizing && !Input.GetMouseButton(0))
-                resizing = false;
-            else if (!resizing && Input.GetMouseButtonDown(0) && resizeHandleRect.Contains(Event.current.mousePosition))
-                resizing = true;
-
-            if (resizing)
-            {
-                var minimumWindowWidth = Mathf.Max(WindowWidth, Utility.GetPix(WindowWidth));
-                var xMin = Mathf.Max(0f, Mathf.Min(windowRect.xMax - minimumWindowWidth, Input.mousePosition.x - ResizeHandleSize / 2f));
-                var height = Mathf.Max(MinimumWindowHeight, Event.current.mousePosition.y + ResizeHandleSize / 2f);
-
-                WindowRect = windowRect with
-                {
-                    xMin = Mathf.RoundToInt(xMin),
-                    height = height,
-                };
-            }
-        }
-    }
-
     public override void Draw()
     {
         currentWindowPane?.Draw();
@@ -221,11 +137,94 @@ public partial class MainWindow : BaseWindow
         GUI.Box(resizeHandleRect, GUIContent.none);
     }
 
+    public override void OnScreenDimensionsChanged(Vector2 newScreenDimensions)
+    {
+        base.OnScreenDimensionsChanged(newScreenDimensions);
+
+        var newWindowRect = new Rect(
+            Screen.width,
+            Screen.height * 0.08f,
+            ClampWindowWidth(Screen.width * 0.13f),
+            Screen.height * 0.9f);
+
+        if (customMaidSceneService.EditScene)
+            newWindowRect.height *= 0.85f;
+
+        WindowRect = newWindowRect;
+    }
+
+    public override void GUIFunc(int id)
+    {
+        HandleResize();
+
+        Draw();
+
+        if (!resizing)
+            GUI.DragWindow();
+
+        void HandleResize()
+        {
+            resizeHandleRect = resizeHandleRect with
+            {
+                x = 0f,
+                y = WindowRect.height - ResizeHandleSize,
+            };
+
+            if (resizing && !Input.GetMouseButton(0))
+                resizing = false;
+            else if (!resizing && Input.GetMouseButtonDown(0) && resizeHandleRect.Contains(Event.current.mousePosition))
+                resizing = true;
+
+            if (resizing)
+            {
+                var minimumWindowWidth = Mathf.Max(WindowWidth, Utility.GetPix(WindowWidth));
+                var xMin = Mathf.Max(0f, Mathf.Min(WindowRect.xMax - minimumWindowWidth, Input.mousePosition.x - ResizeHandleSize / 2f));
+                var height = Mathf.Max(MinimumWindowHeight, Event.current.mousePosition.y + ResizeHandleSize / 2f);
+
+                WindowRect = WindowRect with
+                {
+                    xMin = Mathf.RoundToInt(xMin),
+                    height = height,
+                };
+            }
+        }
+    }
+
+    public override void Activate()
+    {
+        foreach (var pane in windowPanes.Values)
+            pane.Activate();
+
+        tabsPane.SelectedTab = Constants.Window.Call;
+        Visible = true;
+
+        var newWindowRect = new Rect(
+            Screen.width,
+            Screen.height * 0.08f,
+            ClampWindowWidth(Screen.width * 0.13f),
+            Screen.height * 0.9f);
+
+        if (customMaidSceneService.EditScene)
+            newWindowRect.height *= 0.85f;
+
+        WindowRect = newWindowRect;
+    }
+
     protected override void ReloadTranslation()
     {
         settingsButtonLabel = Translation.Get("mainWindow", "settingsButton");
         closeButtonLabel = Translation.Get("mainWindow", "closeSettingsButton");
         settingsButton.Label = selectedWindow == Constants.Window.Settings ? closeButtonLabel : settingsButtonLabel;
+    }
+
+    private void AddWindow(Constants.Window id, BaseMainWindowPane window)
+    {
+        if (windowPanes.ContainsKey(id))
+            return;
+
+        windowPanes[id] = window;
+        windowPanes[id].SetTabsPane(tabsPane);
+        windowPanes[id].SetParent(this);
     }
 
     private float ClampWindowWidth(float width) =>
@@ -239,21 +238,16 @@ public partial class MainWindow : BaseWindow
 
     private void SetCurrentWindow(Constants.Window window)
     {
-        if (currentWindowPane is not null)
-            currentWindowPane.ActiveWindow = false;
-
         selectedWindow = window;
         currentWindowPane = windowPanes[selectedWindow];
-        currentWindowPane.ActiveWindow = true;
-        currentWindowPane.UpdatePanes();
     }
 
     private void ChangeWindow(Constants.Window window)
     {
-        if (selectedWindow == window)
-            currentWindowPane.UpdatePanes();
-        else
-            tabsPane.SelectedTab = window;
+        if (window == selectedWindow)
+            return;
+
+        tabsPane.SelectedTab = window;
 
         Visible = true;
     }

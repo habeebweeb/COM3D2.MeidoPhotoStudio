@@ -121,7 +121,7 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
 
         GUILayout.BeginHorizontal();
 
-        sortTypeDropdown.Draw(GUILayout.Width(parent.WindowRect.width - Utility.GetPix(150)));
+        sortTypeDropdown.Draw(GUILayout.Width(Parent.WindowRect.width - Utility.GetPix(150)));
 
         GUILayout.FlexibleSpace();
 
@@ -141,7 +141,7 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
 
         MpsGui.BlackLine();
 
-        var windowRect = parent.WindowRect;
+        var windowRect = Parent.WindowRect;
         var scrollRect = GUILayoutUtility.GetRect(0f, windowRect.width, 100f, windowRect.height);
 
         scrollPosition = virtualList.BeginScrollView(scrollRect, scrollPosition);
@@ -321,7 +321,7 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
             return size;
 
         var iconHeight = Utility.GetPix(75f);
-        var windowWidth = parent.WindowRect.width - 25f;
+        var windowWidth = Parent.WindowRect.width - 25f;
 
         var buttonWidth = editModeToggle.Value
             ? windowWidth - Utility.GetPix(20f)

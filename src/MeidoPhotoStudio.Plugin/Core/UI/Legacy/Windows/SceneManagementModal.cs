@@ -43,18 +43,18 @@ public class SceneManagementModal : BaseWindow
         GUILayout.EndArea();
     }
 
+    public void ManageScene(SceneModel scene) =>
+        manageSceneMode.ManageScene(scene);
+
+    public void DeleteCategory(string category) =>
+        deleteCategoryMode.DeleteCategory(category);
+
     public override void OnScreenDimensionsChanged(Vector2 newScreenDimensions)
     {
         base.OnScreenDimensionsChanged(newScreenDimensions);
 
         CurrentMode.OnScreenDimensionsChanged();
     }
-
-    public void ManageScene(SceneModel scene) =>
-        manageSceneMode.ManageScene(scene);
-
-    public void DeleteCategory(string category) =>
-        deleteCategoryMode.DeleteCategory(category);
 
     protected override void ReloadTranslation()
     {

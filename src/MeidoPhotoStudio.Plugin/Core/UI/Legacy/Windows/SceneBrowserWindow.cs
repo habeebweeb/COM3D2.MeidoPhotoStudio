@@ -194,44 +194,6 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
     private bool Descending =>
         descendingToggle.Value;
 
-    public override void GUIFunc(int id)
-    {
-        HandleResize();
-        Draw();
-
-        if (!resizing)
-            GUI.DragWindow();
-
-        void HandleResize()
-        {
-            resizeHandleRect = resizeHandleRect with
-            {
-                x = windowRect.width - ResizeHandleSize,
-                y = windowRect.height - ResizeHandleSize,
-            };
-
-            if (resizing && !Input.GetMouseButton(0))
-                resizing = false;
-            else if (!resizing && Input.GetMouseButtonDown(0) && resizeHandleRect.Contains(Event.current.mousePosition))
-                resizing = true;
-
-            if (resizing)
-            {
-                var mousePosition = Event.current.mousePosition;
-
-                var (windowWidth, windowHeight) = mousePosition;
-                var minimumWidth = Utility.GetPix(CategoryListWidth + ThumbnailDimensions.x * ThumbnailScale + 38);
-                var minimumHeight = Utility.GetPix(ThumbnailDimensions.y * ThumbnailScale + 40);
-
-                WindowRect = windowRect with
-                {
-                    width = Mathf.Max(minimumWidth, windowWidth + ResizeHandleSize / 2f),
-                    height = Mathf.Max(minimumHeight, windowHeight + ResizeHandleSize / 2f),
-                };
-            }
-        }
-    }
-
     public override void Draw()
     {
         GUILayout.BeginArea(new(10f, 10f, WindowRect.width - 20f, WindowRect.height - 20f));
@@ -378,15 +340,53 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
         var minimumWidth = Utility.GetPix(CategoryListWidth + ThumbnailDimensions.x * ThumbnailScale + 20);
         var minimumHeight = Utility.GetPix(ThumbnailDimensions.y * ThumbnailScale + 40);
 
-        WindowRect = windowRect with
+        WindowRect = WindowRect with
         {
-            width = Mathf.Max(minimumWidth, windowRect.width),
-            height = Mathf.Max(minimumHeight, windowRect.height),
+            width = Mathf.Max(minimumWidth, WindowRect.width),
+            height = Mathf.Max(minimumHeight, WindowRect.height),
         };
     }
 
     Vector2 IVirtualListHandler.ItemDimensions(int index) =>
         thumbnailDimensions;
+
+    public override void GUIFunc(int id)
+    {
+        HandleResize();
+        Draw();
+
+        if (!resizing)
+            GUI.DragWindow();
+
+        void HandleResize()
+        {
+            resizeHandleRect = resizeHandleRect with
+            {
+                x = WindowRect.width - ResizeHandleSize,
+                y = WindowRect.height - ResizeHandleSize,
+            };
+
+            if (resizing && !Input.GetMouseButton(0))
+                resizing = false;
+            else if (!resizing && Input.GetMouseButtonDown(0) && resizeHandleRect.Contains(Event.current.mousePosition))
+                resizing = true;
+
+            if (resizing)
+            {
+                var mousePosition = Event.current.mousePosition;
+
+                var (windowWidth, windowHeight) = mousePosition;
+                var minimumWidth = Utility.GetPix(CategoryListWidth + ThumbnailDimensions.x * ThumbnailScale + 38);
+                var minimumHeight = Utility.GetPix(ThumbnailDimensions.y * ThumbnailScale + 40);
+
+                WindowRect = WindowRect with
+                {
+                    width = Mathf.Max(minimumWidth, windowWidth + ResizeHandleSize / 2f),
+                    height = Mathf.Max(minimumHeight, windowHeight + ResizeHandleSize / 2f),
+                };
+            }
+        }
+    }
 
     protected override void ReloadTranslation()
     {

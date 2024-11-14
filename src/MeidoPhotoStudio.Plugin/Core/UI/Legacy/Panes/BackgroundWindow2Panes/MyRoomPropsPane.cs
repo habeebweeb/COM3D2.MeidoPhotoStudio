@@ -82,7 +82,7 @@ public class MyRoomPropsPane : BasePane, IVirtualListHandler
 
         void DrawPropList()
         {
-            var scrollRect = GUILayoutUtility.GetRect(0f, parent.WindowRect.width, 100f, parent.WindowRect.height);
+            var scrollRect = GUILayoutUtility.GetRect(0f, Parent.WindowRect.width, 100f, Parent.WindowRect.height);
 
             buttonSize = Vector2.one * Mathf.Min(80f, (scrollRect.width - 18f) / 3);
 

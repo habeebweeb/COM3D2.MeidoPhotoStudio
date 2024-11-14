@@ -2,13 +2,15 @@ using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
-public class BaseMainWindowPane : BaseWindow, IEnumerable<BasePane>
+public class BaseMainWindowPane : BasePane
 {
     protected TabsPane tabsPane;
 
     protected virtual bool DrawTabs { get; } = true;
 
     protected virtual bool Scrollable { get; } = true;
+
+    protected Vector2 ScrollPosition { get; set; }
 
     public void SetTabsPane(TabsPane tabsPane) =>
         this.tabsPane = tabsPane;
@@ -19,7 +21,7 @@ public class BaseMainWindowPane : BaseWindow, IEnumerable<BasePane>
             tabsPane.Draw();
 
         if (Scrollable)
-            scrollPos = GUILayout.BeginScrollView(scrollPos);
+            ScrollPosition = GUILayout.BeginScrollView(ScrollPosition);
 
         foreach (var pane in Panes)
             pane.Draw();
@@ -29,21 +31,4 @@ public class BaseMainWindowPane : BaseWindow, IEnumerable<BasePane>
 
         GUI.enabled = true;
     }
-
-    public override void UpdatePanes()
-    {
-        if (!ActiveWindow)
-            return;
-
-        base.UpdatePanes();
-    }
-
-    public void Add(BasePane pane) =>
-        AddPane(pane);
-
-    public IEnumerator<BasePane> GetEnumerator() =>
-        Panes.GetEnumerator();
-
-    IEnumerator IEnumerable.GetEnumerator() =>
-        GetEnumerator();
 }

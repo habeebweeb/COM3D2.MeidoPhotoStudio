@@ -159,7 +159,7 @@ public class InputSettingsPane : BasePane
 
             GUILayout.BeginHorizontal();
 
-            var buttonWidth = GUILayout.MaxWidth(parent.WindowRect.width - 45f);
+            var buttonWidth = GUILayout.MaxWidth(Parent.WindowRect.width - 45f);
 
             if (CurrentControlIsListening(key, isShortcut))
             {
