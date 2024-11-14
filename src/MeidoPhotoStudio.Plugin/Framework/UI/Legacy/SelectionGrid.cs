@@ -13,6 +13,8 @@ public class SelectionGrid : BaseControl
 
     public static LazyStyle Style { get; } = new(13, () => new(GUI.skin.toggle));
 
+    public bool Vertical { get; set; }
+
     public int SelectedItemIndex
     {
         get => selectedItemIndex;
@@ -24,12 +26,18 @@ public class SelectionGrid : BaseControl
 
     public void Draw(GUIStyle style, params GUILayoutOption[] layoutOptions)
     {
-        GUILayout.BeginHorizontal();
+        if (Vertical)
+            GUILayout.BeginVertical();
+        else
+            GUILayout.BeginHorizontal();
 
         foreach (var toggle in toggles)
             toggle.Draw(style, layoutOptions);
 
-        GUILayout.EndHorizontal();
+        if (Vertical)
+            GUILayout.EndVertical();
+        else
+            GUILayout.EndHorizontal();
     }
 
     public void SetItems(string[] items, int selectedItemIndex = -1) =>
