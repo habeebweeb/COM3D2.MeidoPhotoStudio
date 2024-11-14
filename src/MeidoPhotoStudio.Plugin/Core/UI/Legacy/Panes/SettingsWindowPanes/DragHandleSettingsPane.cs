@@ -10,7 +10,6 @@ public class DragHandleSettingsPane : BasePane
     private readonly DragHandleConfiguration configuration;
     private readonly IKDragHandleService ikDragHandleService;
     private readonly PropDragHandleService propDragHandleService;
-    private readonly PaneHeader paneHeader;
     private readonly Toggle smallDragHandleToggle;
     private readonly Toggle characterTransformDragHandleToggle;
 
@@ -25,8 +24,6 @@ public class DragHandleSettingsPane : BasePane
 
         this.configuration.SmallTransformCube.SettingChanged += OnSettingsChanged;
         this.configuration.CharacterTransformCube.SettingChanged += OnSettingsChanged;
-
-        paneHeader = new(Translation.Get("dragHandleSettingsPane", "header"));
 
         smallDragHandleToggle = new(
             Translation.Get("dragHandleSettingsPane", "smallDragHandleToggle"),
@@ -43,18 +40,12 @@ public class DragHandleSettingsPane : BasePane
 
     public override void Draw()
     {
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
-
         smallDragHandleToggle.Draw();
         characterTransformDragHandleToggle.Draw();
     }
 
     protected override void ReloadTranslation()
     {
-        paneHeader.Label = Translation.Get("dragHandleSettingsPane", "header");
         smallDragHandleToggle.Label = Translation.Get("dragHandleSettingsPane", "smallDragHandleToggle");
         characterTransformDragHandleToggle.Label = Translation.Get("dragHandleSettingsPane", "characterCubeDragHandleToggle");
     }

@@ -676,15 +676,19 @@
     "cyclePreviousAnimation": "Cycle Previous Animation"
   },
   "mainWindow": {
-    "settingsButton": "Settings",
-    "closeSettingsButton": "Close"
+    "settingsButton": "Settings"
+  },
+  "settingTypes": {
+    "controls": "Controls",
+    "dragHandle": "Drag Handles",
+    "autoSave": "Auto-Save",
+    "translation": "Translation",
+    "ui": "UI"
   },
   "translationSettingsPane": {
-    "header": "Translation",
     "reloadTranslationButton": "Reload Translation"
   },
   "inputSettingsPane": {
-    "header": "Controls",
     "generalControlsHeader": "General",
     "cameraControlsHeader": "Camera",
     "transformDragHandleControlsHeader": "Transform Drag Handle",
@@ -693,12 +697,10 @@
     "cancelRebindLabel": "Cancel"
   },
   "dragHandleSettingsPane": {
-    "header": "Drag Handle",
     "smallDragHandleToggle": "Small transform drag handles",
     "characterCubeDragHandleToggle": "Character transform cube drag handle"
   },
   "autoSaveSettingsPane": {
-    "header": "Auto-Save",
     "enabledToggle": "Automatically save scenes",
     "saveFrequencyHeader": "Auto-save frequency in seconds",
     "saveFrequencyHint": "Frequency must be at least {0} seconds",
@@ -708,7 +710,6 @@
     "resetButton": "Reset"
   },
   "uiSettingsPane": {
-    "header": "UI",
     "mainWindowWidthHeader": "Main window width",
     "mainWindowWidthHint": "Width must be at least {0} units wide",
     "saveButton": "Save",

@@ -9,7 +9,6 @@ public class AutoSaveSettingsPane : BasePane
 {
     private readonly AutoSaveConfiguration configuration;
     private readonly AutoSaveService autoSaveService;
-    private readonly PaneHeader paneHeader;
     private readonly Toggle enabledToggle;
     private readonly Header saveFrequencyHeader;
     private readonly Label saveFrequencyHintLabel;
@@ -29,8 +28,6 @@ public class AutoSaveSettingsPane : BasePane
     {
         this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         this.autoSaveService = autoSaveService ?? throw new ArgumentNullException(nameof(autoSaveService));
-
-        paneHeader = new(Translation.Get("autoSaveSettingsPane", "header"));
 
         enabledToggle = new(Translation.Get("autoSaveSettingsPane", "enabledToggle"), this.configuration.Enabled.Value);
         enabledToggle.ControlEvent += OnEnabledToggleChanged;
@@ -70,11 +67,6 @@ public class AutoSaveSettingsPane : BasePane
 
     public override void Draw()
     {
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
-
         enabledToggle.Draw();
 
         if (!enabledToggle.Value)
@@ -131,7 +123,6 @@ public class AutoSaveSettingsPane : BasePane
 
     protected override void ReloadTranslation()
     {
-        paneHeader.Label = Translation.Get("autoSaveSettingsPane", "header");
         enabledToggle.Label = Translation.Get("autoSaveSettingsPane", "enabledToggle");
         saveFrequencyHeader.Text = Translation.Get("autoSaveSettingsPane", "saveFrequencyHeader");
         saveFrequencyHintLabel.Text = string.Format(

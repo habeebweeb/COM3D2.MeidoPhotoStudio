@@ -8,7 +8,6 @@ public class UISettingsPane : BasePane
 {
     private readonly UIConfiguration configuration;
     private readonly MainWindow mainWindow;
-    private readonly PaneHeader paneHeader;
     private readonly Header mainWindowWidthHeader;
     private readonly Label mainWindowWidthHintLabel;
     private readonly NumericalTextField mainWindowWidthField;
@@ -21,8 +20,6 @@ public class UISettingsPane : BasePane
     {
         this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         this.mainWindow = mainWindow ?? throw new ArgumentNullException(nameof(mainWindow));
-
-        paneHeader = new(Translation.Get("uiSettingsPane", "header"));
 
         mainWindowWidthHeader = new(Translation.Get("uiSettingsPane", "mainWindowWidthHeader"));
         mainWindowWidthHintLabel = new(
@@ -44,11 +41,6 @@ public class UISettingsPane : BasePane
 
     public override void Draw()
     {
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
-
         var noExpandWidth = GUILayout.ExpandWidth(false);
 
         mainWindowWidthHeader.Draw();
@@ -73,7 +65,6 @@ public class UISettingsPane : BasePane
 
     protected override void ReloadTranslation()
     {
-        paneHeader.Label = Translation.Get("uiSettingsPane", "header");
         mainWindowWidthHeader.Text = Translation.Get("uiSettingsPane", "mainWindowWidthHeader");
         mainWindowWidthHintLabel.Text = string.Format(
             Translation.Get("uiSettingsPane", "mainWindowWidthHint"),

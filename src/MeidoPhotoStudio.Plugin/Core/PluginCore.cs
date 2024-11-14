@@ -449,7 +449,15 @@ public partial class PluginCore : MonoBehaviour
 
         var uiConfiguration = new UIConfiguration(configuration);
 
-        var mainWindow = new MainWindow(tabSelectionController, customMaidSceneService, inputRemapper)
+        var settingsWindow = new SettingsWindow()
+        {
+            [SettingsWindow.SettingType.Controls] = new InputSettingsPane(inputConfiguration, inputRemapper),
+            [SettingsWindow.SettingType.DragHandle] = new DragHandleSettingsPane(dragHandleConfiguration, ikDragHandleService, propDragHandleService),
+            [SettingsWindow.SettingType.AutoSave] = new AutoSaveSettingsPane(autoSaveConfiguration, autoSaveService),
+            [SettingsWindow.SettingType.Translation] = new TranslationSettingsPane(),
+        };
+
+        var mainWindow = new MainWindow(tabSelectionController, customMaidSceneService, inputRemapper, settingsWindow)
         {
             WindowWidth = uiConfiguration.WindowWidth.Value,
 
@@ -527,17 +535,10 @@ public partial class PluginCore : MonoBehaviour
                     new PropShapeKeyPane(propSelectionController),
                     new AttachPropPane(characterService, propAttachmentService, propSelectionController),
                 },
-            [Constants.Window.Settings] = new SettingsWindowPane()
-            {
-                new InputSettingsPane(inputConfiguration, inputRemapper),
-                new TranslationSettingsPane(),
-                new DragHandleSettingsPane(dragHandleConfiguration, ikDragHandleService, propDragHandleService),
-                new AutoSaveSettingsPane(autoSaveConfiguration, autoSaveService),
-            },
         };
 
         // TODO: lol
-        mainWindow[Constants.Window.Settings].Add(new UISettingsPane(uiConfiguration, mainWindow));
+        settingsWindow[SettingsWindow.SettingType.UI] = new UISettingsPane(uiConfiguration, mainWindow);
 
         AddPluginActiveInputHandler(new MainWindow.InputHandler(mainWindow, inputConfiguration));
 
@@ -546,6 +547,7 @@ public partial class PluginCore : MonoBehaviour
             [Constants.Window.Main] = mainWindow,
             [Constants.Window.Message] = messageWindow,
             [Constants.Window.Save] = sceneBrowser,
+            [Constants.Window.Settings] = settingsWindow,
         };
 
         dragHandleClickHandler.WindowManager = windowManager;

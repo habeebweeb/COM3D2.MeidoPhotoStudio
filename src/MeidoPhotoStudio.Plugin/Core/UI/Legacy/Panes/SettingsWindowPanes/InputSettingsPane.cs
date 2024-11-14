@@ -14,19 +14,11 @@ public class InputSettingsPane : BasePane
     private readonly InputRemapper inputRemapper;
     private readonly Dictionary<Shortcut, string> shortcutMapping;
     private readonly Dictionary<Shortcut, string> shortcutName;
-    private readonly PaneHeader paneHeader;
     private readonly PaneHeader generalControlsHeader;
     private readonly PaneHeader cameraControlsHeader;
     private readonly PaneHeader transformDragHandleControlsHeader;
     private readonly PaneHeader characterControlsHeader;
     private readonly LazyStyle labelStyle = new(13, () => new(GUI.skin.label));
-    private readonly LazyStyle leftMargin = new(
-        0,
-        () => new()
-        {
-            margin = new(8, 0, 0, 0),
-        });
-
     private readonly LazyStyle buttonStyle = new(
         13,
         () => new(GUI.skin.button)
@@ -44,8 +36,6 @@ public class InputSettingsPane : BasePane
     {
         this.inputConfiguration = inputConfiguration ?? throw new ArgumentNullException(nameof(inputConfiguration));
         this.inputRemapper = inputRemapper ? inputRemapper : throw new ArgumentNullException(nameof(inputRemapper));
-
-        paneHeader = new(Translation.Get("inputSettingsPane", "header"));
 
         generalControlsHeader = new(Translation.Get("inputSettingsPane", "generalControlsHeader"));
         cameraControlsHeader = new(Translation.Get("inputSettingsPane", "cameraControlsHeader"));
@@ -88,19 +78,10 @@ public class InputSettingsPane : BasePane
     {
         GUI.enabled = !inputRemapper.Listening;
 
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
-
-        GUILayout.BeginVertical(leftMargin);
-
         DrawGeneralControls();
         DrawCameraControls();
         DrawTransformDragHandleControls();
         DrawCharacterDragHandleControls();
-
-        GUILayout.EndVertical();
 
         GUI.enabled = true;
 

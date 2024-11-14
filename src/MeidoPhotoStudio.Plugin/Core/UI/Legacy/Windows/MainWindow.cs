@@ -10,7 +10,13 @@ public partial class MainWindow : BaseWindow
 
     private const float ResizeHandleSize = 15f;
     private const float MinimumWindowHeight = 400f;
-
+    private readonly TabSelectionController tabSelectionController;
+    private readonly CustomMaidSceneService customMaidSceneService;
+    private readonly SettingsWindow settingsWindow;
+    private readonly InputRemapper inputRemapper;
+    private readonly Dictionary<Constants.Window, BaseMainWindowPane> windowPanes = [];
+    private readonly TabsPane tabsPane;
+    private readonly Button settingsButton;
     private readonly LazyStyle pluginInfoStyle = new(
         10,
         static () => new(GUI.skin.label)
@@ -18,58 +24,34 @@ public partial class MainWindow : BaseWindow
             alignment = TextAnchor.LowerLeft,
         });
 
-    private readonly LazyStyle buttonStyle = new(13, () => new(GUI.skin.button));
-    private readonly TabSelectionController tabSelectionController;
-    private readonly Dictionary<Constants.Window, BaseMainWindowPane> windowPanes;
-    private readonly CustomMaidSceneService customMaidSceneService;
-    private readonly InputRemapper inputRemapper;
-    private readonly TabsPane tabsPane;
-    private readonly Button settingsButton;
+    private readonly LazyStyle buttonStyle = new(13, static () => new(GUI.skin.button));
 
     private int windowWidth = MinimumWindowWidth;
     private Rect resizeHandleRect = new(0f, 0f, ResizeHandleSize, ResizeHandleSize);
     private bool resizing;
     private BaseMainWindowPane currentWindowPane;
-    private string settingsButtonLabel;
-    private string closeButtonLabel;
     private Constants.Window selectedWindow;
 
     public MainWindow(
         TabSelectionController tabSelectionController,
         CustomMaidSceneService customMaidSceneService,
-        InputRemapper inputRemapper)
+        InputRemapper inputRemapper,
+        SettingsWindow settingsWindow)
     {
-        this.tabSelectionController = tabSelectionController;
-
-        this.tabSelectionController.TabSelected += (_, e) =>
-            ChangeWindow(e.Tab);
-
-        this.customMaidSceneService = customMaidSceneService;
+        this.tabSelectionController = tabSelectionController ?? throw new ArgumentNullException(nameof(tabSelectionController));
+        this.customMaidSceneService = customMaidSceneService ?? throw new ArgumentNullException(nameof(customMaidSceneService));
         this.inputRemapper = inputRemapper ? inputRemapper : throw new ArgumentNullException(nameof(inputRemapper));
+        this.settingsWindow = settingsWindow ?? throw new ArgumentNullException(nameof(settingsWindow));
 
-        windowPanes = [];
-        WindowRect = new(Screen.width, Screen.height * 0.08f, WindowWidth, Screen.height * 0.9f);
+        this.tabSelectionController.TabSelected += OnTabSelected;
 
         tabsPane = new TabsPane();
-        tabsPane.TabChange += (_, _) =>
-            ChangeTab();
+        tabsPane.TabChange += OnTabChanged;
 
-        settingsButtonLabel = Translation.Get("mainWindow", "settingsButton");
-        closeButtonLabel = Translation.Get("mainWindow", "closeSettingsButton");
+        settingsButton = new(Translation.Get("mainWindow", "settingsButton"));
+        settingsButton.ControlEvent += OnSettingsButtonPushed;
 
-        settingsButton = new(settingsButtonLabel);
-        settingsButton.ControlEvent += (_, _) =>
-        {
-            if (selectedWindow is Constants.Window.Settings)
-            {
-                ChangeTab();
-            }
-            else
-            {
-                settingsButton.Label = closeButtonLabel;
-                SetCurrentWindow(Constants.Window.Settings);
-            }
-        };
+        WindowRect = new(Screen.width, Screen.height * 0.08f, WindowWidth, Screen.height * 0.9f);
     }
 
     public override Rect WindowRect
@@ -210,12 +192,17 @@ public partial class MainWindow : BaseWindow
         WindowRect = newWindowRect;
     }
 
-    protected override void ReloadTranslation()
-    {
-        settingsButtonLabel = Translation.Get("mainWindow", "settingsButton");
-        closeButtonLabel = Translation.Get("mainWindow", "closeSettingsButton");
-        settingsButton.Label = selectedWindow == Constants.Window.Settings ? closeButtonLabel : settingsButtonLabel;
-    }
+    protected override void ReloadTranslation() =>
+        settingsButton.Label = Translation.Get("mainWindow", "settingsButton");
+
+    private void OnTabSelected(object sender, TabSelectionEventArgs e) =>
+        ChangeWindow(e.Tab);
+
+    private void OnTabChanged(object sender, EventArgs e) =>
+        SetCurrentWindow(tabsPane.SelectedTab);
+
+    private void OnSettingsButtonPushed(object sender, EventArgs e) =>
+        settingsWindow.Visible = !settingsWindow.Visible;
 
     private void AddWindow(Constants.Window id, BaseMainWindowPane window)
     {
@@ -229,12 +216,6 @@ public partial class MainWindow : BaseWindow
 
     private float ClampWindowWidth(float width) =>
         Mathf.Min(Screen.width - 20f, Mathf.Max(WindowWidth, Mathf.Min(Utility.GetPix(WindowWidth), width)));
-
-    private void ChangeTab()
-    {
-        settingsButton.Label = settingsButtonLabel;
-        SetCurrentWindow(tabsPane.SelectedTab);
-    }
 
     private void SetCurrentWindow(Constants.Window window)
     {
