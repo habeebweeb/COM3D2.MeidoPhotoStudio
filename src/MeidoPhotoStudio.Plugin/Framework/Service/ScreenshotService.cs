@@ -163,8 +163,9 @@ public class ScreenshotService : MonoBehaviour
                 .Select(uiCamera => NGUITools.FindInParents<UIRoot>(uiCamera.gameObject))
                 .Where(uiRoot => uiRoot)
                 .SelectMany(uiRoot => uiRoot.transform.Cast<Transform>())
-                .Select(transform => transform.GetComponent<UIPanel>())
-                .Where(uiPanel => uiPanel && uiPanel.alpha is not 0f && uiPanel.name is not "MessageWindowPanel")
+                .Where(transform => transform.gameObject.activeSelf)
+                .SelectMany(transform => transform.GetComponentsInChildren<UIPanel>())
+                .Where(uiPanel => uiPanel && uiPanel is { alpha: not 0f, name: not "MessageWindowPanel" })
                 .ToArray();
 
         void PlayScreenshotSound() =>
