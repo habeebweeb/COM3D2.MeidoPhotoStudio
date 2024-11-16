@@ -461,12 +461,12 @@ public partial class PluginCore : MonoBehaviour
         {
             WindowWidth = uiConfiguration.WindowWidth.Value,
 
-            [Constants.Window.Call] = new CallWindowPane()
+            [MainWindow.Tab.Call] = new CallWindowPane()
             {
                 new CharacterPlacementPane(new(characterService)),
                 new CharacterCallPane(new(characterRepository, characterService, customMaidSceneService, editModeMaidService)),
             },
-            [Constants.Window.Pose] = new CharacterWindowPane()
+            [MainWindow.Tab.Character] = new CharacterWindowPane()
             {
                 new CharacterSwitcherPane(
                     characterService, characterSelectionController, customMaidSceneService, editModeMaidService),
@@ -495,46 +495,46 @@ public partial class PluginCore : MonoBehaviour
                     ],
                 },
             },
-            [Constants.Window.BG] = new BGWindowPane()
+            [MainWindow.Tab.Environment] = new BGWindowPane()
+            {
+                new SceneManagementPane(sceneBrowser, quickSaveService),
+                new BackgroundsPane(backgroundService, backgroundRepository, backgroundDragHandleService),
+                new CameraPane(cameraController, cameraSaveSlotController),
+                new LightsPane(lightRepository, lightSelectionController),
+                new EffectsPane()
                 {
-                    new SceneManagementPane(sceneBrowser, quickSaveService),
-                    new BackgroundsPane(backgroundService, backgroundRepository, backgroundDragHandleService),
-                    new CameraPane(cameraController, cameraSaveSlotController),
-                    new LightsPane(lightRepository, lightSelectionController),
-                    new EffectsPane()
-                    {
-                        [EffectsPane.EffectType.Bloom] = new BloomPane(bloomController),
-                        [EffectsPane.EffectType.DepthOfField] = new DepthOfFieldPane(depthOfFieldController),
-                        [EffectsPane.EffectType.Vignette] = new VignettePane(vignetteController),
-                        [EffectsPane.EffectType.Fog] = new FogPane(fogController),
-                        [EffectsPane.EffectType.Blur] = new BlurPane(blurController),
-                        [EffectsPane.EffectType.SepiaTone] = new SepiaTonePane(sepiaToneController),
-                    },
+                    [EffectsPane.EffectType.Bloom] = new BloomPane(bloomController),
+                    [EffectsPane.EffectType.DepthOfField] = new DepthOfFieldPane(depthOfFieldController),
+                    [EffectsPane.EffectType.Vignette] = new VignettePane(vignetteController),
+                    [EffectsPane.EffectType.Fog] = new FogPane(fogController),
+                    [EffectsPane.EffectType.Blur] = new BlurPane(blurController),
+                    [EffectsPane.EffectType.SepiaTone] = new SepiaTonePane(sepiaToneController),
                 },
-            [Constants.Window.BG2] = new PropsWindowPane()
+            },
+            [MainWindow.Tab.Props] = new PropsWindowPane()
+            {
+                new PropsPane()
                 {
-                    new PropsPane()
-                    {
-                        [PropsPane.PropCategory.Game] = new GamePropsPane(propService, gamePropRepository),
-                        [PropsPane.PropCategory.Desk] = new DeskPropsPane(propService, deskPropRepository),
-                        [PropsPane.PropCategory.Other] = new OtherPropsPane(propService, otherPropRepository),
-                        [PropsPane.PropCategory.HandItem] = new HandItemPropsPane(propService, menuPropRepository),
-                        [PropsPane.PropCategory.Background] = new BackgroundPropsPane(
-                            propService,
-                            backgroundPropRepository),
-                        [PropsPane.PropCategory.Menu] = new MenuPropsPane(
-                            propService,
-                            menuPropRepository,
-                            menuPropsConfiguration,
-                            iconCache),
-                        [PropsPane.PropCategory.MyRoom] = new MyRoomPropsPane(
-                            propService, myRoomPropRepository, iconCache),
-                        [PropsPane.PropCategory.Favourite] = new FavouritePropsPane(propService, favouritePropRepository, iconCache),
-                    },
-                    new PropManagerPane(propService, favouritePropRepository, propDragHandleService, propSelectionController, new()),
-                    new PropShapeKeyPane(propSelectionController),
-                    new AttachPropPane(characterService, propAttachmentService, propSelectionController),
+                    [PropsPane.PropCategory.Game] = new GamePropsPane(propService, gamePropRepository),
+                    [PropsPane.PropCategory.Desk] = new DeskPropsPane(propService, deskPropRepository),
+                    [PropsPane.PropCategory.Other] = new OtherPropsPane(propService, otherPropRepository),
+                    [PropsPane.PropCategory.HandItem] = new HandItemPropsPane(propService, menuPropRepository),
+                    [PropsPane.PropCategory.Background] = new BackgroundPropsPane(
+                        propService,
+                        backgroundPropRepository),
+                    [PropsPane.PropCategory.Menu] = new MenuPropsPane(
+                        propService,
+                        menuPropRepository,
+                        menuPropsConfiguration,
+                        iconCache),
+                    [PropsPane.PropCategory.MyRoom] = new MyRoomPropsPane(
+                        propService, myRoomPropRepository, iconCache),
+                    [PropsPane.PropCategory.Favourite] = new FavouritePropsPane(propService, favouritePropRepository, iconCache),
                 },
+                new PropManagerPane(propService, favouritePropRepository, propDragHandleService, propSelectionController, new()),
+                new PropShapeKeyPane(propSelectionController),
+                new AttachPropPane(characterService, propAttachmentService, propSelectionController),
+            },
         };
 
         // TODO: lol

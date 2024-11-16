@@ -1,3 +1,4 @@
+using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.Service;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
@@ -10,12 +11,14 @@ public partial class MainWindow : BaseWindow
 
     private const float ResizeHandleSize = 15f;
     private const float MinimumWindowHeight = 400f;
+
     private readonly TabSelectionController tabSelectionController;
     private readonly CustomMaidSceneService customMaidSceneService;
     private readonly SettingsWindow settingsWindow;
     private readonly InputRemapper inputRemapper;
-    private readonly Dictionary<Constants.Window, BaseMainWindowPane> windowPanes = [];
-    private readonly TabsPane tabsPane;
+    private readonly List<Tab> tabs = [];
+    private readonly Dictionary<Tab, BasePane> windowPanes = [];
+    private readonly SelectionGrid tabSelectionGrid;
     private readonly Button settingsButton;
     private readonly LazyStyle pluginInfoStyle = new(
         10,
@@ -24,13 +27,13 @@ public partial class MainWindow : BaseWindow
             alignment = TextAnchor.LowerLeft,
         });
 
-    private readonly LazyStyle buttonStyle = new(13, static () => new(GUI.skin.button));
+    private readonly LazyStyle tabsStyle = new(13, static () => new(GUI.skin.button));
 
     private int windowWidth = MinimumWindowWidth;
     private Rect resizeHandleRect = new(0f, 0f, ResizeHandleSize, ResizeHandleSize);
     private bool resizing;
-    private BaseMainWindowPane currentWindowPane;
-    private Constants.Window selectedWindow;
+    private BasePane currentPane;
+    private Tab selectedTab;
 
     public MainWindow(
         TabSelectionController tabSelectionController,
@@ -43,25 +46,50 @@ public partial class MainWindow : BaseWindow
         this.inputRemapper = inputRemapper ? inputRemapper : throw new ArgumentNullException(nameof(inputRemapper));
         this.settingsWindow = settingsWindow ?? throw new ArgumentNullException(nameof(settingsWindow));
 
-        this.tabSelectionController.TabSelected += OnTabSelected;
+        this.tabSelectionController.TabSelected += OnTabSelectionChanged;
 
-        tabsPane = new TabsPane();
-        tabsPane.TabChange += OnTabChanged;
+        tabSelectionGrid = new([]);
+        tabSelectionGrid.ControlEvent += OnTabChanged;
 
         settingsButton = new(Translation.Get("mainWindow", "settingsButton"));
         settingsButton.ControlEvent += OnSettingsButtonPushed;
 
-        WindowRect = new(Screen.width, Screen.height * 0.08f, WindowWidth, Screen.height * 0.9f);
+        WindowRect = new(
+            Screen.width,
+            Screen.height * 0.08f,
+            Screen.width * 0.13f,
+            Screen.height * 0.9f);
+    }
+
+    public enum Tab
+    {
+        Call,
+        Character,
+        CharacterPose,
+        CharacterFace,
+        Environment,
+        Props,
     }
 
     public override Rect WindowRect
     {
         set
         {
-            value.x = Mathf.Clamp(value.x, 0, Screen.width - value.width);
-            value.y = Mathf.Clamp(value.y, -value.height + 30, Screen.height - 50);
+            base.WindowRect = value with
+            {
+                width = ClampWindowWidth(value.width),
+                height = value.height,
+                x = Mathf.Clamp(value.x, 0f, Screen.width - value.width),
+                y = Mathf.Clamp(value.y, -value.height + 30f, Screen.height - 50f),
+            };
 
-            base.WindowRect = value;
+            int ClampWindowWidth(float width)
+            {
+                var minimumWidth = Mathf.Max(WindowWidth, Utility.GetPix(WindowWidth));
+                var maximumWidth = Screen.width - 20f;
+
+                return Mathf.RoundToInt(Mathf.Clamp(width, minimumWidth, maximumWidth));
+            }
         }
     }
 
@@ -77,24 +105,25 @@ public partial class MainWindow : BaseWindow
 
             windowWidth = newWidth;
 
-            var clampedWidth = ClampWindowWidth(Screen.width * 0.13f);
-
             WindowRect = WindowRect with
             {
-                xMin = WindowRect.xMax - clampedWidth,
+                width = Screen.width * 0.13f,
             };
         }
     }
 
-    public BaseMainWindowPane this[Constants.Window id]
+    public BasePane this[Tab id]
     {
         get => windowPanes[id];
-        set => AddWindow(id, value);
+        set => AddTab(id, value);
     }
 
     public override void Draw()
     {
-        currentWindowPane?.Draw();
+        tabSelectionGrid.Draw(tabsStyle);
+        MpsGui.BlackLine();
+
+        currentPane.Draw();
 
         GUI.enabled = true;
 
@@ -110,29 +139,28 @@ public partial class MainWindow : BaseWindow
 
         GUI.enabled = !inputRemapper.Listening;
 
-        settingsButton.Draw(buttonStyle, GUILayout.ExpandWidth(false));
+        settingsButton.Draw(GUILayout.ExpandWidth(false));
 
         GUI.enabled = true;
 
         GUILayout.EndHorizontal();
-
-        GUI.Box(resizeHandleRect, GUIContent.none);
     }
 
     public override void OnScreenDimensionsChanged(Vector2 newScreenDimensions)
     {
-        base.OnScreenDimensionsChanged(newScreenDimensions);
-
         var newWindowRect = new Rect(
             Screen.width,
             Screen.height * 0.08f,
-            ClampWindowWidth(Screen.width * 0.13f),
+            Screen.width * 0.13f,
             Screen.height * 0.9f);
 
         if (customMaidSceneService.EditScene)
             newWindowRect.height *= 0.85f;
 
         WindowRect = newWindowRect;
+
+        foreach (var pane in windowPanes.Values)
+            pane.OnScreenDimensionsChanged(newScreenDimensions);
     }
 
     public override void GUIFunc(int id)
@@ -140,6 +168,8 @@ public partial class MainWindow : BaseWindow
         HandleResize();
 
         Draw();
+
+        GUI.Box(resizeHandleRect, GUIContent.none);
 
         if (!resizing)
             GUI.DragWindow();
@@ -174,62 +204,72 @@ public partial class MainWindow : BaseWindow
 
     public override void Activate()
     {
-        foreach (var pane in windowPanes.Values)
-            pane.Activate();
+        SetTab(Tab.Call);
 
-        tabsPane.SelectedTab = Constants.Window.Call;
         Visible = true;
 
         var newWindowRect = new Rect(
             Screen.width,
             Screen.height * 0.08f,
-            ClampWindowWidth(Screen.width * 0.13f),
+            Screen.width * 0.13f,
             Screen.height * 0.9f);
 
         if (customMaidSceneService.EditScene)
             newWindowRect.height *= 0.85f;
 
         WindowRect = newWindowRect;
+
+        foreach (var pane in windowPanes.Values)
+            pane.Activate();
     }
 
-    protected override void ReloadTranslation() =>
+    protected override void ReloadTranslation()
+    {
         settingsButton.Label = Translation.Get("mainWindow", "settingsButton");
+        tabSelectionGrid.SetItemsWithoutNotify(Translation.GetArray("mainWindowTabs", tabs.Select(static tab => tab.ToLower())));
+    }
 
-    private void OnTabSelected(object sender, TabSelectionEventArgs e) =>
-        ChangeWindow(e.Tab);
+    private void OnTabSelectionChanged(object sender, TabSelectionEventArgs e)
+    {
+        var newTab = e.Tab switch
+        {
+            Tab.CharacterFace or Tab.CharacterPose => Tab.Character,
+            _ => e.Tab,
+        };
+
+        SetTab(newTab);
+
+        Visible = true;
+    }
 
     private void OnTabChanged(object sender, EventArgs e) =>
-        SetCurrentWindow(tabsPane.SelectedTab);
+        SetTab(tabs[tabSelectionGrid.SelectedItemIndex]);
 
     private void OnSettingsButtonPushed(object sender, EventArgs e) =>
         settingsWindow.Visible = !settingsWindow.Visible;
 
-    private void AddWindow(Constants.Window id, BaseMainWindowPane window)
+    private void AddTab(Tab tab, BasePane window)
     {
-        if (windowPanes.ContainsKey(id))
+        if (windowPanes.ContainsKey(tab))
             return;
 
-        windowPanes[id] = window;
-        windowPanes[id].SetTabsPane(tabsPane);
-        windowPanes[id].SetParent(this);
+        windowPanes[tab] = window;
+        windowPanes[tab].SetParent(this);
+        tabs.Add(tab);
+
+        tabSelectionGrid.SetItems(Translation.GetArray("mainWindowTabs", tabs.Select(static tab => tab.ToLower())), 0);
     }
 
-    private float ClampWindowWidth(float width) =>
-        Mathf.Min(Screen.width - 20f, Mathf.Max(WindowWidth, Mathf.Min(Utility.GetPix(WindowWidth), width)));
-
-    private void SetCurrentWindow(Constants.Window window)
+    private void SetTab(Tab tab)
     {
-        selectedWindow = window;
-        currentWindowPane = windowPanes[selectedWindow];
-    }
+        selectedTab = tab switch
+        {
+            Tab.CharacterFace or Tab.CharacterPose => Tab.Character,
+            _ => tab,
+        };
 
-    private void ChangeWindow(Constants.Window window)
-    {
-        if (window == selectedWindow)
-            return;
+        tabSelectionGrid.SetValueWithoutNotify(tabs.IndexOf(selectedTab));
 
-        tabsPane.SelectedTab = window;
-
-        Visible = true;
+        currentPane = windowPanes[selectedTab];
     }
 }

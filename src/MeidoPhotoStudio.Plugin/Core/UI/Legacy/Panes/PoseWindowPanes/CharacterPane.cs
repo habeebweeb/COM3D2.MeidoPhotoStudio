@@ -88,13 +88,13 @@ public class CharacterPane : BasePane
 
     private void OnTabSelected(object sender, TabSelectionEventArgs e)
     {
-        if (e.Tab is not (Constants.Window.Pose or Constants.Window.Face))
+        if (e.Tab is not (MainWindow.Tab.CharacterPose or MainWindow.Tab.CharacterFace))
             return;
 
         tabs.SelectedItemIndex = e.Tab switch
         {
-            Constants.Window.Pose => 0,
-            Constants.Window.Face => 1,
+            MainWindow.Tab.CharacterPose => 0,
+            MainWindow.Tab.CharacterFace => 1,
             _ => 0,
         };
     }

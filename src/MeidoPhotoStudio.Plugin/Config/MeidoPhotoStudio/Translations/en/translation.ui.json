@@ -1,10 +1,9 @@
 {
-  "tabs": {
+  "mainWindowTabs": {
     "call": "Call",
-    "pose": "Character",
-    "face": "Face",
-    "bg": "Env",
-    "bg2": "Props"
+    "character": "Character",
+    "environment": "Environment",
+    "props": "Props"
   },
   "maidCallWindow": {
     "okButton": "OK",
