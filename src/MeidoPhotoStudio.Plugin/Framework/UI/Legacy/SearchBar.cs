@@ -2,7 +2,7 @@ namespace MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 public class SearchBar<T> : DropdownBase<T>
 {
-    private static readonly Func<T, int, IDropdownItem> DefaultFormatter = (item, _) =>
+    private static readonly Func<T, int, IDropdownItem> DefaultFormatter = static (item, _) =>
         new LabelledDropdownItem(item?.ToString() ?? string.Empty);
 
     private readonly TextField textField;

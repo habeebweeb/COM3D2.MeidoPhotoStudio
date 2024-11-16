@@ -38,7 +38,7 @@ public class CharacterRepository : IEnumerable<CharacterModel>
 
     private static ReadOnlyCollection<CharacterModel> Initialize() =>
         GameMain.Instance.CharacterMgr.GetStockMaidList()
-            .Select(maid => new CharacterModel(maid))
+            .Select(static maid => new CharacterModel(maid))
             .ToList()
             .AsReadOnly();
 }

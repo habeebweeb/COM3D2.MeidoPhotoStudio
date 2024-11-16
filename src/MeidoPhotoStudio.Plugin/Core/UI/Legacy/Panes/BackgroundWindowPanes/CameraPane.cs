@@ -43,7 +43,7 @@ public class CameraPane : BasePane
 
         fovSlider.ControlEvent += OnFieldOfViewSliderChanged;
 
-        cameraSlotSelectionGrid = new(Enumerable.Range(1, cameraSaveSlotController.SaveSlotCount).Select(x => x.ToString()).ToArray());
+        cameraSlotSelectionGrid = new(Enumerable.Range(1, cameraSaveSlotController.SaveSlotCount).Select(static x => x.ToString()).ToArray());
         cameraSlotSelectionGrid.ControlEvent += OnCameraSlotChanged;
 
         paneHeader = new(Translation.Get("cameraPane", "header"), true);

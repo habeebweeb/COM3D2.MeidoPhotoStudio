@@ -37,7 +37,7 @@ public class PropController : INotifyPropertyChanged
 
     public bool ShadowCasting
     {
-        get => Renderers.Any(renderer => renderer.shadowCastingMode is not ShadowCastingMode.Off);
+        get => Renderers.Any(static renderer => renderer.shadowCastingMode is not ShadowCastingMode.Off);
         set
         {
             foreach (var renderer in Renderers)
@@ -49,7 +49,7 @@ public class PropController : INotifyPropertyChanged
 
     public bool Visible
     {
-        get => Renderers.Any(renderer => renderer.enabled);
+        get => Renderers.Any(static renderer => renderer.enabled);
         set
         {
             foreach (var renderer in Renderers)

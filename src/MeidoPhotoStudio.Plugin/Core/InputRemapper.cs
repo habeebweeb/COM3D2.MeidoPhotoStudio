@@ -9,7 +9,7 @@ public class InputRemapper : MonoBehaviour
     private const KeyCode UpperKeyCode = KeyCode.RightApple;
 
     private static readonly KeyCode[] ValidKeyCodes = ((KeyCode[])Enum.GetValues(typeof(KeyCode)))
-        .Where(keyCode => keyCode is not KeyCode.None and < UpperKeyCode)
+        .Where(static keyCode => keyCode is not KeyCode.None and < UpperKeyCode)
         .ToArray();
 
     private BindingType bindingType;

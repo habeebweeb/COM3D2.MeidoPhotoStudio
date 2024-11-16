@@ -18,10 +18,10 @@ public class InputSettingsPane : BasePane
     private readonly PaneHeader cameraControlsHeader;
     private readonly PaneHeader transformDragHandleControlsHeader;
     private readonly PaneHeader characterControlsHeader;
-    private readonly LazyStyle labelStyle = new(13, () => new(GUI.skin.label));
+    private readonly LazyStyle labelStyle = new(13, static () => new(GUI.skin.label));
     private readonly LazyStyle buttonStyle = new(
         13,
-        () => new(GUI.skin.button)
+        static () => new(GUI.skin.button)
         {
             wordWrap = true,
         });

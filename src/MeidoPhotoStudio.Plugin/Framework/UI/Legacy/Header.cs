@@ -7,7 +7,7 @@ public class Header(string text) : BaseControl
 
     public static LazyStyle Style { get; } = new(
         13,
-        () => new(GUI.skin.label)
+        static () => new(GUI.skin.label)
         {
             padding = new(7, 0, 0, -5),
             fontStyle = FontStyle.Bold,

@@ -25,7 +25,7 @@ public class PhotoBgPropRepository : IEnumerable<PhotoBgPropModel>
         Props.ContainsKey(category);
 
     public IEnumerator<PhotoBgPropModel> GetEnumerator() =>
-        Props.Values.SelectMany(list => list).GetEnumerator();
+        Props.Values.SelectMany(static list => list).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() =>
         GetEnumerator();
@@ -58,8 +58,8 @@ public class PhotoBgPropRepository : IEnumerable<PhotoBgPropModel>
         }
 
         return props.ToDictionary(
-            kvp => kvp.Key,
-            kvp => (IList<PhotoBgPropModel>)kvp.Value.AsReadOnly());
+            static kvp => kvp.Key,
+            static kvp => (IList<PhotoBgPropModel>)kvp.Value.AsReadOnly());
     }
 
     private void OnReloadedTranslation(object sender, EventArgs e)

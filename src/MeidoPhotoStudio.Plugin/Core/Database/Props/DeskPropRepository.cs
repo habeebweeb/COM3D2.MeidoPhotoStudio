@@ -23,7 +23,7 @@ public class DeskPropRepository : IEnumerable<DeskPropModel>
         Props.ContainsKey(categoryID);
 
     public IEnumerator<DeskPropModel> GetEnumerator() =>
-        Props.Values.SelectMany(list => list).GetEnumerator();
+        Props.Values.SelectMany(static list => list).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() =>
         GetEnumerator();
@@ -46,7 +46,7 @@ public class DeskPropRepository : IEnumerable<DeskPropModel>
             models[model.CategoryID].Add(model);
         }
 
-        return models.ToDictionary(kvp => kvp.Key, kvp => (IList<DeskPropModel>)kvp.Value.AsReadOnly());
+        return models.ToDictionary(static kvp => kvp.Key, static kvp => (IList<DeskPropModel>)kvp.Value.AsReadOnly());
     }
 
     private void OnTranslationReloaded(object sender, EventArgs e)

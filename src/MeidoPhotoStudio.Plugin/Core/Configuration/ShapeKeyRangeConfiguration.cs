@@ -38,7 +38,7 @@ public class ShapeKeyRangeConfiguration(IShapeKeyRangeSerializer shapeKeyRangeSe
     {
         return shapeKeyRangeSerializer
             .Deserialize()
-            .ToDictionary(kvp => kvp.Key, kvp => FixRange(kvp.Value), StringComparer.OrdinalIgnoreCase);
+            .ToDictionary(static kvp => kvp.Key, static kvp => FixRange(kvp.Value), StringComparer.OrdinalIgnoreCase);
 
         static ShapeKeyRange FixRange(ShapeKeyRange range) =>
             range.Lower == range.Upper ? new(0f, 1f) :

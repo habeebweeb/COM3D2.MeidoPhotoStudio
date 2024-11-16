@@ -110,6 +110,8 @@ public class FavouritePropRepository(IFavouritePropListSerializer favouritePropL
     {
         favouriteProps = [.. favouritePropListSerializer.Deserialize()];
 
-        props = favouriteProps.ToDictionary(favouriteProp => favouriteProp.PropModel, favouriteProp => favouriteProp);
+        props = favouriteProps.ToDictionary(
+            static favouriteProp => favouriteProp.PropModel,
+            static favouriteProp => favouriteProp);
     }
 }

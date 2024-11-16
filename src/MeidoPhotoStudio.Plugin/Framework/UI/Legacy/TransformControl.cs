@@ -8,7 +8,7 @@ public class TransformControl : BaseControl
     private readonly NumericalTextField xTextField;
     private readonly NumericalTextField yTextField;
     private readonly NumericalTextField zTextField;
-    private readonly LazyStyle labelStyle = new(13, () => new(GUI.skin.label));
+    private readonly LazyStyle labelStyle = new(13, static () => new(GUI.skin.label));
     private readonly Header header;
 
     public TransformControl(string header, Vector3 defaultValue)

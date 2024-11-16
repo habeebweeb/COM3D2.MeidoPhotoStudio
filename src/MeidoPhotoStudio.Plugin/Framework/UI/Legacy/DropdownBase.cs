@@ -2,7 +2,7 @@ namespace MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 public abstract class DropdownBase<T> : BaseControl, IEnumerable<T>, IDropdownHandler
 {
-    private static readonly Func<T, int, IDropdownItem> DefaultItemFormatter = (T item, int index) =>
+    private static readonly Func<T, int, IDropdownItem> DefaultItemFormatter = static (T item, int index) =>
         new LabelledDropdownItem(item?.ToString() ?? string.Empty);
 
     private T[] items = [];

@@ -104,8 +104,8 @@ public class FaceShapeKeyConfiguration
                 typeof(ShapeKeyCollection),
                 new()
                 {
-                    ConvertToString = (shapeKeyCollection, _) => ((ShapeKeyCollection)shapeKeyCollection).Serialize(),
-                    ConvertToObject = (data, _) => Deserialize(data),
+                    ConvertToString = static (shapeKeyCollection, _) => ((ShapeKeyCollection)shapeKeyCollection).Serialize(),
+                    ConvertToObject = static (data, _) => Deserialize(data),
                 });
 
         public ShapeKeyCollection() =>

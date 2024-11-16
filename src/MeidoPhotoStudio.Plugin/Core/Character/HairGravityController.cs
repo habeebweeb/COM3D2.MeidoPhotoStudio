@@ -11,9 +11,9 @@ public class HairGravityController(CharacterController characterController, Tran
         control.forceRate = 0.1f;
 
         control.SetTargetSlods(character.Maid.body0.goSlot
-            .Where(slot => slot.obj)
-            .Where(slot => slot.obj.GetComponent<DynamicBone>())
-            .Select(slot => slot.SlotId)
+            .Where(static slot => slot.obj)
+            .Where(static slot => slot.obj.GetComponent<DynamicBone>())
+            .Select(static slot => slot.SlotId)
             .ToArray());
     }
 }

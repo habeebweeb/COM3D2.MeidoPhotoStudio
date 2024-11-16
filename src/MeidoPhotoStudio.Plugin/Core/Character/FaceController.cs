@@ -41,7 +41,7 @@ public class FaceController : INotifyPropertyChanged
     }
 
     public IEnumerable<string> ExpressionKeys =>
-        Face.BlendDatas.Where(blendData => blendData is not null).Select(blendData => blendData.name);
+        Face.BlendDatas.Where(static blendData => blendData is not null).Select(static blendData => blendData.name);
 
     public bool Blink
     {

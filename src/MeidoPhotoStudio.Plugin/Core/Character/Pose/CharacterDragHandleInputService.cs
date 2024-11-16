@@ -19,9 +19,9 @@ public class CharacterDragHandleInputService : IDragHandleInputHandler<ICharacte
         {
             var interfaces = inputHandler.GetType().GetInterfaces();
 
-            var genericArgument = interfaces.Where(@interface => @interface.IsGenericType)
-                .SelectMany(@interface => @interface.GetGenericArguments())
-                .FirstOrDefault(argument => argument != typeof(ICharacterDragHandleController));
+            var genericArgument = interfaces.Where(static @interface => @interface.IsGenericType)
+                .SelectMany(static @interface => @interface.GetGenericArguments())
+                .FirstOrDefault(static argument => argument != typeof(ICharacterDragHandleController));
 
             if (genericArgument is null)
                 continue;
@@ -69,7 +69,7 @@ public class CharacterDragHandleInputService : IDragHandleInputHandler<ICharacte
 
     public void CheckInput()
     {
-        foreach (var inputHandler in inputHandlers.Values.Where(inputHandler => inputHandler.Active))
+        foreach (var inputHandler in inputHandlers.Values.Where(static inputHandler => inputHandler.Active))
             inputHandler.CheckInput();
     }
 }

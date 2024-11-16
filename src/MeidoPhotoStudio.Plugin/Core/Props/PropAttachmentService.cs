@@ -133,7 +133,7 @@ public class PropAttachmentService
 
     private void OnCallingCharacters(object sender, CharacterServiceEventArgs e)
     {
-        foreach (var attachedProp in attachedProps.Keys.Select(prop => prop.GameObject.transform))
+        foreach (var attachedProp in attachedProps.Keys.Select(static prop => prop.GameObject.transform))
             attachedProp.SetParent(null, true);
     }
 
@@ -164,7 +164,7 @@ public class PropAttachmentService
 
     private void OnDeactivating(object sender, EventArgs e)
     {
-        foreach (var prop in attachedProps.Keys.Select(prop => prop.GameObject.transform))
+        foreach (var prop in attachedProps.Keys.Select(static prop => prop.GameObject.transform))
             prop.SetParent(null, true);
     }
 }

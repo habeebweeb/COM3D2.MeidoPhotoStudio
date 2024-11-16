@@ -61,7 +61,7 @@ public class MenuPropRepository : IEnumerable<MenuFilePropModel>
     }
 
     public IEnumerator<MenuFilePropModel> GetEnumerator() =>
-        Props.Values.SelectMany(list => list).GetEnumerator();
+        Props.Values.SelectMany(static list => list).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() =>
         GetEnumerator();

@@ -13,7 +13,6 @@ public class AnimationPane : BasePane
     private const string PauseIconBase64 =
         "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAIUlEQVQ4EWP4//8/AyWYYVAagAzwiY0aMGoAbQ0YYpkJANk+OPKm3865AAAAAElFTkSuQmCC";
 
-    private static LazyStyle buttonStyle = new(13, () => new(GUI.skin.button));
     private static Texture2D playIcon;
     private static Texture2D pauseIcon;
 
@@ -25,6 +24,7 @@ public class AnimationPane : BasePane
     private readonly SelectionController<CharacterController> characterSelectionController;
     private readonly CharacterUndoRedoService characterUndoRedoService;
     private readonly PaneHeader paneHeader;
+    private readonly LazyStyle playPauseButtonStyle = new(13, static () => new(GUI.skin.button));
 
     public AnimationPane(
         CharacterUndoRedoService characterUndoRedoService,
@@ -120,7 +120,7 @@ public class AnimationPane : BasePane
 
         var noExpandWidth = GUILayout.ExpandWidth(false);
 
-        playPauseButton.Draw(buttonStyle, GUILayout.Width(45f));
+        playPauseButton.Draw(playPauseButtonStyle, GUILayout.Width(45f));
 
         GUI.enabled = guiEnabled && animationValid && animationStopped;
 

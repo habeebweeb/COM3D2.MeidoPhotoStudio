@@ -25,14 +25,14 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
     private readonly ScreenshotService screenshotService;
     private readonly LazyStyle labelStyle = new(
         FontSize,
-        () => new(GUI.skin.label)
+        static () => new(GUI.skin.label)
         {
             alignment = TextAnchor.MiddleCenter,
         });
 
     private readonly LazyStyle categoryStyle = new(
         FontSize,
-        () => new(GUI.skin.button)
+        static () => new(GUI.skin.button)
         {
             alignment = TextAnchor.MiddleLeft,
             margin = new(0, 0, 0, 0),
@@ -40,7 +40,7 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
 
     private readonly LazyStyle selectedCategoryStyle = new(
         FontSize,
-        () => new GUIStyle(GUI.skin.button)
+        static () => new(GUI.skin.button)
         {
             alignment = TextAnchor.MiddleLeft,
             margin = new(0, 0, 0, 0),
@@ -54,14 +54,14 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
 
     private readonly LazyStyle deleteButtonStyle = new(
         FontSize,
-        () => new(GUI.skin.button)
+        static () => new(GUI.skin.button)
         {
             margin = new(0, 0, 0, 0),
         });
 
     private readonly LazyStyle thumbnailStyle = new(
         FontSize,
-        () => new(GUI.skin.label)
+        static () => new(GUI.skin.label)
         {
             alignment = TextAnchor.MiddleCenter,
             padding = new RectOffset(0, 0, 0, 0),
@@ -408,9 +408,9 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
     private static IEnumerable<SceneModel> SortScenes(IEnumerable<SceneModel> scenes, SortingMode sortingMode, bool descending) =>
         sortingMode switch
         {
-            SortingMode.Name => scenes.OrderBy(scene => scene.Name, new WindowsLogicalStringComparer(), descending),
-            SortingMode.DateCreated => scenes.OrderBy(scene => File.GetCreationTime(scene.Filename), descending),
-            SortingMode.DateModified => scenes.OrderBy(scene => File.GetLastWriteTime(scene.Filename), descending),
+            SortingMode.Name => scenes.OrderBy(static scene => scene.Name, new WindowsLogicalStringComparer(), descending),
+            SortingMode.DateCreated => scenes.OrderBy(static scene => File.GetCreationTime(scene.Filename), descending),
+            SortingMode.DateModified => scenes.OrderBy(static scene => File.GetLastWriteTime(scene.Filename), descending),
             _ => throw new NotImplementedException($"'{sortingMode}' is not implemented"),
         };
 

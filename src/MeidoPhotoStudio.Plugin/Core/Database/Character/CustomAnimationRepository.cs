@@ -43,7 +43,7 @@ public class CustomAnimationRepository(string customAnimationsPath) : IEnumerabl
     }
 
     public IEnumerator<CustomAnimationModel> GetEnumerator() =>
-        Animations.Values.SelectMany(list => list).GetEnumerator();
+        Animations.Values.SelectMany(static list => list).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() =>
         GetEnumerator();

@@ -13,7 +13,7 @@ public class MyRoomPropsPane : BasePane, IVirtualListHandler
     private readonly VirtualList virtualList;
     private readonly LazyStyle buttonStyle = new(
         13,
-        () => new(GUI.skin.button)
+        static () => new(GUI.skin.button)
         {
             padding = new(0, 0, 0, 0),
         });

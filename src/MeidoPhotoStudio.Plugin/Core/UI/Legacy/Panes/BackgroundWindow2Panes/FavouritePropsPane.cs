@@ -25,10 +25,10 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
     private readonly TextField searchBar;
     private readonly Toggle editModeToggle;
     private readonly Button refreshButton;
-    private readonly LazyStyle removeFavouriteButtonStyle = new(13, () => new(GUI.skin.button));
+    private readonly LazyStyle removeFavouriteButtonStyle = new(13, static () => new(GUI.skin.button));
     private readonly LazyStyle favouritePropButtonStyle = new(
         13,
-        () => new(GUI.skin.button)
+        static () => new(GUI.skin.button)
         {
             alignment = TextAnchor.MiddleLeft,
             wordWrap = true,
@@ -36,7 +36,7 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
 
     private readonly LazyStyle noFavouritePropsLabelStyle = new(
         13,
-        () => new(GUI.skin.label)
+        static () => new(GUI.skin.label)
         {
             alignment = TextAnchor.MiddleCenter,
         });
@@ -59,7 +59,7 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
 
         sortTypeDropdown = new(
             (SortType[])Enum.GetValues(typeof(SortType)),
-            formatter: (sortType, _) => new LabelledDropdownItem(Translation.Get("favouritePropsSortTypes", sortType.ToLower())));
+            formatter: static (sortType, _) => new LabelledDropdownItem(Translation.Get("favouritePropsSortTypes", sortType.ToLower())));
 
         sortTypeDropdown.SelectionChanged += OnSortTypeChanged;
 

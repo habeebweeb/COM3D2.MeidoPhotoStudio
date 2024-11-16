@@ -29,7 +29,7 @@ public class PlacementService(CharacterService characterService)
     }
 
     private IEnumerable<(int Index, Transform Transform)> Transforms =>
-        characterService.Select(character => character.GameObject.transform).WithIndex();
+        characterService.Select(static character => character.GameObject.transform).WithIndex();
 
     public void ApplyPlacement(Placement placement)
     {

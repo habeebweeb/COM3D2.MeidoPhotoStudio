@@ -8,6 +8,6 @@ public class PropShapeKeySchemaBuilder : ISchemaBuilder<PropShapeKeySchema, Shap
     public PropShapeKeySchema Build(ShapeKeyController value) =>
         new()
         {
-            BlendValues = value is null ? [] : value.ToDictionary(kvp => kvp.HashKey, kvp => kvp.BlendValue),
+            BlendValues = value is null ? [] : value.ToDictionary(static kvp => kvp.HashKey, static kvp => kvp.BlendValue),
         };
 }

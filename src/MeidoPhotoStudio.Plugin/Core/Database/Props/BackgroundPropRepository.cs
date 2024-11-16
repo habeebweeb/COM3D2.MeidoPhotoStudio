@@ -28,7 +28,7 @@ public class BackgroundPropRepository(BackgroundRepository backgroundRepository)
         props = Initialize(backgroundRepository);
 
     public IEnumerator<BackgroundPropModel> GetEnumerator() =>
-        Props.Values.SelectMany(list => list).GetEnumerator();
+        Props.Values.SelectMany(static list => list).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() =>
         GetEnumerator();
@@ -45,7 +45,7 @@ public class BackgroundPropRepository(BackgroundRepository backgroundRepository)
 
         foreach (var category in backgroundRepository.Categories)
             models[category] = backgroundRepository[category]
-                .Select(model => new BackgroundPropModel(model))
+                .Select(static model => new BackgroundPropModel(model))
                 .ToList()
                 .AsReadOnly();
 

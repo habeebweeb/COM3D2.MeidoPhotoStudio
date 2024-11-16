@@ -253,7 +253,7 @@ public class MenuFilePropInstantiator
             }
             catch
             {
-                foreach (var bone in boneList.Where(bone => bone))
+                foreach (var bone in boneList.Where(static bone => bone))
                     Object.Destroy(bone);
 
                 if (modelParent)

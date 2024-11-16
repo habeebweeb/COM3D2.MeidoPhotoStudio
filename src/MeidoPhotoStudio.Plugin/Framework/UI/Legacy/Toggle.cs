@@ -20,7 +20,7 @@ public class Toggle : BaseControl
 
     public static LazyStyle Style { get; } = new(
         13,
-        () => new(GUI.skin.toggle)
+        static () => new(GUI.skin.toggle)
         {
             wordWrap = true,
         });

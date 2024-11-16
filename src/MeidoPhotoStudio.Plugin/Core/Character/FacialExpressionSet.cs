@@ -10,13 +10,13 @@ public class FacialExpressionSet : IEnumerable<KeyValuePair<string, float>>
     public FacialExpressionSet(IDictionary<string, float> expressionValues)
     {
         _ = expressionValues ?? throw new ArgumentNullException(nameof(expressionValues));
-        this.expressionValues = expressionValues.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        this.expressionValues = expressionValues.ToDictionary(static kvp => kvp.Key, static kvp => kvp.Value);
     }
 
     public FacialExpressionSet(IEnumerable<KeyValuePair<string, float>> expressionValues)
     {
         _ = expressionValues ?? throw new ArgumentNullException(nameof(expressionValues));
-        this.expressionValues = expressionValues.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        this.expressionValues = expressionValues.ToDictionary(static kvp => kvp.Key, static kvp => kvp.Value);
     }
 
     public float this[string expressionKey] =>

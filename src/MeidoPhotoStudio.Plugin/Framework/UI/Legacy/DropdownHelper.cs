@@ -4,8 +4,9 @@ namespace MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 internal static class DropdownHelper
 {
-    private static readonly LazyStyle WindowStyle =
-        new(0, () => new(GUI.skin.box)
+    private static readonly LazyStyle WindowStyle = new(
+        0,
+        static () => new(GUI.skin.box)
         {
             padding = new(0, 0, 0, 0),
             alignment = TextAnchor.UpperRight,
@@ -20,11 +21,11 @@ internal static class DropdownHelper
 
     public static LazyStyle DefaultDropdownStyle { get; } = new(
         13,
-        () =>
+        static () =>
         {
             var whiteBackground = new Texture2D(2, 2);
 
-            return new GUIStyle(GUI.skin.button)
+            return new(GUI.skin.button)
             {
                 alignment = TextAnchor.MiddleLeft,
                 margin = new(0, 0, 0, 0),

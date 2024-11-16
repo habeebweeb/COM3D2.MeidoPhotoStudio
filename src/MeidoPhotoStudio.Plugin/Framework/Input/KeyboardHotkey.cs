@@ -14,8 +14,8 @@ public class KeyboardHotkey(params KeyCode[] keys) : KeyboardInput(SanitizeKeys(
             typeof(KeyboardHotkey),
             new()
             {
-                ConvertToString = (hotkey, _) => ((KeyboardHotkey)hotkey).Serialize(),
-                ConvertToObject = (data, _) => Deserialize(data),
+                ConvertToString = static (hotkey, _) => ((KeyboardHotkey)hotkey).Serialize(),
+                ConvertToObject = static (data, _) => Deserialize(data),
             });
 
     public override bool IsDown() =>
@@ -46,9 +46,9 @@ public class KeyboardHotkey(params KeyCode[] keys) : KeyboardInput(SanitizeKeys(
     }
 
     private static KeyCode[] SanitizeKeys(params KeyCode[] keys) =>
-        keys.Length is 0 || keys.Any(key => key is KeyCode.None)
+        keys.Length is 0 || keys.Any(static key => key is KeyCode.None)
             ? [KeyCode.None]
-            : [.. keys.Distinct().OrderBy(keyCode => (int)keyCode)];
+            : [.. keys.Distinct().OrderBy(static keyCode => (int)keyCode)];
 
     private bool AllKeys() =>
         Keys.All(UnityEngine.Input.GetKey);

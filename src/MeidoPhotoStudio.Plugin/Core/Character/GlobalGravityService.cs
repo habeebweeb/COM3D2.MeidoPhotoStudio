@@ -39,8 +39,8 @@ public class GlobalGravityService : INotifyPropertyChanged
                 return Vector3.zero;
 
             var controller = characterService
-                .Select(character => character.Clothing.HairGravityController)
-                .FirstOrDefault(controller => controller.Valid);
+                .Select(static character => character.Clothing.HairGravityController)
+                .FirstOrDefault(static controller => controller.Valid);
 
             return controller?.Position ?? Vector3.zero;
         }
@@ -48,7 +48,7 @@ public class GlobalGravityService : INotifyPropertyChanged
         set
         {
             foreach (var controller in characterService
-                .Select(character => character.Clothing.HairGravityController))
+                .Select(static character => character.Clothing.HairGravityController))
                 controller.SetPositionWithoutNotify(value);
 
             RaisePropertyChanged(nameof(HairGravityPosition));
@@ -63,8 +63,8 @@ public class GlobalGravityService : INotifyPropertyChanged
                 return Vector3.zero;
 
             var controller = characterService
-                .Select(character => character.Clothing.ClothingGravityController)
-                .FirstOrDefault(controller => controller.Valid);
+                .Select(static character => character.Clothing.ClothingGravityController)
+                .FirstOrDefault(static controller => controller.Valid);
 
             return controller?.Position ?? Vector3.zero;
         }
@@ -72,7 +72,7 @@ public class GlobalGravityService : INotifyPropertyChanged
         set
         {
             foreach (var controller in characterService
-                .Select(character => character.Clothing.ClothingGravityController))
+                .Select(static character => character.Clothing.ClothingGravityController))
                 controller.SetPositionWithoutNotify(value);
 
             RaisePropertyChanged(nameof(ClothingGravityPosition));
@@ -81,7 +81,7 @@ public class GlobalGravityService : INotifyPropertyChanged
 
     private void OnCharactersCalling(object sender, CharacterServiceEventArgs e)
     {
-        foreach (var clothing in characterService.Select(character => character.Clothing))
+        foreach (var clothing in characterService.Select(static character => character.Clothing))
         {
             clothing.HairGravityController.Moved -= OnGravityControlMoved;
             clothing.HairGravityController.EnabledChanged -= OnGravityControlEnabledChanged;
@@ -93,7 +93,7 @@ public class GlobalGravityService : INotifyPropertyChanged
 
     private void OnCharactersCalled(object sender, CharacterServiceEventArgs e)
     {
-        foreach (var clothing in e.LoadedCharacters.Select(character => character.Clothing))
+        foreach (var clothing in e.LoadedCharacters.Select(static character => character.Clothing))
         {
             clothing.HairGravityController.Moved += OnGravityControlMoved;
             clothing.HairGravityController.EnabledChanged += OnGravityControlEnabledChanged;
@@ -128,7 +128,7 @@ public class GlobalGravityService : INotifyPropertyChanged
             return;
 
         var firstEnabledController = GetSameGravityControllers(gravityController)
-            .FirstOrDefault(controller => controller.Enabled);
+            .FirstOrDefault(static controller => controller.Enabled);
 
         var position = firstEnabledController?.Position ?? gravityController.Position;
 
@@ -149,21 +149,21 @@ public class GlobalGravityService : INotifyPropertyChanged
         if (!Enabled)
             return;
 
-        var clothing = characterService.Select(character => character.Clothing).ToArray();
+        var clothing = characterService.Select(static character => character.Clothing).ToArray();
 
         var enabledHairController = clothing
-            .Select(clothing => clothing.HairGravityController)
-            .FirstOrDefault(controller => controller.Enabled);
+            .Select(static clothing => clothing.HairGravityController)
+            .FirstOrDefault(static controller => controller.Enabled);
 
         var hairPosition = enabledHairController?.Position ?? Vector3.zero;
 
         var enabledClothingController = clothing
-            .Select(clothing => clothing.ClothingGravityController)
-            .FirstOrDefault(controller => controller.Enabled);
+            .Select(static clothing => clothing.ClothingGravityController)
+            .FirstOrDefault(static controller => controller.Enabled);
 
         var clothingPosition = enabledClothingController?.Position ?? Vector3.zero;
 
-        var controllers = clothing.Select(clothing =>
+        var controllers = clothing.Select(static clothing =>
             (clothing.HairGravityController, clothing.ClothingGravityController));
 
         foreach (var (hairController, clothingController) in controllers)

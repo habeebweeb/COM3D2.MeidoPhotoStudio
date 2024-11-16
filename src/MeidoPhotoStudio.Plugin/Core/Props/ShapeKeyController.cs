@@ -14,13 +14,13 @@ public class ShapeKeyController(Mesh mesh, TBodySkin.OriVert oriVert, BlendData[
     private readonly Vector3[] temporaryVerts = new Vector3[oriVert.VCount];
     private readonly Vector3[] temporaryNorms = new Vector3[oriVert.VCount];
     private readonly Dictionary<string, int> hashKeyToBlendValueIndex = blendDatas
-        .Select((blendData, index) => (index, blendData))
-        .ToDictionary(kvp => kvp.blendData.name, kvp => kvp.index, StringComparer.OrdinalIgnoreCase);
+        .Select(static (blendData, index) => (index, blendData))
+        .ToDictionary(static kvp => kvp.blendData.name, static kvp => kvp.index, StringComparer.OrdinalIgnoreCase);
 
     public event EventHandler<KeyedPropertyChangeEventArgs<string>> ShapeKeyChanged;
 
     public IEnumerable<string> Keys =>
-        blendDatas.Select(blendData => blendData.name);
+        blendDatas.Select(static blendData => blendData.name);
 
     public IEnumerable<float> BlendValues =>
         blendValues;
@@ -41,7 +41,7 @@ public class ShapeKeyController(Mesh mesh, TBodySkin.OriVert oriVert, BlendData[
     }
 
     public IEnumerator<(string HashKey, float BlendValue)> GetEnumerator() =>
-        blendDatas.Select(blendData => blendData.name).Zip(blendValues).GetEnumerator();
+        blendDatas.Select(static blendData => blendData.name).Zip(blendValues).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() =>
         GetEnumerator();

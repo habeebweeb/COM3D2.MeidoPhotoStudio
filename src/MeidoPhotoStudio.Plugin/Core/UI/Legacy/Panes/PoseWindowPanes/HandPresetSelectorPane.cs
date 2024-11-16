@@ -386,5 +386,5 @@ public class HandPresetSelectorPane : BasePane
         presetCategoryDropdown.SelectedItem is null
             ? []
             : handPresetRepository[presetCategoryDropdown.SelectedItem]
-                .OrderBy(preset => preset.Name, new WindowsLogicalStringComparer());
+                .OrderBy(static preset => preset.Name, new WindowsLogicalStringComparer());
 }

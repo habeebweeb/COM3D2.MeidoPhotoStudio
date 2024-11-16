@@ -8,8 +8,8 @@ namespace MeidoPhotoStudio.Plugin.Framework.UIGizmo;
 public partial class DragHandle : MonoBehaviour
 {
     private static readonly int DragHandleLayer = LayerMask.NameToLayer("AbsolutFront");
-    private static readonly Func<Vector3> DefaultPositionDelegate = () => Vector3.zero;
-    private static readonly Func<Quaternion> DefaultRotationDelegate = () => Quaternion.identity;
+    private static readonly Func<Vector3> DefaultPositionDelegate = static () => Vector3.zero;
+    private static readonly Func<Quaternion> DefaultRotationDelegate = static () => Quaternion.identity;
 
     private Vector3 oldMousePosition;
     private Vector3 handleMousePosition;

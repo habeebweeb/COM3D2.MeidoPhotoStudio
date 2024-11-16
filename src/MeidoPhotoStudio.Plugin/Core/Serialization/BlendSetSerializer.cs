@@ -31,7 +31,7 @@ public class BlendSetSerializer
             new XComment("MeidoPhotoStudio Face Preset"),
             new XElement(
                 "FaceData",
-                expressionSet.Select(kvp =>
+                expressionSet.Select(static kvp =>
                     new XElement("elm", kvp.Value.ToString("G9"), new XAttribute("name", kvp.Key)))));
 
         document.Save(xmlWriter);

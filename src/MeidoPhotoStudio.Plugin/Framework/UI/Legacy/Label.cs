@@ -7,7 +7,7 @@ public class Label(string text) : BaseControl
 
     public static LazyStyle Style { get; } = new(
         13,
-        () => new(GUI.skin.label)
+        static () => new(GUI.skin.label)
         {
             wordWrap = true,
         });

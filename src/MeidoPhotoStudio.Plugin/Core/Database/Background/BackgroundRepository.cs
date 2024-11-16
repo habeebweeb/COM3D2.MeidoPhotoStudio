@@ -24,7 +24,7 @@ public class BackgroundRepository : IEnumerable<BackgroundModel>
         Backgrounds[category];
 
     public IEnumerator<BackgroundModel> GetEnumerator() =>
-        Backgrounds.Values.SelectMany(lists => lists).GetEnumerator();
+        Backgrounds.Values.SelectMany(static lists => lists).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() =>
         GetEnumerator();
@@ -99,8 +99,8 @@ public class BackgroundRepository : IEnumerable<BackgroundModel>
             PhotoBGData.Create();
 
             com3d2BackgroundsCache ??= PhotoBGData.data
-                .Where(bgData => !string.IsNullOrEmpty(bgData.create_prefab_name))
-                .Select(bgData => new BackgroundModel(
+                .Where(static bgData => !string.IsNullOrEmpty(bgData.create_prefab_name))
+                .Select(static bgData => new BackgroundModel(
                     BackgroundCategory.COM3D2,
                     bgData.create_prefab_name,
                     Translation.Get("bgNames", bgData.create_prefab_name)))
@@ -142,7 +142,7 @@ public class BackgroundRepository : IEnumerable<BackgroundModel>
 
             return (creativeRoomData is null
                 ? Enumerable.Empty<BackgroundModel>()
-                : creativeRoomData.Select(data =>
+                : creativeRoomData.Select(static data =>
                     new BackgroundModel(BackgroundCategory.MyRoomCustom, data.Key, data.Value)))
                     .ToList()
                     .AsReadOnly();
@@ -151,7 +151,7 @@ public class BackgroundRepository : IEnumerable<BackgroundModel>
 
     private void OnReloadedTranslation(object sender, EventArgs e)
     {
-        foreach (var background in this.Where(background => background.Category is not BackgroundCategory.MyRoomCustom))
+        foreach (var background in this.Where(static background => background.Category is not BackgroundCategory.MyRoomCustom))
             background.Name = Translation.Get("bgNames", background.AssetName);
     }
 }

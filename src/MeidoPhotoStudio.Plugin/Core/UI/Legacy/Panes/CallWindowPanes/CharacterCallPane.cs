@@ -13,14 +13,14 @@ public class CharacterCallPane : BasePane, IVirtualListHandler
     private readonly CallController characterCallController;
     private readonly LazyStyle labelStyle = new(
         FontSize,
-        () => new(GUI.skin.label)
+        static () => new(GUI.skin.label)
         {
             alignment = TextAnchor.MiddleLeft,
         });
 
     private readonly LazyStyle selectedIndexStyle = new(
         FontSize,
-        () => new(GUI.skin.label)
+        static () => new(GUI.skin.label)
         {
             normal = { textColor = Color.black },
             alignment = TextAnchor.UpperRight,
@@ -28,7 +28,7 @@ public class CharacterCallPane : BasePane, IVirtualListHandler
 
     private readonly LazyStyle selectedLabelStyle = new(
         FontSize,
-        () => new(GUI.skin.label)
+        static () => new(GUI.skin.label)
         {
             normal = { textColor = Color.black },
             alignment = TextAnchor.MiddleLeft,
@@ -70,7 +70,7 @@ public class CharacterCallPane : BasePane, IVirtualListHandler
 
         sortTypeDropdown = new(
             (CallController.SortType[])Enum.GetValues(typeof(CallController.SortType)),
-            formatter: (sortType, _) => new LabelledDropdownItem(Translation.Get("characterSortTypeDropdown", sortType.ToLower())));
+            formatter: static (sortType, _) => new LabelledDropdownItem(Translation.Get("characterSortTypeDropdown", sortType.ToLower())));
 
         sortTypeDropdown.SelectionChanged += OnSortTypeChanged;
 

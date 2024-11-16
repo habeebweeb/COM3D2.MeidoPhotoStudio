@@ -45,7 +45,7 @@ public class SceneRepository(string scenesPath, ISceneSerializer sceneSerializer
     {
         Refreshing?.Invoke(this, EventArgs.Empty);
 
-        foreach (var scene in scenes?.Values.SelectMany(list => list) ?? [])
+        foreach (var scene in scenes?.Values.SelectMany(static list => list) ?? [])
             scene.DestroyThumnail();
 
         scenes = Initialize(scenesPath, RootCategoryName);
@@ -54,7 +54,7 @@ public class SceneRepository(string scenesPath, ISceneSerializer sceneSerializer
     }
 
     public IEnumerator<SceneModel> GetEnumerator() =>
-        Scenes.Values.SelectMany(list => list).GetEnumerator();
+        Scenes.Values.SelectMany(static list => list).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() =>
         GetEnumerator();

@@ -73,5 +73,5 @@ public class HandController
     }
 
     public HandOrFootPreset GetPresetData() =>
-        new(Bones.Select(bone => bone.localRotation), Type);
+        new(Bones.Select(static bone => bone.localRotation), Type);
 }

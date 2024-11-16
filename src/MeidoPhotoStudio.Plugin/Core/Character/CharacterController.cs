@@ -68,11 +68,11 @@ public class CharacterController(CharacterModel characterModel, TransformWatcher
             return;
 
         var bounds = Maid.body0.goSlot
-            .Where(slot => slot.m_ParentMPN is not MPN.null_mpn)
-            .Select(slot => slot.obj_tr.GetComponentInChildren<Renderer>())
-            .Where(renderer => renderer)
-            .Select(renderer => renderer.bounds)
-            .Aggregate((a, b) =>
+            .Where(static slot => slot.m_ParentMPN is not MPN.null_mpn)
+            .Select(static slot => slot.obj_tr.GetComponentInChildren<Renderer>())
+            .Where(static renderer => renderer)
+            .Select(static renderer => renderer.bounds)
+            .Aggregate(static (a, b) =>
             {
                 a.Encapsulate(b);
 

@@ -34,12 +34,12 @@ public class TextField : BaseControl
 
     public static LazyStyle Style { get; } = new(
         13,
-        () => new(GUI.skin.textField)
+        static () => new(GUI.skin.textField)
         {
             alignment = TextAnchor.MiddleLeft,
             padding = new(5, Utility.GetPix(22), 5, 5),
         },
-        style => style.padding.right = Utility.GetPix(22));
+        static style => style.padding.right = Utility.GetPix(22));
 
     public string Value
     {
@@ -77,7 +77,7 @@ public class TextField : BaseControl
 
     private static LazyStyle PlaceholderStyle { get; } = new(
         13,
-        () => new(GUI.skin.label)
+        static () => new(GUI.skin.label)
         {
             padding = new(5, 5, 0, 0),
             alignment = TextAnchor.MiddleLeft,
@@ -89,7 +89,7 @@ public class TextField : BaseControl
 
     private static LazyStyle ClearButtonStyle { get; } = new(
         13,
-        () => new(GUI.skin.box)
+        static () => new(GUI.skin.box)
         {
             margin = new(0, 0, 0, 0),
             padding = new(0, 0, 5, 5),

@@ -6,7 +6,7 @@ public class PaneHeader(string label, bool open = true) : BaseControl
 {
     private static readonly LazyStyle ToggleStyle = new(
         15,
-        () => new(GUI.skin.toggle)
+        static () => new(GUI.skin.toggle)
         {
             padding = new(15, 0, 2, 0),
             fontStyle = FontStyle.Bold,

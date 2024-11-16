@@ -14,8 +14,8 @@ public class KeyboardShortcut : KeyboardInput
             typeof(KeyboardShortcut),
             new()
             {
-                ConvertToString = (shortcut, _) => ((KeyboardShortcut)shortcut).Serialize(),
-                ConvertToObject = (data, _) => Deserialize(data),
+                ConvertToString = static (shortcut, _) => ((KeyboardShortcut)shortcut).Serialize(),
+                ConvertToObject = static (data, _) => Deserialize(data),
             });
 
     public KeyboardShortcut(KeyCode mainKey, params KeyCode[] modifiers)

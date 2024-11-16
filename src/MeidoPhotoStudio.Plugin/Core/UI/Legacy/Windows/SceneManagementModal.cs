@@ -66,7 +66,7 @@ public class SceneManagementModal : BaseWindow
     {
         protected readonly LazyStyle messageStyle = new(
             FontSize,
-            () => new(GUI.skin.label)
+            static () => new(GUI.skin.label)
             {
                 alignment = TextAnchor.MiddleCenter,
             });
@@ -146,7 +146,7 @@ public class SceneManagementModal : BaseWindow
 
         private readonly LazyStyle infoLabelStyle = new(
             FontSize,
-            () => new(GUI.skin.label)
+            static () => new(GUI.skin.label)
             {
                 alignment = TextAnchor.MiddleCenter,
                 normal = { background = InfoHighlight },
@@ -154,14 +154,14 @@ public class SceneManagementModal : BaseWindow
 
         private readonly LazyStyle paddedToggleStyle = new(
             FontSize,
-            () => new(GUI.skin.toggle)
+            static () => new(GUI.skin.toggle)
             {
                 margin = { left = 10 },
             });
 
         private readonly LazyStyle thumbnailStyle = new(
             0,
-            () => new(GUI.skin.box)
+            static () => new(GUI.skin.box)
             {
                 margin = new(0, 0, 0, 0),
                 border = new(0, 0, 0, 0),

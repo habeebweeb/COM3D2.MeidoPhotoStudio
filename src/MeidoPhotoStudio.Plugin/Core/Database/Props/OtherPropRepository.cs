@@ -34,7 +34,7 @@ public class OtherPropRepository : IEnumerable<OtherPropModel>
         Props.ContainsKey(category);
 
     public IEnumerator<OtherPropModel> GetEnumerator() =>
-        Props.Values.SelectMany(list => list).GetEnumerator();
+        Props.Values.SelectMany(static list => list).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() =>
         GetEnumerator();

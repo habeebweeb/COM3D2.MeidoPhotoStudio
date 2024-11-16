@@ -25,7 +25,7 @@ public class WindowManager
 
     public bool MouseOverAnyWindow()
     {
-        foreach (var window in windows.Values.Where(window => window.Visible))
+        foreach (var window in windows.Values.Where(static window => window.Visible))
             if (MouseOverWindow(window))
                 return true;
 

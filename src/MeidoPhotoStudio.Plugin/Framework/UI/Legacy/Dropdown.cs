@@ -4,7 +4,7 @@ public class Dropdown<T> : DropdownBase<T>
 {
     private static readonly LazyStyle ButtonStyle = new(
         13,
-        () => new(GUI.skin.button)
+        static () => new(GUI.skin.button)
         {
             alignment = TextAnchor.MiddleLeft,
         });

@@ -23,7 +23,7 @@ public class MyRoomPropRepository : IEnumerable<MyRoomPropModel>
         Props.ContainsKey(categoryID);
 
     public IEnumerator<MyRoomPropModel> GetEnumerator() =>
-        Props.Values.SelectMany(list => list).GetEnumerator();
+        Props.Values.SelectMany(static list => list).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() =>
         GetEnumerator();
@@ -46,7 +46,7 @@ public class MyRoomPropRepository : IEnumerable<MyRoomPropModel>
             models[model.CategoryID].Add(model);
         }
 
-        return models.ToDictionary(kvp => kvp.Key, kvp => (IList<MyRoomPropModel>)kvp.Value.AsReadOnly());
+        return models.ToDictionary(static kvp => kvp.Key, static kvp => (IList<MyRoomPropModel>)kvp.Value.AsReadOnly());
     }
 
     private void OnReloadedTranslation(object sender, EventArgs e)

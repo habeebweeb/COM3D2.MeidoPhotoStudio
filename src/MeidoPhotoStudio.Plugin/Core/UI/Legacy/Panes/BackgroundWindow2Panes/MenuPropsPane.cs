@@ -14,7 +14,7 @@ public class MenuPropsPane : BasePane, IVirtualListHandler
 
     private readonly LazyStyle propButtonStyle = new(
         11,
-        () => new(GUI.skin.button)
+        static () => new(GUI.skin.button)
         {
             alignment = TextAnchor.UpperLeft,
             margin = new(0, 0, 0, 0),
@@ -242,9 +242,9 @@ public class MenuPropsPane : BasePane, IVirtualListHandler
         if (!menuPropsConfiguration.ModMenuPropsOnly)
         {
             if (modFilterToggle.Value)
-                propList = propList.Where(prop => !prop.GameMenu);
+                propList = propList.Where(static prop => !prop.GameMenu);
             else if (baseFilterToggle.Value)
-                propList = propList.Where(prop => prop.GameMenu);
+                propList = propList.Where(static prop => prop.GameMenu);
         }
 
         currentPropList = propList.ToArray();

@@ -15,7 +15,7 @@ public class Button : BaseControl
 
     public static LazyStyle Style { get; } = new(
         13,
-        () => new(GUI.skin.button)
+        static () => new(GUI.skin.button)
         {
             wordWrap = true,
         });

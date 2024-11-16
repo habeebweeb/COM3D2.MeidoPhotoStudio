@@ -42,8 +42,8 @@ public class ExpressionPane : BasePane
     private readonly Button addShapeKeyButton;
     private readonly PaneHeader baseGameShapeKeyHeader;
     private readonly PaneHeader customShapeKeyHeader;
-    private readonly LazyStyle deleteShapeKeyButtonStyle = new(13, () => new(GUI.skin.button));
-    private readonly LazyStyle shapeKeyLabelStyle = new(13, () => new(GUI.skin.label));
+    private readonly LazyStyle deleteShapeKeyButtonStyle = new(13, static () => new(GUI.skin.button));
+    private readonly LazyStyle shapeKeyLabelStyle = new(13, static () => new(GUI.skin.label));
 
     private bool validCustomShapeKey;
     private string[] shapeKeys;
@@ -358,7 +358,7 @@ public class ExpressionPane : BasePane
 
     private void OnFaceShapeKeyRangeConfigurationRefreshed(object sender, EventArgs e)
     {
-        foreach (var (key, slider) in controls.Where(kvp => kvp.Value is Slider).Select(kvp => (kvp.Key, (Slider)kvp.Value)))
+        foreach (var (key, slider) in controls.Where(static kvp => kvp.Value is Slider).Select(static kvp => (kvp.Key, (Slider)kvp.Value)))
         {
             if (!shapeKeyRangeConfiguration.TryGetRange(key, out var range))
                 range = new(0f, 1f);

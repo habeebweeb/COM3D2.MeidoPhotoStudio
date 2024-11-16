@@ -40,7 +40,7 @@ public class CharacterService(
     public event EventHandler Deactivating;
 
     public bool Busy =>
-        calling || activeCharacters.Any(character => character.Busy);
+        calling || activeCharacters.Any(static character => character.Busy);
 
     public int Count =>
         activeCharacters.Count;

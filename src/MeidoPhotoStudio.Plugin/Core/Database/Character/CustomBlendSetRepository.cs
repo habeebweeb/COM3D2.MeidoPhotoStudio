@@ -46,7 +46,7 @@ public class CustomBlendSetRepository(string blendSetsPath) : IEnumerable<Custom
     }
 
     public IEnumerator<CustomBlendSetModel> GetEnumerator() =>
-        BlendSets.Values.SelectMany(list => list).GetEnumerator();
+        BlendSets.Values.SelectMany(static list => list).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() =>
         GetEnumerator();

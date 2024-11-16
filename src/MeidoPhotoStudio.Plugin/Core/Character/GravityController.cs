@@ -91,7 +91,7 @@ public abstract class GravityController : INotifyPropertyChanged
         if (transformControl == null)
             return;
 
-        if (!e.ChangingSlots.Any(slot => slot >= GravityMpnStart || slot <= GravityMpnEnd))
+        if (!e.ChangingSlots.Any(static slot => slot >= GravityMpnStart || slot <= GravityMpnEnd))
             return;
 
         transformWatcher.Unsubscribe(Transform);

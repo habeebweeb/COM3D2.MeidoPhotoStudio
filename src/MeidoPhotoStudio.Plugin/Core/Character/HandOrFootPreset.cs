@@ -39,5 +39,5 @@ public class HandOrFootPreset : IEnumerable<Quaternion>
     private IEnumerable<Quaternion> GetRotations(bool rightRotations) =>
         rightRotations == FromRight
             ? rotations
-            : rotations.Select(rotation => rotation with { x = rotation.x * -1, y = rotation.y * -1 });
+            : rotations.Select(static rotation => rotation with { x = rotation.x * -1, y = rotation.y * -1 });
 }

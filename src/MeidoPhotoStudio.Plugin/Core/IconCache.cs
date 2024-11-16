@@ -90,13 +90,13 @@ public class IconCache
 
     public void Destroy()
     {
-        foreach (var texture in menuTextureCache.Values.SelectMany(cache => cache.Values))
+        foreach (var texture in menuTextureCache.Values.SelectMany(static cache => cache.Values))
             Object.DestroyImmediate(texture);
 
-        foreach (var texture in myRoomTextureCache.Values.SelectMany(cache => cache.Values))
+        foreach (var texture in myRoomTextureCache.Values.SelectMany(static cache => cache.Values))
             Object.DestroyImmediate(texture);
 
-        foreach (var texture in TextureCache.Values.Where(texture => texture))
+        foreach (var texture in TextureCache.Values.Where(static texture => texture))
             Object.DestroyImmediate(texture);
 
         menuTextureCache.Clear();

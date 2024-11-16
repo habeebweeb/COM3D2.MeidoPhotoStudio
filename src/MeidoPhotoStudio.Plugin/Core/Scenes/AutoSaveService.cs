@@ -174,7 +174,7 @@ public class AutoSaveService
 
         if (sceneRepository.ContainsCategory(AutoSaveCategoryName))
             foreach (var (index, model) in sceneRepository[AutoSaveCategoryName]
-                .OrderByDescending(model => File.GetCreationTime(model.Filename))
+                .OrderByDescending(static model => File.GetCreationTime(model.Filename))
                 .Take(slots)
                 .Reverse()
                 .WithIndex())

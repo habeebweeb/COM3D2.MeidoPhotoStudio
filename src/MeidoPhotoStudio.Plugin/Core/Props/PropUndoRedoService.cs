@@ -142,7 +142,7 @@ public class PropUndoRedoService
                 new(propController.GameObject.transform),
                 propController.ShadowCasting,
                 propController.Visible,
-                propController.ShapeKeyController?.ToDictionary(kvp => kvp.HashKey, kvp => kvp.BlendValue) ?? []);
+                propController.ShapeKeyController?.ToDictionary(static kvp => kvp.HashKey, static kvp => kvp.BlendValue) ?? []);
         }
 
         public void Apply(PropController propController)

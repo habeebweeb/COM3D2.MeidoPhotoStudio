@@ -22,7 +22,7 @@ public class GameBlendSetRepository : IEnumerable<GameBlendSetModel>
         BlendSets.ContainsKey(category);
 
     public IEnumerator<GameBlendSetModel> GetEnumerator() =>
-        BlendSets.Values.SelectMany(list => list).GetEnumerator();
+        BlendSets.Values.SelectMany(static list => list).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() =>
         GetEnumerator();
@@ -46,8 +46,8 @@ public class GameBlendSetRepository : IEnumerable<GameBlendSetModel>
         }
 
         return blendSets.ToDictionary(
-            kvp => kvp.Key,
-            kvp => (IList<GameBlendSetModel>)kvp.Value.AsReadOnly());
+            static kvp => kvp.Key,
+            static kvp => (IList<GameBlendSetModel>)kvp.Value.AsReadOnly());
     }
 
     private void OnReloadedTranslation(object sender, EventArgs e)

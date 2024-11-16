@@ -19,7 +19,7 @@ public class NumericalTextField : BaseControl
 
     public event EventHandler LostFocus;
 
-    public static LazyStyle Style { get; } = new(13, () => new(GUI.skin.textField));
+    public static LazyStyle Style { get; } = new(13, static () => new(GUI.skin.textField));
 
     public float Value
     {

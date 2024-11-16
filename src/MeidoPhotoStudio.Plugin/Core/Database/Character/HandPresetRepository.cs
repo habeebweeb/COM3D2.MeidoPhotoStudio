@@ -46,7 +46,7 @@ public class HandPresetRepository(string presetsPath) : IEnumerable<HandPresetMo
     }
 
     public IEnumerator<HandPresetModel> GetEnumerator() =>
-        Presets.Values.SelectMany(list => list).GetEnumerator();
+        Presets.Values.SelectMany(static list => list).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() =>
         GetEnumerator();

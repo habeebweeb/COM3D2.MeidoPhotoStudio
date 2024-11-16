@@ -10,13 +10,13 @@ public class ClothingSet : IEnumerable<KeyValuePair<SlotID, bool>>
     public ClothingSet(IDictionary<SlotID, bool> clothingStates)
     {
         _ = clothingStates ?? throw new ArgumentException(nameof(clothingStates));
-        this.clothingStates = clothingStates.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        this.clothingStates = clothingStates.ToDictionary(static kvp => kvp.Key, static kvp => kvp.Value);
     }
 
     public ClothingSet(IEnumerable<KeyValuePair<SlotID, bool>> clothingStates)
     {
         _ = clothingStates ?? throw new ArgumentException(nameof(clothingStates));
-        this.clothingStates = clothingStates.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        this.clothingStates = clothingStates.ToDictionary(static kvp => kvp.Key, static kvp => kvp.Value);
     }
 
     public bool this[SlotID slot] =>

@@ -39,26 +39,26 @@ public class Slider : BaseControl
 
     public static LazyStyle LabelStyle { get; } = new(
         13,
-        () => new(GUI.skin.label)
+        static () => new(GUI.skin.label)
         {
             alignment = TextAnchor.LowerLeft,
             normal = { textColor = Color.white },
         });
 
-    public static LazyStyle SliderStyle { get; } = new(0, () => new(GUI.skin.horizontalSlider));
+    public static LazyStyle SliderStyle { get; } = new(0, static () => new(GUI.skin.horizontalSlider));
 
     public static LazyStyle NoLabelSliderStyle { get; } = new(
         0,
-        () => new(GUI.skin.horizontalSlider)
+        static () => new(GUI.skin.horizontalSlider)
         {
             margin = { top = 10 },
         });
 
-    public static LazyStyle SliderThumbStyle { get; } = new(0, () => new(GUI.skin.horizontalSliderThumb));
+    public static LazyStyle SliderThumbStyle { get; } = new(0, static () => new(GUI.skin.horizontalSliderThumb));
 
     public static LazyStyle ResetButtonStyle { get; } = new(
         10,
-        () => new(GUI.skin.button)
+        static () => new(GUI.skin.button)
         {
             alignment = TextAnchor.MiddleRight,
         });
