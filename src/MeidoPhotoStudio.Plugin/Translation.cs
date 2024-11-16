@@ -23,7 +23,8 @@ public static class Translation
     {
         forceSuppressWarnings = false;
 
-        var rootTranslationPath = Path.Combine(Constants.ConfigPath, Constants.TranslationDirectory);
+        var configRoot = Path.Combine(BepInEx.Paths.ConfigPath, Plugin.PluginName);
+        var rootTranslationPath = Path.Combine(configRoot, "Translations");
         var currentTranslationPath = Path.Combine(rootTranslationPath, language);
 
         translations = new(StringComparer.InvariantCultureIgnoreCase);

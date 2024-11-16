@@ -114,7 +114,9 @@ public partial class PluginCore : MonoBehaviour
 
     private void Start()
     {
-        configuration = new(Path.Combine(Constants.ConfigPath, $"{Plugin.PluginName}.cfg"), false);
+        var configRoot = Path.Combine(BepInEx.Paths.ConfigPath, Plugin.PluginName);
+
+        configuration = new(Path.Combine(configRoot, $"{Plugin.PluginName}.cfg"), false);
 
         var translationConfiguration = new TranslationConfiguration(configuration);
 
