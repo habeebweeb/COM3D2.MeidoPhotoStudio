@@ -86,7 +86,7 @@ public class Slider : BaseControl
     public float DefaultValue
     {
         get => defaultValue;
-        set => defaultValue = Utility.Bound(value, Left, Right);
+        set => defaultValue = Bound(value, Left, Right);
     }
 
     public bool HasTextField
@@ -193,9 +193,12 @@ public class Slider : BaseControl
     public void ResetValue() =>
         Value = DefaultValue;
 
+    private static float Bound(float value, float left, float right) =>
+        left > (double)right ? Mathf.Clamp(value, right, left) : Mathf.Clamp(value, left, right);
+
     private void SetValue(float value, bool notify = true)
     {
-        var newValue = Utility.Bound(value, Left, Right);
+        var newValue = Bound(value, Left, Right);
 
         if (this.value == newValue)
             return;

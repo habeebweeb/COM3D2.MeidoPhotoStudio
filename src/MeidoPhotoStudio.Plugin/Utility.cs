@@ -24,12 +24,6 @@ public static class Utility
     public static void LogDebug(object data) =>
         Logger.LogDebug(data);
 
-    public static float Bound(float value, float left, float right) =>
-        left > (double)right ? Mathf.Clamp(value, right, left) : Mathf.Clamp(value, left, right);
-
-    public static int Bound(int value, int left, int right) =>
-        left > right ? Mathf.Clamp(value, right, left) : Mathf.Clamp(value, left, right);
-
     public static bool SeekPngEnd(Stream stream)
     {
         var buffer = new byte[8];
