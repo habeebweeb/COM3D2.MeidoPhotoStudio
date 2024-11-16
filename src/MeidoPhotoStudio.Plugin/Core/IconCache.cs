@@ -35,7 +35,7 @@ public class IconCache
             else if (TryCreateTexture($@"tex\{filename}", out icon))
                 return icon;
 
-            Utility.LogMessage($"Failed to generate icon {filename}");
+            Plugin.Logger.LogMessage($"Failed to generate icon {filename}");
 
             return null;
 

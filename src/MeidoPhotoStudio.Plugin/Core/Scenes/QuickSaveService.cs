@@ -60,11 +60,11 @@ public class QuickSaveService(
         }
         catch (IOException e)
         {
-            Utility.LogDebug($"Could not load quick save file because {e}");
+            Plugin.Logger.LogDebug($"Could not load quick save file because {e}");
         }
         catch (Exception e)
         {
-            Utility.LogDebug($"Could not load quick save because {e}");
+            Plugin.Logger.LogDebug($"Could not load quick save because {e}");
         }
     }
 }

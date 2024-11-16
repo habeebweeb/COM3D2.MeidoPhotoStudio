@@ -97,7 +97,7 @@ public class FaceController : INotifyPropertyChanged
         }
         catch
         {
-            Utility.LogError($"Could not load blendset: {blendSet.BlendSetName}");
+            Plugin.Logger.LogError($"Could not load blendset: {blendSet.BlendSetName}");
 
             return;
         }

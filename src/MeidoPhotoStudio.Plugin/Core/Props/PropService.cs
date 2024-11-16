@@ -149,7 +149,7 @@ public class PropService(TransformWatcher transformWatcher) : IEnumerable<PropCo
         if (propGameObject)
             return propGameObject;
 
-        Utility.LogDebug($"Could not instantiate prop: {propModel.Name}");
+        Plugin.Logger.LogDebug($"Could not instantiate prop: {propModel.Name}");
 
         return null;
     }

@@ -34,7 +34,7 @@ public class LegacyDeserializer : ISceneSerializer
 
         if (!headerReader.ReadBytes(sceneHeader.Length).SequenceEqual(sceneHeader))
         {
-            Utility.LogError("Not a MPS scene!");
+            Plugin.Logger.LogError("Not a MPS scene!");
 
             return false;
         }
@@ -57,7 +57,7 @@ public class LegacyDeserializer : ISceneSerializer
         }
         catch (Exception e)
         {
-            Utility.LogError($"Could not deserialize scene because {e}");
+            Plugin.Logger.LogError($"Could not deserialize scene because {e}");
         }
 
         return false;
@@ -67,7 +67,7 @@ public class LegacyDeserializer : ISceneSerializer
             if (metadata.SceneVersion <= MaximumSupportedVersion)
                 return true;
 
-            Utility.LogWarning($"{nameof(LegacyDeserializer)} does not support loading a scene >{MaximumSupportedVersion}");
+            Plugin.Logger.LogWarning($"{nameof(LegacyDeserializer)} does not support loading a scene >{MaximumSupportedVersion}");
 
             return false;
         }

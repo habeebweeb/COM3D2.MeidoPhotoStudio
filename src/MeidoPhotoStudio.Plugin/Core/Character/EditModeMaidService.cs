@@ -53,13 +53,13 @@ public class EditModeMaidService
 
         try
         {
-            Utility.LogDebug($"Setting editing maid back to '{OriginalEditingCharacter.FullName()}'");
+            Plugin.Logger.LogDebug($"Setting editing maid back to '{OriginalEditingCharacter.FullName()}'");
 
             SetEditingMaid(OriginalEditingCharacter.Maid);
         }
         catch (Exception e)
         {
-            Utility.LogDebug($"Unable to restore original editing maid\n{e}");
+            Plugin.Logger.LogDebug($"Unable to restore original editing maid\n{e}");
         }
     }
 
@@ -120,7 +120,7 @@ public class EditModeMaidService
             {
                 if (!TryGetUIControl<PresetCtrl>(uiRoot, "PresetPanel", out var presetCtrl))
                 {
-                    Utility.LogDebug("Could not get 'PresetPanel'");
+                    Plugin.Logger.LogDebug("Could not get 'PresetPanel'");
 
                     return;
                 }
@@ -132,7 +132,7 @@ public class EditModeMaidService
             {
                 if (!TryGetUIControl<PresetButtonCtrl>(uiRoot, "PresetButtonPanel", out var presetButtonCtrl))
                 {
-                    Utility.LogDebug("Could not get 'PresetButtonPanel'");
+                    Plugin.Logger.LogDebug("Could not get 'PresetButtonPanel'");
 
                     return;
                 }
@@ -144,7 +144,7 @@ public class EditModeMaidService
             {
                 if (!TryGetUIControl<ProfileCtrl>(uiRoot, "ProfilePanel", out var profileCtrl))
                 {
-                    Utility.LogDebug("Could not get 'ProfilePanel'");
+                    Plugin.Logger.LogDebug("Could not get 'ProfilePanel'");
 
                     return;
                 }
@@ -157,7 +157,7 @@ public class EditModeMaidService
                 if (!TryGetUIControl<SceneEditWindow.CustomPartsWindow>(
                     uiRoot, "Window/CustomPartsWindow", out var sceneEditWindow))
                 {
-                    Utility.LogDebug("Could not get 'Window/CustomPartsWindow'");
+                    Plugin.Logger.LogDebug("Could not get 'Window/CustomPartsWindow'");
 
                     return;
                 }

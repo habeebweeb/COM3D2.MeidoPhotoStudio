@@ -113,7 +113,7 @@ public class AnimationController : INotifyPropertyChanged
         }
         catch
         {
-            Utility.LogError($"Could not load animation: {animation.Filename}");
+            Plugin.Logger.LogError($"Could not load animation: {animation.Filename}");
 
             return;
         }
@@ -156,7 +156,7 @@ public class AnimationController : INotifyPropertyChanged
                 }
                 catch
                 {
-                    Utility.LogWarning($"Time is not a valid format for {animation.Filename}");
+                    Plugin.Logger.LogWarning($"Time is not a valid format for {animation.Filename}");
                 }
             }
 

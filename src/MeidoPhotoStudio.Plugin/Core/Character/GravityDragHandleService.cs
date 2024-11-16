@@ -82,10 +82,10 @@ public class GravityDragHandleService
     private GravityDragHandleSet InitializeDragHandleSet(CharacterController character)
     {
         if (character.Clothing is null)
-            Utility.LogDebug("clothing is null");
+            Plugin.Logger.LogDebug("clothing is null");
 
         if (character.Clothing?.ClothingGravityController is null)
-            Utility.LogDebug("Clothing gravity controller is null");
+            Plugin.Logger.LogDebug("Clothing gravity controller is null");
 
         var clothingDragHandle = BuildDragHandle(character.Clothing.ClothingGravityController);
         var hairDraghandle = BuildDragHandle(character.Clothing.HairGravityController);

@@ -28,7 +28,7 @@ public class MenuFilePropInstantiator
         }
         catch (Exception e)
         {
-            Utility.LogWarning($"Could not apply model properties properly because {e}");
+            Plugin.Logger.LogWarning($"Could not apply model properties properly because {e}");
 
             Object.Destroy(model);
 

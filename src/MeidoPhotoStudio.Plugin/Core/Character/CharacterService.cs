@@ -212,7 +212,7 @@ public class CharacterService(
                         }
                         catch (Exception e)
                         {
-                            Utility.LogError(e);
+                            Plugin.Logger.LogError(e);
                         }
                     }
 #else

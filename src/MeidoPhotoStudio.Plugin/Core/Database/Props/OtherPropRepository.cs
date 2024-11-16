@@ -119,11 +119,11 @@ public class OtherPropRepository : IEnumerable<OtherPropModel>
             }
             catch (IOException e)
             {
-                Utility.LogError($"Could not open extra prop database because {e.Message}");
+                Plugin.Logger.LogError($"Could not open extra prop database because {e.Message}");
             }
             catch (Exception e)
             {
-                Utility.LogError($"Could not parse extra prop database because {e.Message}");
+                Plugin.Logger.LogError($"Could not parse extra prop database because {e.Message}");
             }
 
             return new([]);

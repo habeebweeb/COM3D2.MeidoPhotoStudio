@@ -158,14 +158,14 @@ public class CharacterUndoRedoController(CharacterController characterController
             {
                 if (aData is null || bData is null)
                 {
-                    Utility.LogDebug("Data are null");
+                    Plugin.Logger.LogDebug("Data are null");
 
                     return;
                 }
 
                 if (aData.Length != bData.Length)
                 {
-                    Utility.LogDebug("data lengths different");
+                    Plugin.Logger.LogDebug("data lengths different");
 
                     return;
                 }
@@ -175,7 +175,7 @@ public class CharacterUndoRedoController(CharacterController characterController
 
                 if (!aBackup.AnimationModel.Equals(bBackup.AnimationModel))
                 {
-                    Utility.LogDebug($"""
+                    Plugin.Logger.LogDebug($"""
                         Animation models differ
                         A: {aBackup.AnimationModel}
                         B: {bBackup.AnimationModel}
@@ -186,7 +186,7 @@ public class CharacterUndoRedoController(CharacterController characterController
 
                 if (aBackup.AnimationSetting != bBackup.AnimationSetting)
                 {
-                    Utility.LogDebug($"""
+                    Plugin.Logger.LogDebug($"""
                         AnimationSettings differ
                         A: {aBackup.AnimationSetting}
                         B: {bBackup.AnimationSetting}
@@ -197,7 +197,7 @@ public class CharacterUndoRedoController(CharacterController characterController
 
                 if (aBackup.MuneSetting != bBackup.MuneSetting)
                 {
-                    Utility.LogDebug($"""
+                    Plugin.Logger.LogDebug($"""
                         mune setting differs
                         A: {aBackup.MuneSetting}
                         B: {bBackup.MuneSetting}
@@ -208,7 +208,7 @@ public class CharacterUndoRedoController(CharacterController characterController
 
                 if (aBackup.LimitSetting != bBackup.LimitSetting)
                 {
-                    Utility.LogDebug($"""
+                    Plugin.Logger.LogDebug($"""
                         limit setting differs
                         A: {aBackup.LimitSetting}
                         B: {bBackup.LimitSetting}
@@ -219,7 +219,7 @@ public class CharacterUndoRedoController(CharacterController characterController
 
                 if (aBackup.Dirty != bBackup.Dirty)
                 {
-                    Utility.LogDebug($"""
+                    Plugin.Logger.LogDebug($"""
                         dirty differs
                         A: {aBackup.Dirty}
                         B: {bBackup.Dirty}
@@ -230,7 +230,7 @@ public class CharacterUndoRedoController(CharacterController characterController
 
                 if (aBackup.IKData.Count() != bBackup.IKData.Count())
                 {
-                    Utility.LogDebug($"""
+                    Plugin.Logger.LogDebug($"""
                         bone counts differs");
                         A: {aBackup.IKData.Count()}
                         B: {bBackup.IKData.Count()}
@@ -243,7 +243,7 @@ public class CharacterUndoRedoController(CharacterController characterController
                 {
                     if (!string.Equals(aIKData.Item1, bIKData.Item1, StringComparison.Ordinal))
                     {
-                        Utility.LogDebug($"""
+                        Plugin.Logger.LogDebug($"""
                             bone names differ
                             A: {aIKData.Item1}
                             B: {bIKData.Item1}
@@ -254,7 +254,7 @@ public class CharacterUndoRedoController(CharacterController characterController
 
                     if (aIKData.Item2 != bIKData.Item2)
                     {
-                        Utility.LogDebug($"""
+                        Plugin.Logger.LogDebug($"""
                             {aIKData.Item1} rotation differ
                             A: {aIKData.Item2}
                             B: {bIKData.Item2}

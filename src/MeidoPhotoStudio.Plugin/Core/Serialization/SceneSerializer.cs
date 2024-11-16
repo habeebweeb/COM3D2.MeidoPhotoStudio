@@ -55,7 +55,7 @@ public class SceneSerializer : ISceneSerializer
 
         if (!headerReader.ReadBytes(sceneHeader.Length).SequenceEqual(sceneHeader))
         {
-            Utility.LogError("Not a MPS scene!");
+            Plugin.Logger.LogError("Not a MPS scene!");
 
             return null;
         }
@@ -69,8 +69,8 @@ public class SceneSerializer : ISceneSerializer
 
         if (metadata.SceneVersion > SceneSchema.SchemaVersion)
         {
-            Utility.LogWarning("Cannot load scene. Scene is too new.");
-            Utility.LogWarning($"Your version: {SceneSchema.SchemaVersion}, Scene version: {metadata.SceneVersion}");
+            Plugin.Logger.LogWarning("Cannot load scene. Scene is too new.");
+            Plugin.Logger.LogWarning($"Your version: {SceneSchema.SchemaVersion}, Scene version: {metadata.SceneVersion}");
 
             return null;
         }

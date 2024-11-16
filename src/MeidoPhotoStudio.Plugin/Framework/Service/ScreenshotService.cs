@@ -19,7 +19,7 @@ public class ScreenshotService : MonoBehaviour
     {
         if (TakingScreenshot)
         {
-            Utility.LogInfo("Screenshot in progress");
+            Plugin.Logger.LogInfo("Screenshot in progress");
 
             return;
         }
@@ -57,7 +57,7 @@ public class ScreenshotService : MonoBehaviour
     {
         if (TakingScreenshot)
         {
-            Utility.LogInfo("Screenshot in progress");
+            Plugin.Logger.LogInfo("Screenshot in progress");
 
             return;
         }

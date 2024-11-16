@@ -74,7 +74,7 @@ public class FavouritePropRepository(IFavouritePropListSerializer favouritePropL
         FavouriteProps.Add(favouriteProp);
         Props.Add(prop, favouriteProp);
 
-        Utility.LogDebug($"Added new prop: {prop.Name}");
+        Plugin.Logger.LogDebug($"Added new prop: {prop.Name}");
 
         AddedFavouriteProp?.Invoke(this, new(favouriteProp));
     }
@@ -89,7 +89,7 @@ public class FavouritePropRepository(IFavouritePropListSerializer favouritePropL
         Props.Remove(favouriteProp);
         FavouriteProps.Remove(favouritePropModel);
 
-        Utility.LogDebug($"Removed prop: {favouriteProp.Name}");
+        Plugin.Logger.LogDebug($"Removed prop: {favouriteProp.Name}");
 
         RemovedFavouriteProp?.Invoke(this, new(favouritePropModel));
     }

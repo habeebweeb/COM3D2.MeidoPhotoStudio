@@ -30,7 +30,7 @@ public static class Translation
 
         if (!Directory.Exists(currentTranslationPath))
         {
-            Utility.LogError($"No translations found for '{language}' in '{currentTranslationPath}'");
+            Plugin.Logger.LogError($"No translations found for '{language}' in '{currentTranslationPath}'");
             forceSuppressWarnings = true;
 
             return;
@@ -57,7 +57,7 @@ public static class Translation
             catch
             {
                 forceSuppressWarnings = true;
-                Utility.LogError($"Could not find translation file '{translationFile}'");
+                Plugin.Logger.LogError($"Could not find translation file '{translationFile}'");
             }
         }
     }
@@ -75,7 +75,7 @@ public static class Translation
         if (!translations.ContainsKey(category))
         {
             if (warn)
-                Utility.LogWarning($"Could not translate '{text}': category '{category}' was not found");
+                Plugin.Logger.LogWarning($"Could not translate '{text}': category '{category}' was not found");
 
             return false;
         }
@@ -83,7 +83,7 @@ public static class Translation
         if (!translations[category].ContainsKey(text))
         {
             if (warn)
-                Utility.LogWarning(
+                Plugin.Logger.LogWarning(
                     $"Could not translate '{text}': '{text}' was not found in category '{category}'");
 
             return false;

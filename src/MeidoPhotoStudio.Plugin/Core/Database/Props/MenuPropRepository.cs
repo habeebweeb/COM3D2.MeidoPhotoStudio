@@ -192,7 +192,7 @@ public class MenuPropRepository : IEnumerable<MenuFilePropModel>
                         }
                         catch
                         {
-                            Utility.LogDebug($"Could not parse {menuFilename}");
+                            Plugin.Logger.LogDebug($"Could not parse {menuFilename}");
 
                             return;
                         }

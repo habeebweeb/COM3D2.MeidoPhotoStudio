@@ -24,7 +24,7 @@ public class WrappedSerializer(SceneSerializer sceneSerializer, LegacyDeserializ
 
         if (!binaryReader.ReadBytes(sceneHeader.Length).SequenceEqual(sceneHeader))
         {
-            Utility.LogError("Not a MPS scene!");
+            Plugin.Logger.LogError("Not a MPS scene!");
 
             return null;
         }

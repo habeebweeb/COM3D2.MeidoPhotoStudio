@@ -180,7 +180,7 @@ public class IKController : INotifyPropertyChanged
 
         if (!bone)
         {
-            Utility.LogWarning($"'{boneName}' does not exist");
+            Plugin.Logger.LogWarning($"'{boneName}' does not exist");
 
             return null;
         }
@@ -251,7 +251,7 @@ public class IKController : INotifyPropertyChanged
             }
             catch
             {
-                Utility.LogError($"Could not load hand preset: {presetModel.Filename}");
+                Plugin.Logger.LogError($"Could not load hand preset: {presetModel.Filename}");
 
                 return null;
             }

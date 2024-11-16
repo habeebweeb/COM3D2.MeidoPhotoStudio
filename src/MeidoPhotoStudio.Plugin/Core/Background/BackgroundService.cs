@@ -98,7 +98,7 @@ public class BackgroundService : INotifyPropertyChanged
         }
         else
         {
-            Utility.LogWarning($"Could not change background {backgroundModel}");
+            Plugin.Logger.LogWarning($"Could not change background {backgroundModel}");
 
             BackgroundManager.ChangeBg(DefaultBackgroundModel.AssetName);
 
@@ -150,7 +150,7 @@ public class BackgroundService : INotifyPropertyChanged
 
         if (model is null)
         {
-            Utility.LogDebug($"Could not find background with id {args.AssetName}");
+            Plugin.Logger.LogDebug($"Could not find background with id {args.AssetName}");
 
             return;
         }
@@ -164,7 +164,7 @@ public class BackgroundService : INotifyPropertyChanged
 
         if (model is null)
         {
-            Utility.LogDebug($"Could not find background with id {args.AssetName}");
+            Plugin.Logger.LogDebug($"Could not find background with id {args.AssetName}");
 
             return;
         }

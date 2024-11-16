@@ -187,7 +187,7 @@ public class CallController : IEnumerable<CharacterModel>, INotifyPropertyChange
 
             if (!selectedCharacters.Contains(editModeMaidService.OriginalEditingCharacter))
             {
-                Utility.LogDebug($"Original editing character was not in the set of characters to call");
+                Plugin.Logger.LogDebug($"Original editing character was not in the set of characters to call");
 
                 selectedCharacters.Insert(0, editModeMaidService.OriginalEditingCharacter);
                 selectedCharactersSet.Add(editModeMaidService.OriginalEditingCharacter);

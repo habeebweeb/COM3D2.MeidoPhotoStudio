@@ -1,4 +1,5 @@
 using BepInEx;
+using BepInEx.Logging;
 using MeidoPhotoStudio.Plugin.Core.Patchers;
 
 namespace MeidoPhotoStudio.Plugin;
@@ -25,8 +26,12 @@ public class Plugin : BaseUnityPlugin
 
     public static Core.PluginCore Instance { get; private set; }
 
+    internal static new ManualLogSource Logger { get; private set; }
+
     private void Awake()
     {
+        Logger = base.Logger;
+
         harmony = HarmonyLib.Harmony.CreateAndPatchAll(typeof(AllProcPropSeqPatcher));
         harmony.PatchAll(typeof(BgMgrPatcher));
         harmony.PatchAll(typeof(Core.Background.BackgroundService));
