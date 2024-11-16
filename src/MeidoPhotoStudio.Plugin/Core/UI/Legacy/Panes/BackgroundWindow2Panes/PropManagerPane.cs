@@ -172,7 +172,7 @@ public class PropManagerPane : BasePane
 
         DrawDropdown(propDropdown);
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         var noExpandWidth = GUILayout.ExpandWidth(false);
 
@@ -209,7 +209,7 @@ public class PropManagerPane : BasePane
 
         GUILayout.EndHorizontal();
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         if (isFavouriteProp)
             removeFromFavouritesButton.Draw();
@@ -217,7 +217,7 @@ public class PropManagerPane : BasePane
             addToFavouritesButton.Draw();
 
         toggleAllHandlesHeader.Draw();
-        MpsGui.WhiteLine();
+        UIUtility.DrawWhiteLine();
 
         GUILayout.BeginHorizontal();
 
@@ -226,7 +226,7 @@ public class PropManagerPane : BasePane
 
         GUILayout.EndHorizontal();
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         positionTransformControl.Draw();
         rotationTransformControl.Draw();

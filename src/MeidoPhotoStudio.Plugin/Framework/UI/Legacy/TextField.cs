@@ -14,7 +14,7 @@ public class TextField : BaseControl
         egAAAABJRU5ErkJggg==
         """;
 
-    private static readonly Texture2D NoTexture = Utility.MakeTex(2, 2, new(0f, 0f, 0f, 0f));
+    private static readonly Texture2D NoTexture = UIUtility.CreateTexture(2, 2, new(0f, 0f, 0f, 0f));
 
     private static int textFieldID = 961;
     private static Texture2D clearButtonTexture;
@@ -37,9 +37,9 @@ public class TextField : BaseControl
         static () => new(GUI.skin.textField)
         {
             alignment = TextAnchor.MiddleLeft,
-            padding = new(5, Utility.GetPix(22), 5, 5),
+            padding = new(5, UIUtility.Scaled(22), 5, 5),
         },
-        static style => style.padding.right = Utility.GetPix(22));
+        static style => style.padding.right = UIUtility.Scaled(22));
 
     public string Value
     {
@@ -125,7 +125,7 @@ public class TextField : BaseControl
         if (Value.Length is not 0)
         {
             var textFieldRect = GUILayoutUtility.GetLastRect();
-            var clearButtonRect = textFieldRect with { x = textFieldRect.xMax - Utility.GetPix(25f), width = Utility.GetPix(20f), };
+            var clearButtonRect = textFieldRect with { x = textFieldRect.xMax - UIUtility.Scaled(25f), width = UIUtility.Scaled(20f), };
 
             GUI.Box(clearButtonRect, ClearButtonIcon, ClearButtonStyle);
 

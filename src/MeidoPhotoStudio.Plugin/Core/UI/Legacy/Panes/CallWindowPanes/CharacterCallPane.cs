@@ -91,13 +91,13 @@ public class CharacterCallPane : BasePane, IVirtualListHandler
     public override void Draw()
     {
         header.Draw();
-        MpsGui.WhiteLine();
+        UIUtility.DrawWhiteLine();
 
         DrawTextFieldMaxWidth(searchBar);
 
         GUILayout.BeginHorizontal();
 
-        sortTypeDropdown.Draw(GUILayout.Width(Parent.WindowRect.width - Utility.GetPix(125)));
+        sortTypeDropdown.Draw(GUILayout.Width(Parent.WindowRect.width - UIUtility.Scaled(125)));
 
         GUILayout.FlexibleSpace();
 
@@ -119,14 +119,14 @@ public class CharacterCallPane : BasePane, IVirtualListHandler
 
         GUILayout.EndHorizontal();
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         callButton.Draw();
 
         var windowRect = Parent.WindowRect;
         var buttonWidth = windowRect.width - 25f;
 
-        buttonSize = new(buttonWidth, Utility.GetPix(85f));
+        buttonSize = new(buttonWidth, UIUtility.Scaled(85f));
 
         var buttonHeight = buttonSize.y;
 

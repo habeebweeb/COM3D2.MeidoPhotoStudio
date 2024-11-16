@@ -68,7 +68,7 @@ public class CharacterPane : BasePane
         }
 
         tabs.Draw(tabStyle);
-        MpsGui.WhiteLine();
+        UIUtility.DrawWhiteLine();
 
         currentTab.Draw();
 

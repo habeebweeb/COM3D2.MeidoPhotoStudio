@@ -91,17 +91,17 @@ public abstract class BasePane : IEnumerable<BasePane>
     protected void DrawComboBox(ComboBox comboBox) =>
         comboBox.Draw(
             GUILayout.Width(Parent.WindowRect.width - 56f),
-            GUILayout.Height(Utility.GetPix(22f)));
+            GUILayout.Height(UIUtility.Scaled(22f)));
 
     protected void DrawTextFieldMaxWidth(BaseControl textField) =>
         textField.Draw(
             GUILayout.Width(Parent.WindowRect.width - 10f),
-            GUILayout.Height(Utility.GetPix(22f)));
+            GUILayout.Height(UIUtility.Scaled(22f)));
 
     protected void DrawTextFieldWithScrollBarOffset(BaseControl textField) =>
         textField.Draw(
             GUILayout.Width(Parent.WindowRect.width - 35f),
-            GUILayout.Height(Utility.GetPix(22f)));
+            GUILayout.Height(UIUtility.Scaled(22f)));
 
     private void OnReloadTranslation(object sender, EventArgs args) =>
         ReloadTranslation();

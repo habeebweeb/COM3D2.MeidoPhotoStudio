@@ -78,7 +78,7 @@ public class GravityControlPane : BasePane
 
         GUILayout.EndHorizontal();
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         GUILayout.BeginHorizontal();
 
@@ -92,7 +92,7 @@ public class GravityControlPane : BasePane
 
         GUILayout.EndHorizontal();
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         GUI.enabled = enabled;
         globalGravityEnabledToggle.Draw();

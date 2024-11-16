@@ -140,7 +140,7 @@ public class HandPresetSelectorPane : BasePane
             DrawDropdown(presetDropdown);
         }
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         GUI.enabled = enabled && presetDropdown.Any();
         GUILayout.BeginHorizontal();
@@ -154,7 +154,7 @@ public class HandPresetSelectorPane : BasePane
 
         swapHandsButton.Draw();
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         GUILayout.BeginHorizontal();
 
@@ -177,7 +177,7 @@ public class HandPresetSelectorPane : BasePane
             handPresetFilenameHeader.Draw();
             DrawTextFieldWithScrollBarOffset(handPresetNameTextField);
 
-            MpsGui.BlackLine();
+            UIUtility.DrawBlackLine();
 
             GUILayout.BeginHorizontal();
 

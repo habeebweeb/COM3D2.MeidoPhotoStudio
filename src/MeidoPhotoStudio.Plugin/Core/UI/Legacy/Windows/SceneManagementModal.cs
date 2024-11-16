@@ -102,7 +102,7 @@ public class SceneManagementModal : BaseWindow
             new(Screen.width / 2f - width / 2f, Screen.height / 2f - height / 2f, width, height);
 
         protected static int ScaledMinimum(float value) =>
-            Mathf.Min(Utility.GetPix(Mathf.RoundToInt(value)), (int)value);
+            Mathf.Min(UIUtility.Scaled(Mathf.RoundToInt(value)), (int)value);
 
         protected virtual void OnModeEnter()
         {
@@ -132,7 +132,7 @@ public class SceneManagementModal : BaseWindow
 
     private class ManageSceneMode : Mode
     {
-        private static readonly Texture2D InfoHighlight = Utility.MakeTex(2, 2, new(0f, 0f, 0f, 0.8f));
+        private static readonly Texture2D InfoHighlight = UIUtility.CreateTexture(2, 2, new(0f, 0f, 0f, 0.8f));
 
         private readonly ISceneSerializer sceneSerializer;
         private readonly SceneSchemaBuilder sceneSchemaBuilder;
@@ -165,7 +165,7 @@ public class SceneManagementModal : BaseWindow
             {
                 margin = new(0, 0, 0, 0),
                 border = new(0, 0, 0, 0),
-                normal = { background = MpsGui.White },
+                normal = { background = Texture2D.whiteTexture },
                 stretchWidth = false,
                 stretchHeight = false,
             });
@@ -309,7 +309,7 @@ public class SceneManagementModal : BaseWindow
                     GUILayout.FlexibleSpace();
 
                     loadButton.Draw(GUILayout.ExpandWidth(false));
-                    cancelButton.Draw(GUILayout.MinWidth(Utility.GetPix(110)));
+                    cancelButton.Draw(GUILayout.MinWidth(UIUtility.Scaled(110)));
 
                     GUILayout.EndHorizontal();
                 }
@@ -324,7 +324,7 @@ public class SceneManagementModal : BaseWindow
                 GUI.enabled = managingSceneSchema.Character is not null;
 
                 characterLoadOptionToggle.Draw();
-                MpsGui.WhiteLine();
+                UIUtility.DrawWhiteLine();
 
                 if (characterLoadOptionToggle.Value)
                 {
@@ -336,22 +336,22 @@ public class SceneManagementModal : BaseWindow
                 GUI.enabled = managingSceneSchema.MessageWindow is not null;
 
                 messageWindowLoadOptionToggle.Draw();
-                MpsGui.WhiteLine();
+                UIUtility.DrawWhiteLine();
 
                 GUI.enabled = managingSceneSchema.Camera is not null;
 
                 cameraLoadOptionToggle.Draw();
-                MpsGui.WhiteLine();
+                UIUtility.DrawWhiteLine();
 
                 GUI.enabled = managingSceneSchema.Lights is not null;
 
                 lightsLoadOptionToggle.Draw();
-                MpsGui.WhiteLine();
+                UIUtility.DrawWhiteLine();
 
                 GUI.enabled = managingSceneSchema.Effects is not null;
 
                 effectsLoadOptionToggle.Draw();
-                MpsGui.WhiteLine();
+                UIUtility.DrawWhiteLine();
 
                 if (effectsLoadOptionToggle.Value)
                 {
@@ -366,12 +366,12 @@ public class SceneManagementModal : BaseWindow
                 GUI.enabled = managingSceneSchema.Background is not null;
 
                 backgroundLoadOptionToggle.Draw();
-                MpsGui.WhiteLine();
+                UIUtility.DrawWhiteLine();
 
                 GUI.enabled = managingSceneSchema.Props is not null;
 
                 propsLoadOptionToggle.Draw();
-                MpsGui.WhiteLine();
+                UIUtility.DrawWhiteLine();
 
                 GUI.enabled = true;
 
@@ -413,8 +413,8 @@ public class SceneManagementModal : BaseWindow
 
             WindowRect = WindowRect with
             {
-                width = Mathf.Min(Utility.GetPix(width), width),
-                height = Mathf.Min(Utility.GetPix(height), height),
+                width = Mathf.Min(UIUtility.Scaled(width), width),
+                height = Mathf.Min(UIUtility.Scaled(height), height),
             };
         }
 
@@ -471,8 +471,8 @@ public class SceneManagementModal : BaseWindow
 
             WindowRect = WindowRect with
             {
-                width = Mathf.Min(Utility.GetPix(width), width),
-                height = Mathf.Min(Utility.GetPix(height), height),
+                width = Mathf.Min(UIUtility.Scaled(width), width),
+                height = Mathf.Min(UIUtility.Scaled(height), height),
             };
         }
 
@@ -626,7 +626,7 @@ public class SceneManagementModal : BaseWindow
 
                 deleteButton.Draw(GUILayout.ExpandWidth(false));
 
-                cancelButton.Draw(GUILayout.MinWidth(Utility.GetPix(110)));
+                cancelButton.Draw(GUILayout.MinWidth(UIUtility.Scaled(110)));
 
                 GUILayout.EndHorizontal();
             }
@@ -709,7 +709,7 @@ public class SceneManagementModal : BaseWindow
 
                 GUILayout.FlexibleSpace();
 
-                okButton.Draw(GUILayout.MinWidth(Utility.GetPix(110)));
+                okButton.Draw(GUILayout.MinWidth(UIUtility.Scaled(110)));
 
                 GUILayout.EndHorizontal();
             }
@@ -773,7 +773,7 @@ public class SceneManagementModal : BaseWindow
 
             deleteButton.Draw(GUILayout.ExpandWidth(false));
 
-            cancelButton.Draw(GUILayout.MinWidth(Utility.GetPix(110)));
+            cancelButton.Draw(GUILayout.MinWidth(UIUtility.Scaled(110)));
 
             GUILayout.EndHorizontal();
         }

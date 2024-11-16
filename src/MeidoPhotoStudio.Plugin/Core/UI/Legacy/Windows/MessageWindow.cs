@@ -79,18 +79,18 @@ public partial class MessageWindow : BaseWindow
         GUILayout.BeginHorizontal();
 
         nameLabel.Draw(GUILayout.ExpandWidth(false));
-        nameTextField.Draw(GUILayout.Width(Utility.GetPix(150)));
+        nameTextField.Draw(GUILayout.Width(UIUtility.Scaled(150)));
 
-        GUILayout.Space(Utility.GetPix(20));
+        GUILayout.Space(UIUtility.Scaled(20));
 
         fontSizeLabel.Draw(GUILayout.ExpandWidth(false));
-        fontSizeSlider.Draw(GUILayout.Width(Utility.GetPix(120)), GUILayout.ExpandWidth(false));
+        fontSizeSlider.Draw(GUILayout.Width(UIUtility.Scaled(120)), GUILayout.ExpandWidth(false));
         fontPointLabel.Draw();
 
-        GUILayout.Space(Utility.GetPix(20));
+        GUILayout.Space(UIUtility.Scaled(20));
 
         alignmentLabel.Draw(GUILayout.ExpandWidth(false));
-        alignmentDropdown.Draw(GUILayout.Width(Utility.GetPix(120)));
+        alignmentDropdown.Draw(GUILayout.Width(UIUtility.Scaled(120)));
 
         GUILayout.FlexibleSpace();
 
@@ -104,7 +104,7 @@ public partial class MessageWindow : BaseWindow
 
         GUILayout.EndScrollView();
 
-        okButton.Draw(GUILayout.ExpandWidth(false), GUILayout.Width(Utility.GetPix(60)));
+        okButton.Draw(GUILayout.ExpandWidth(false), GUILayout.Width(UIUtility.Scaled(60)));
     }
 
     public override void OnScreenDimensionsChanged(Vector2 newScreenDimensions)

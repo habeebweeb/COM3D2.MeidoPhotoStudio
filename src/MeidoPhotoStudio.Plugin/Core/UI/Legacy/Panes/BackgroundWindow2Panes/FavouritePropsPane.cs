@@ -110,7 +110,7 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
         {
             refreshButton.Draw();
 
-            MpsGui.BlackLine();
+            UIUtility.DrawBlackLine();
 
             noFavouritePropsLabel.Draw(noFavouritePropsLabelStyle);
 
@@ -121,7 +121,7 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
 
         GUILayout.BeginHorizontal();
 
-        sortTypeDropdown.Draw(GUILayout.Width(Parent.WindowRect.width - Utility.GetPix(150)));
+        sortTypeDropdown.Draw(GUILayout.Width(Parent.WindowRect.width - UIUtility.Scaled(150)));
 
         GUILayout.FlexibleSpace();
 
@@ -129,7 +129,7 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
 
         GUILayout.EndHorizontal();
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         GUILayout.BeginHorizontal();
 
@@ -139,7 +139,7 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
 
         GUILayout.EndHorizontal();
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         var windowRect = Parent.WindowRect;
         var scrollRect = GUILayoutUtility.GetRect(0f, windowRect.width, 100f, windowRect.height);
@@ -154,7 +154,7 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
 
             if (editModeToggle.Value)
             {
-                var closeButtonSize = Utility.GetPix(20f);
+                var closeButtonSize = UIUtility.Scaled(20f);
                 var propButtonRect = new Rect(scrollRect.x, scrollRect.y + offset.y, windowWidth - closeButtonSize, propDimensions.y);
                 var removeFavouiteRect = new Rect(scrollRect.x + windowWidth - closeButtonSize, scrollRect.y + offset.y, closeButtonSize, propDimensions.y);
 
@@ -320,11 +320,11 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
         if (itemSizes.TryGetValue(index, out var size))
             return size;
 
-        var iconHeight = Utility.GetPix(75f);
+        var iconHeight = UIUtility.Scaled(75f);
         var windowWidth = Parent.WindowRect.width - 25f;
 
         var buttonWidth = editModeToggle.Value
-            ? windowWidth - Utility.GetPix(20f)
+            ? windowWidth - UIUtility.Scaled(20f)
             : windowWidth;
 
         var itemHeight = favouriteProps[index].PropModel switch
@@ -398,7 +398,7 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
             Modal.Show(this);
 
             static int ScaledMinimum(float value) =>
-                Mathf.Min(Utility.GetPix(Mathf.RoundToInt(value)), (int)value);
+                Mathf.Min(UIUtility.Scaled(Mathf.RoundToInt(value)), (int)value);
         }
 
         public override void Draw()
@@ -407,10 +407,10 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
 
             GUILayout.FlexibleSpace();
 
-            GUILayout.BeginHorizontal(GUILayout.Height(Utility.GetPix(75)));
+            GUILayout.BeginHorizontal(GUILayout.Height(UIUtility.Scaled(75)));
             {
                 if (icon != null)
-                    GUILayout.Box(icon, GUILayout.Width(Utility.GetPix(75)), GUILayout.Height(Utility.GetPix(75)));
+                    GUILayout.Box(icon, GUILayout.Width(UIUtility.Scaled(75)), GUILayout.Height(UIUtility.Scaled(75)));
 
                 GUILayout.BeginVertical();
                 {
@@ -421,10 +421,10 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
                     GUILayout.Space(5);
 
                     var width = icon != null
-                        ? GUILayout.MaxWidth(WindowRect.width - Utility.GetPix(75) - 30)
+                        ? GUILayout.MaxWidth(WindowRect.width - UIUtility.Scaled(75) - 30)
                         : GUILayout.MaxWidth(WindowRect.width - 20);
 
-                    renamingTextField.Draw(width, GUILayout.Height(Utility.GetPix(22)));
+                    renamingTextField.Draw(width, GUILayout.Height(UIUtility.Scaled(22)));
 
                     GUILayout.FlexibleSpace();
                 }
@@ -441,7 +441,7 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
             GUILayout.FlexibleSpace();
 
             renameButton.Draw(GUILayout.ExpandWidth(false));
-            cancelButton.Draw(GUILayout.MinWidth(Utility.GetPix(110)));
+            cancelButton.Draw(GUILayout.MinWidth(UIUtility.Scaled(110)));
 
             GUILayout.EndHorizontal();
 

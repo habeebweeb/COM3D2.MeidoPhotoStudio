@@ -37,7 +37,7 @@ public class SceneManagementPane : BasePane
             return;
 
         manageScenesButton.Draw();
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         GUILayout.BeginHorizontal();
 

@@ -83,7 +83,7 @@ public class HandItemPropsPane : BasePane
 
         DrawDropdown(propDropdown);
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         addPropButton.Draw();
     }

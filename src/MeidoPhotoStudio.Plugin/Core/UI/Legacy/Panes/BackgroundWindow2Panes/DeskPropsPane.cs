@@ -66,7 +66,7 @@ public class DeskPropsPane : BasePane
 
         DrawDropdown(propDropdown);
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         addPropButton.Draw();
     }

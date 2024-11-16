@@ -128,7 +128,7 @@ public class BlendSetSelectorPane : BasePane
             return;
 
         blendSetSourceGrid.Draw();
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         GUI.enabled = enabled;
 
@@ -151,7 +151,7 @@ public class BlendSetSelectorPane : BasePane
             DrawDropdown(blendSetDropdown);
         }
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         GUILayout.BeginHorizontal();
 
@@ -177,7 +177,7 @@ public class BlendSetSelectorPane : BasePane
             blendSetFilenameHeader.Draw();
             DrawTextFieldWithScrollBarOffset(blendSetNameTextField);
 
-            MpsGui.BlackLine();
+            UIUtility.DrawBlackLine();
 
             saveBlendSetButton.Draw();
 

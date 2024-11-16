@@ -78,13 +78,13 @@ public class CopyPosePane : BasePane
 
         if (CurrentCharacter != OtherCharacter)
         {
-            MpsGui.BlackLine();
+            UIUtility.DrawBlackLine();
 
             copyPoseButton.Draw();
         }
 
         copyHandHeader.Draw();
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         if (CurrentCharacter != OtherCharacter)
         {

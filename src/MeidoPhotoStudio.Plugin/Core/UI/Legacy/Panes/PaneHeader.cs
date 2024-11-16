@@ -36,6 +36,6 @@ public class PaneHeader(string label, bool open = true) : BaseControl
     {
         Enabled = GUILayout.Toggle(Enabled, content, style, layoutOptions);
 
-        MpsGui.WhiteLine();
+        UIUtility.DrawWhiteLine();
     }
 }

@@ -171,7 +171,7 @@ public class LightsPane : BasePane
 
         DrawTopBar();
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         if (CurrentLightController == null)
         {
@@ -182,7 +182,7 @@ public class LightsPane : BasePane
 
         DrawLightType();
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         GUI.enabled = enabled && lightOnToggle.Value;
 
@@ -193,7 +193,7 @@ public class LightsPane : BasePane
         else
             DrawPointLightControls();
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         DrawColourControls();
 
@@ -205,7 +205,7 @@ public class LightsPane : BasePane
 
             GUILayout.BeginHorizontal();
 
-            lightDropdown.Draw(GUILayout.Width(Parent.WindowRect.width - Utility.GetPix(175)));
+            lightDropdown.Draw(GUILayout.Width(Parent.WindowRect.width - UIUtility.Scaled(175)));
 
             var noExpandWidth = GUILayout.ExpandWidth(false);
 
@@ -273,7 +273,7 @@ public class LightsPane : BasePane
         void DrawReset()
         {
             resetHeader.Draw();
-            MpsGui.BlackLine();
+            UIUtility.DrawBlackLine();
 
             GUILayout.BeginHorizontal();
 

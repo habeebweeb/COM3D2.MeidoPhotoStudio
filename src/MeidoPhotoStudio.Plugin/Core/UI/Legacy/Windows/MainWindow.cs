@@ -86,7 +86,7 @@ public partial class MainWindow : BaseWindow
 
             int ClampWindowWidth(float width)
             {
-                var minimumWidth = Mathf.Max(WindowWidth, Utility.GetPix(WindowWidth));
+                var minimumWidth = Mathf.Max(WindowWidth, UIUtility.Scaled(WindowWidth));
                 var maximumWidth = Screen.width - 20f;
 
                 return Mathf.RoundToInt(Mathf.Clamp(width, minimumWidth, maximumWidth));
@@ -122,7 +122,7 @@ public partial class MainWindow : BaseWindow
     public override void Draw()
     {
         tabSelectionGrid.Draw(tabsStyle);
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         currentPane.Draw();
 
@@ -190,7 +190,7 @@ public partial class MainWindow : BaseWindow
 
             if (resizing)
             {
-                var minimumWindowWidth = Mathf.Max(WindowWidth, Utility.GetPix(WindowWidth));
+                var minimumWindowWidth = Mathf.Max(WindowWidth, UIUtility.Scaled(WindowWidth));
                 var xMin = Mathf.Max(0f, Mathf.Min(WindowRect.xMax - minimumWindowWidth, Input.mousePosition.x - ResizeHandleSize / 2f));
                 var height = Mathf.Max(MinimumWindowHeight, Event.current.mousePosition.y + ResizeHandleSize / 2f);
 

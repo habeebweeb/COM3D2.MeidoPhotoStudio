@@ -140,7 +140,7 @@ public class ExpressionPane : BasePane
         if (CurrentFace is null)
             return;
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         baseGameShapeKeyHeader.Draw();
 
@@ -189,7 +189,7 @@ public class ExpressionPane : BasePane
                 GUILayout.EndHorizontal();
             }
 
-            MpsGui.BlackLine();
+            UIUtility.DrawBlackLine();
 
             foreach (var chunk in FaceHashes
                 .Where(CurrentFace.ContainsExpressionKey)
@@ -211,7 +211,7 @@ public class ExpressionPane : BasePane
 
             if (modifyShapeKeysToggle.Value)
             {
-                MpsGui.BlackLine();
+                UIUtility.DrawBlackLine();
 
                 GUI.enabled = guiEnabled && hasShapeKeys && !deleteShapeKeysToggle.Value;
 
@@ -230,7 +230,7 @@ public class ExpressionPane : BasePane
                 GUILayout.EndHorizontal();
             }
 
-            MpsGui.BlackLine();
+            UIUtility.DrawBlackLine();
 
             if (deleteShapeKeysToggle.Value)
                 DrawDeleteShapeKeys();

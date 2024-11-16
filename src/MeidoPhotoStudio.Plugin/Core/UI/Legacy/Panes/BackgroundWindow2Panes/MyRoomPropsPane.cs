@@ -75,7 +75,7 @@ public class MyRoomPropsPane : BasePane, IVirtualListHandler
 
         if (propCategoryDropdown.SelectedItem is not -1)
         {
-            MpsGui.BlackLine();
+            UIUtility.DrawBlackLine();
 
             DrawPropList();
         }

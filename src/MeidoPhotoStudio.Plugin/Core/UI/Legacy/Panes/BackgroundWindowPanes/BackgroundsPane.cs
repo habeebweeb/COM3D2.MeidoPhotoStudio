@@ -121,7 +121,7 @@ public class BackgroundsPane : BasePane
 
         DrawToggles();
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         DrawColourSliders();
 

@@ -86,11 +86,11 @@ public class IKPane : BasePane
 
         DrawIK(enabled);
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         DrawCustomFloorHeight(enabled);
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         DrawFlip(enabled);
 
@@ -106,7 +106,7 @@ public class IKPane : BasePane
 
             GUILayout.EndHorizontal();
 
-            MpsGui.BlackLine();
+            UIUtility.DrawBlackLine();
 
             GUILayout.BeginHorizontal();
 
@@ -123,7 +123,7 @@ public class IKPane : BasePane
 
             customFloorHeightHeader.Draw();
 
-            MpsGui.BlackLine();
+            UIUtility.DrawBlackLine();
 
             GUILayout.BeginHorizontal();
 

@@ -26,7 +26,7 @@ public class LazyStyle
 
             style = styleProvider();
 
-            style.fontSize = Utility.GetPix(fontSize);
+            style.fontSize = UIUtility.Scaled(fontSize);
 
             return style;
         }
@@ -45,7 +45,7 @@ public class LazyStyle
             if (style is null)
                 return;
 
-            style.fontSize = Utility.GetPix(fontSize);
+            style.fontSize = UIUtility.Scaled(fontSize);
         }
     }
 
@@ -71,7 +71,7 @@ public class LazyStyle
         if (style is null)
             return;
 
-        style.fontSize = Utility.GetPix(fontSize);
+        style.fontSize = UIUtility.Scaled(fontSize);
 
         styleUpdater?.Invoke(style);
     }

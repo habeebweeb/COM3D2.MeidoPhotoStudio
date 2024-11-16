@@ -164,7 +164,7 @@ public class AnimationSelectorPane : BasePane
             return;
 
         animationSourceGrid.Draw();
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         DrawTextFieldWithScrollBarOffset(searchBar);
 
@@ -175,7 +175,7 @@ public class AnimationSelectorPane : BasePane
         else
             DrawDropdowns();
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         GUILayout.BeginHorizontal();
 
@@ -220,7 +220,7 @@ public class AnimationSelectorPane : BasePane
             animationFilenameHeader.Draw();
             DrawTextFieldWithScrollBarOffset(animationNameTextField);
 
-            MpsGui.BlackLine();
+            UIUtility.DrawBlackLine();
 
             savePoseButton.Draw();
 

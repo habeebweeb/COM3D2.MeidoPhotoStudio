@@ -34,7 +34,7 @@ internal static class DropdownHelper
                     top = 2,
                     bottom = 2,
                 },
-                normal = { background = Utility.MakeTex(2, 2, new(0f, 0f, 0f, 0.5f)) },
+                normal = { background = UIUtility.CreateTexture(2, 2, new(0f, 0f, 0f, 0.5f)) },
                 hover =
                 {
                     background = whiteBackground,

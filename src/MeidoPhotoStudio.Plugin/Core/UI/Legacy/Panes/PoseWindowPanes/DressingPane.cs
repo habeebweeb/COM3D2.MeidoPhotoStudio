@@ -122,24 +122,24 @@ public class DressingPane : BasePane
 
         detailedClothingToggle.Draw();
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         dressingGrid.Draw();
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         foreach (var slotGroup in SlotGroups)
             DrawSlotGroup(slotGroup);
 
         if (detailedClothingToggle.Value)
         {
-            MpsGui.BlackLine();
+            UIUtility.DrawBlackLine();
 
             foreach (var slotGroup in DetailedSlotGroups)
                 DrawSlotGroup(slotGroup);
         }
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         DrawCurlingToggles();
 

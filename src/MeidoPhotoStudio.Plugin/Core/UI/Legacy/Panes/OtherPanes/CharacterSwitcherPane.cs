@@ -67,7 +67,7 @@ public class CharacterSwitcherPane : BasePane
         if (characterService.Count is 0)
             return;
 
-        var buttonHeight = GUILayout.Height(Utility.GetPix(BoxSize));
+        var buttonHeight = GUILayout.Height(UIUtility.Scaled(BoxSize));
 
         var buttonOptions = new[]
         {
@@ -112,7 +112,7 @@ public class CharacterSwitcherPane : BasePane
         var windowWidth = Parent.WindowRect.width;
         var dropdownWidth = windowWidth - 95f;
 
-        characterDropdown.Draw(GUILayout.Width(dropdownWidth), GUILayout.Height(Utility.GetPix(BoxSize)));
+        characterDropdown.Draw(GUILayout.Width(dropdownWidth), GUILayout.Height(UIUtility.Scaled(BoxSize)));
 
         GUILayout.FlexibleSpace();
 
@@ -121,7 +121,7 @@ public class CharacterSwitcherPane : BasePane
 
         GUILayout.EndHorizontal();
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         GUILayout.BeginHorizontal();
 
@@ -131,7 +131,7 @@ public class CharacterSwitcherPane : BasePane
 
         GUILayout.EndHorizontal();
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
     }
 
     protected override void ReloadTranslation()

@@ -104,10 +104,10 @@ public class AttachedAccessoryPane : BasePane
         else
         {
             accessoryCategoryGrid.Draw();
-            MpsGui.BlackLine();
+            UIUtility.DrawBlackLine();
 
             DrawDropdown(accessoryDropdown);
-            MpsGui.BlackLine();
+            UIUtility.DrawBlackLine();
 
             detachAllAccessoriesButton.Draw();
         }

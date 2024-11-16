@@ -72,7 +72,7 @@ public class AutoSaveSettingsPane : BasePane
         if (!enabledToggle.Value)
             return;
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         var guiEnabled = Parent.Enabled && enabledToggle.Value;
 
@@ -97,7 +97,7 @@ public class AutoSaveSettingsPane : BasePane
 
         GUILayout.EndHorizontal();
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         GUI.enabled = guiEnabled;
 

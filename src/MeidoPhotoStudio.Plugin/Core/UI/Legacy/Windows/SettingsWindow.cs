@@ -49,8 +49,8 @@ public class SettingsWindow : BaseWindow
 
         settingCategorySelectionGrid.ControlEvent += OnSettingCategoryChanged;
 
-        var minimumWidth = Utility.GetPix(CategoryListWidth * 2.75f + 38);
-        var minimumHeight = Utility.GetPix(400);
+        var minimumWidth = UIUtility.Scaled(CategoryListWidth * 2.75f + 38);
+        var minimumHeight = UIUtility.Scaled(400);
 
         WindowRect = new(
             Screen.width * 0.5f - minimumWidth / 2f,
@@ -90,7 +90,7 @@ public class SettingsWindow : BaseWindow
 
         void DrawSettingsCategories()
         {
-            var categoryWidth = GUILayout.Width(Utility.GetPix(CategoryListWidth));
+            var categoryWidth = GUILayout.Width(UIUtility.Scaled(CategoryListWidth));
 
             GUILayout.BeginVertical(categoryWidth);
 
@@ -115,7 +115,7 @@ public class SettingsWindow : BaseWindow
 
             GUILayout.EndHorizontal();
 
-            MpsGui.WhiteLine();
+            UIUtility.DrawWhiteLine();
 
             settingsScrollPosition = GUILayout.BeginScrollView(settingsScrollPosition);
 
@@ -160,8 +160,8 @@ public class SettingsWindow : BaseWindow
                 var mousePosition = Event.current.mousePosition;
 
                 var (windowWidth, windowHeight) = mousePosition;
-                var minimumWidth = Utility.GetPix(CategoryListWidth * 2.75f + 38);
-                var minimumHeight = Utility.GetPix(400);
+                var minimumWidth = UIUtility.Scaled(CategoryListWidth * 2.75f + 38);
+                var minimumHeight = UIUtility.Scaled(400);
 
                 WindowRect = WindowRect with
                 {
@@ -176,8 +176,8 @@ public class SettingsWindow : BaseWindow
     {
         base.OnScreenDimensionsChanged(newScreenDimensions);
 
-        var minimumWidth = Utility.GetPix(CategoryListWidth * 2.75f + 38);
-        var minimumHeight = Utility.GetPix(400);
+        var minimumWidth = UIUtility.Scaled(CategoryListWidth * 2.75f + 38);
+        var minimumHeight = UIUtility.Scaled(400);
 
         WindowRect = WindowRect with
         {

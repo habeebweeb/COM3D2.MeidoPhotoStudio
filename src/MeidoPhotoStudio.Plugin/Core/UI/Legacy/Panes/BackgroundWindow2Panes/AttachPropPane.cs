@@ -115,11 +115,11 @@ public class AttachPropPane : BasePane
 
         DrawDropdown(characterDropdown);
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         keepWorldPositionToggle.Draw();
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         foreach (var attachPointGroup in AttachPointGroups)
             DrawToggleGroup(attachPointGroup);

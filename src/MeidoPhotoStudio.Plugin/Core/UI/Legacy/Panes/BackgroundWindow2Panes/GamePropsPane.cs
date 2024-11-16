@@ -64,7 +64,7 @@ public class GamePropsPane : BasePane
 
         DrawDropdown(propDropdown);
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         addPropButton.Draw();
     }

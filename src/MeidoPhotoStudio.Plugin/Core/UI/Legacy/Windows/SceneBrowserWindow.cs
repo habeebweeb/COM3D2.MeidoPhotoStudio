@@ -15,7 +15,7 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
     private const int CategoryListWidth = 200;
     private const int FontSize = 13;
 
-    private static readonly Texture2D CategorySelectedTexture = Utility.MakeTex(2, 2, new(0.5f, 0.5f, 0.5f, 0.4f));
+    private static readonly Texture2D CategorySelectedTexture = UIUtility.CreateTexture(2, 2, new(0.5f, 0.5f, 0.5f, 0.4f));
     private static readonly Vector2 ThumbnailDimensions = new(600f, 337.5f);
 
     private readonly SceneRepository sceneRepository;
@@ -198,7 +198,7 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
     {
         GUILayout.BeginArea(new(10f, 10f, WindowRect.width - 20f, WindowRect.height - 20f));
 
-        var categoryWidth = GUILayout.Width(Utility.GetPix(CategoryListWidth));
+        var categoryWidth = GUILayout.Width(UIUtility.Scaled(CategoryListWidth));
 
         DrawTitleBar();
 
@@ -286,7 +286,7 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
 
             var scaledThumbnailDimensions = ThumbnailDimensions * ThumbnailScale;
 
-            thumbnailDimensions = new(Utility.GetPix((int)scaledThumbnailDimensions.x), Utility.GetPix((int)scaledThumbnailDimensions.y));
+            thumbnailDimensions = new(UIUtility.Scaled((int)scaledThumbnailDimensions.x), UIUtility.Scaled((int)scaledThumbnailDimensions.y));
 
             var scrollRect = GUILayoutUtility.GetRect(0f, WindowRect.width, 0f, WindowRect.height);
 
@@ -337,8 +337,8 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
 
         sceneManagementModal.OnScreenDimensionsChanged(newScreenDimensions);
 
-        var minimumWidth = Utility.GetPix(CategoryListWidth + ThumbnailDimensions.x * ThumbnailScale + 38);
-        var minimumHeight = Utility.GetPix(ThumbnailDimensions.y * ThumbnailScale + 40);
+        var minimumWidth = UIUtility.Scaled(CategoryListWidth + ThumbnailDimensions.x * ThumbnailScale + 38);
+        var minimumHeight = UIUtility.Scaled(ThumbnailDimensions.y * ThumbnailScale + 40);
 
         WindowRect = WindowRect with
         {
@@ -381,8 +381,8 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
                 var mousePosition = Event.current.mousePosition;
 
                 var (windowWidth, windowHeight) = mousePosition;
-                var minimumWidth = Utility.GetPix(CategoryListWidth + ThumbnailDimensions.x * ThumbnailScale + 38);
-                var minimumHeight = Utility.GetPix(ThumbnailDimensions.y * ThumbnailScale + 40);
+                var minimumWidth = UIUtility.Scaled(CategoryListWidth + ThumbnailDimensions.x * ThumbnailScale + 38);
+                var minimumHeight = UIUtility.Scaled(ThumbnailDimensions.y * ThumbnailScale + 40);
 
                 WindowRect = WindowRect with
                 {

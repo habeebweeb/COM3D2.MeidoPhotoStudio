@@ -21,8 +21,8 @@ public abstract class BaseWindow
         get => rect;
         set => rect = value with
         {
-            x = Mathf.Clamp(value.x, -value.width + Utility.GetPix(20), Screen.width - Utility.GetPix(20)),
-            y = Mathf.Clamp(value.y, -value.height + Utility.GetPix(20), Screen.height - Utility.GetPix(20)),
+            x = Mathf.Clamp(value.x, -value.width + UIUtility.Scaled(20), Screen.width - UIUtility.Scaled(20)),
+            y = Mathf.Clamp(value.y, -value.height + UIUtility.Scaled(20), Screen.height - UIUtility.Scaled(20)),
         };
     }
 

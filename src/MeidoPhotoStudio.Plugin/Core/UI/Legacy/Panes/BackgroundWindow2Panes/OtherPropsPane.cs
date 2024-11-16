@@ -53,7 +53,7 @@ public class OtherPropsPane : BasePane
         DrawDropdown(propCategoryDropdown);
         DrawDropdown(propDropdown);
 
-        MpsGui.BlackLine();
+        UIUtility.DrawBlackLine();
 
         addPropButton.Draw();
     }
