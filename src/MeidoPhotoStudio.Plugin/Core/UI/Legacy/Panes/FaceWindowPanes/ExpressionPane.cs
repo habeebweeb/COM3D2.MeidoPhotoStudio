@@ -62,12 +62,12 @@ public class ExpressionPane : BasePane
         this.characterSelectionController.Selecting += OnCharacterSelectionChanging;
         this.characterSelectionController.Selected += OnCharacterSelectionChanged;
 
-        this.faceShapeKeyConfiguration.AddedCustomShapeKey += OnShapeKeyAdded;
-        this.faceShapeKeyConfiguration.RemovedCustomShapeKey += OnShapeKeyRemoved;
+        this.faceShapeKeyConfiguration.AddedShapeKey += OnShapeKeyAdded;
+        this.faceShapeKeyConfiguration.RemovedShapeKey += OnShapeKeyRemoved;
 
         deleteShapeKeysToggle = new(Translation.Get("expressionPane", "deleteShapeKeysToggle"));
 
-        shapeKeys = [.. this.faceShapeKeyConfiguration.CustomShapeKeys];
+        shapeKeys = [.. this.faceShapeKeyConfiguration.ShapeKeys];
 
         modifyShapeKeysToggle = new(Translation.Get("expressionPane", "modifyShapeKeysToggle"));
         modifyShapeKeysToggle.ControlEvent += OnModifyShapeKeysToggleChanged;
@@ -251,7 +251,7 @@ public class ExpressionPane : BasePane
                     GUILayout.Label(shapeKey, shapeKeyLabelStyle);
 
                     if (GUILayout.Button("X", deleteShapeKeyButtonStyle, noExpandWidth))
-                        faceShapeKeyConfiguration.RemoveCustomShapeKey(shapeKey);
+                        faceShapeKeyConfiguration.RemoveShapeKey(shapeKey);
 
                     GUILayout.EndHorizontal();
                 }
@@ -330,7 +330,7 @@ public class ExpressionPane : BasePane
         CurrentFace.Blink = blinkToggle.Value;
     }
 
-    private void OnShapeKeyAdded(object sender, FaceShapeKeyConfigurationEventArgs e)
+    private void OnShapeKeyAdded(object sender, ShapeKeyConfigurationEventArgs e)
     {
         if (!controls.TryGetValue(e.ChangedShapeKey, out var control))
         {
@@ -353,7 +353,7 @@ public class ExpressionPane : BasePane
 
         UpdateShapekeyList();
 
-        shapeKeys = [.. faceShapeKeyConfiguration.CustomShapeKeys];
+        shapeKeys = [.. faceShapeKeyConfiguration.ShapeKeys];
     }
 
     private void OnFaceShapeKeyRangeConfigurationRefreshed(object sender, EventArgs e)
@@ -368,7 +368,7 @@ public class ExpressionPane : BasePane
         }
     }
 
-    private void OnShapeKeyRemoved(object sender, FaceShapeKeyConfigurationEventArgs e)
+    private void OnShapeKeyRemoved(object sender, ShapeKeyConfigurationEventArgs e)
     {
         if (controls.ContainsKey(e.ChangedShapeKey))
             controls.Remove(e.ChangedShapeKey);
@@ -378,7 +378,7 @@ public class ExpressionPane : BasePane
 
         UpdateShapekeyList();
 
-        shapeKeys = [.. faceShapeKeyConfiguration.CustomShapeKeys];
+        shapeKeys = [.. faceShapeKeyConfiguration.ShapeKeys];
     }
 
     private void OnCharacterSelectionChanging(object sender, SelectionEventArgs<CharacterController> e)
@@ -449,7 +449,7 @@ public class ExpressionPane : BasePane
         if (!customShapeKeys.Contains(addShapeKeyComboBox.Value))
             return;
 
-        faceShapeKeyConfiguration.AddCustomShapeKey(addShapeKeyComboBox.Value);
+        faceShapeKeyConfiguration.AddShapeKey(addShapeKeyComboBox.Value);
 
         addShapeKeyComboBox.Value = string.Empty;
     }
@@ -461,7 +461,7 @@ public class ExpressionPane : BasePane
     {
         var shapeKeyList = CurrentFace.ExpressionKeys
             .Except(faceShapeKeyConfiguration.BlockedShapeKeys)
-            .Except(faceShapeKeyConfiguration.CustomShapeKeys)
+            .Except(faceShapeKeyConfiguration.ShapeKeys)
             .ToArray();
 
         hasShapeKeys = shapeKeyList.Length is not 0;

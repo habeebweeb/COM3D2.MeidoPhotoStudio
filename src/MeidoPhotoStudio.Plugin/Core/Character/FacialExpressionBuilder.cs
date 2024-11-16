@@ -16,5 +16,5 @@ public class FacialExpressionBuilder(FaceShapeKeyConfiguration faceShapeKeyConfi
         ?? throw new ArgumentNullException(nameof(faceShapeKeyConfiguration));
 
     public FacialExpressionSet Build(FaceController face) =>
-        face.GetFaceData(StockHashes.Concat(faceShapeKeyConfiguration.CustomShapeKeys));
+        face.GetFaceData(StockHashes.Concat(faceShapeKeyConfiguration.ShapeKeys));
 }
