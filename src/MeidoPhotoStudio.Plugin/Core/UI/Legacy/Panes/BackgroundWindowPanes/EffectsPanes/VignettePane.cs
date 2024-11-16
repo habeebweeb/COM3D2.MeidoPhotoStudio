@@ -63,8 +63,6 @@ public class VignettePane : EffectPane<VignetteController>
         blurSlider.Draw();
         blurSpreadSlider.Draw();
         chromaticAberrationSlider.Draw();
-
-        GUI.enabled = true;
     }
 
     protected override void ReloadTranslation()

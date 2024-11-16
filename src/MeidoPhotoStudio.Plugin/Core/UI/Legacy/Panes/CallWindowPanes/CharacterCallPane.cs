@@ -107,11 +107,11 @@ public class CharacterCallPane : BasePane, IVirtualListHandler
 
         GUILayout.BeginHorizontal();
 
-        GUI.enabled = characterCallController.HasActiveCharacters;
+        GUI.enabled = Parent.Enabled && characterCallController.HasActiveCharacters;
 
         activeCharacterToggle.Draw();
 
-        GUI.enabled = true;
+        GUI.enabled = Parent.Enabled;
 
         GUILayout.FlexibleSpace();
 

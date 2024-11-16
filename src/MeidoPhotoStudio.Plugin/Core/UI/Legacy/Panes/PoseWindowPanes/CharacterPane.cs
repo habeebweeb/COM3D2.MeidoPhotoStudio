@@ -58,6 +58,8 @@ public class CharacterPane : BasePane
 
     public override void Draw()
     {
+        GUI.enabled = Parent.Enabled;
+
         if (characterSelectionController.Current is null)
         {
             noCharactersLabel.Draw(labelStyle);
@@ -70,7 +72,7 @@ public class CharacterPane : BasePane
 
         currentTab.Draw();
 
-        GUI.enabled = true;
+        GUI.enabled = Parent.Enabled;
     }
 
     public override void Activate()

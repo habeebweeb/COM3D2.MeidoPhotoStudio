@@ -188,7 +188,7 @@ public class PropManagerPane : BasePane
         gizmoToggle.Draw(noExpandWidth);
         GUILayout.FlexibleSpace();
 
-        var guiEnabled = GUI.enabled;
+        var guiEnabled = Parent.Enabled;
 
         GUI.enabled = guiEnabled && gizmoToggle.Value;
 
@@ -202,8 +202,6 @@ public class PropManagerPane : BasePane
         GUILayout.BeginHorizontal();
 
         visibleToggle.Draw(noExpandWidth);
-
-        guiEnabled = GUI.enabled;
 
         GUI.enabled = guiEnabled && visibleToggle.Value;
         shadowCastingToggle.Draw(noExpandWidth);
@@ -233,8 +231,6 @@ public class PropManagerPane : BasePane
         positionTransformControl.Draw();
         rotationTransformControl.Draw();
         scaleTransformControl.Draw();
-
-        GUI.enabled = true;
     }
 
     protected override void ReloadTranslation()

@@ -28,13 +28,15 @@ public class EffectPane<T> : BasePane
 
     public override void Draw()
     {
+        var guiEnabled = Parent.Enabled;
+
         GUILayout.BeginHorizontal();
 
         effectActiveToggle.Draw();
 
         GUILayout.FlexibleSpace();
 
-        GUI.enabled = Effect.Active;
+        GUI.enabled = guiEnabled && Effect.Active;
 
         resetEffectButton.Draw();
 

@@ -74,7 +74,7 @@ public class CharacterSwitcherPane : BasePane
             buttonHeight, GUILayout.ExpandWidth(false),
         };
 
-        var guiEnabled = characterService.Count > 0;
+        var guiEnabled = Parent.Enabled && characterService.Count > 0;
 
         GUILayout.BeginHorizontal();
 
@@ -84,7 +84,8 @@ public class CharacterSwitcherPane : BasePane
 
             GUI.enabled = guiEnabled && characterSelectionController.Current?.CharacterModel != editModeMaidService.EditingCharacter;
 
-            GUI.color = originalColour with { a = 2f };
+            if (Parent.Enabled)
+                GUI.color = originalColour with { a = 2f };
 
             editToggle.Draw();
 

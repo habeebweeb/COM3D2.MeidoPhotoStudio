@@ -5,27 +5,21 @@ public static class Modal
     private static BaseWindow currentModal;
     private static GUIStyle windowStyle;
 
-    internal static bool Visible
-    {
-        get => currentModal?.Visible ?? false;
-        set
-        {
-            if (currentModal is null)
-                return;
+    internal static bool Visible { get; private set; }
 
-            currentModal.Visible = value;
-        }
-    }
+    internal static int ID =>
+        Visible ? currentModal.ID : -1;
 
     private static GUIStyle WindowStyle =>
         windowStyle ??= new(GUI.skin.box);
 
     internal static void Show(BaseWindow modalWindow)
     {
-        if (currentModal is not null)
-            Close();
+        _ = modalWindow ?? throw new ArgumentNullException(nameof(modalWindow));
 
+        Close();
         currentModal = modalWindow;
+        currentModal.Visible = true;
         Visible = true;
     }
 

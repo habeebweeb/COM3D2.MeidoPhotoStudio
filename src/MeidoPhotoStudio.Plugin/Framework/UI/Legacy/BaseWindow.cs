@@ -5,6 +5,7 @@ public abstract class BaseWindow
     private static int id = 765;
 
     private Rect rect;
+    private bool enabled = true;
 
     public BaseWindow()
     {
@@ -27,11 +28,24 @@ public abstract class BaseWindow
 
     public virtual bool Visible { get; set; }
 
-    public virtual bool Enabled { get; set; }
+    public virtual bool Enabled
+    {
+        get => Modal.Visible
+            ? enabled && Modal.ID == ID
+            : enabled;
+
+        set =>
+            enabled = value;
+    }
 
     public virtual void GUIFunc(int id)
     {
+        GUI.enabled = Enabled;
+
         Draw();
+
+        GUI.enabled = true;
+
         GUI.DragWindow();
     }
 

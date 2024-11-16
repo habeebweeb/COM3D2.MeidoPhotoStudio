@@ -67,7 +67,7 @@ public class CopyPosePane : BasePane
 
     public override void Draw()
     {
-        GUI.enabled = CurrentCharacter is not null;
+        GUI.enabled = Parent.Enabled && CurrentCharacter is not null;
 
         paneHeader.Draw();
 

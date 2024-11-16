@@ -148,11 +148,9 @@ public class MenuPropsPane : BasePane, IVirtualListHandler
         DrawTextFieldWithScrollBarOffset(searchBar);
 
         if (!menuPropsConfiguration.ModMenuPropsOnly)
-        {
             DrawFilterToggles();
 
-            MpsGui.BlackLine();
-        }
+        MpsGui.BlackLine();
 
         if (propCategoryDropdown.SelectedItem is not MPN.null_mpn)
             DrawPropList();

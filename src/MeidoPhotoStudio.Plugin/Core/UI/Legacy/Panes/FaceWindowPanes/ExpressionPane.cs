@@ -120,7 +120,7 @@ public class ExpressionPane : BasePane
 
     public override void Draw()
     {
-        var guiEnabled = CurrentFace is not null;
+        var guiEnabled = Parent.Enabled && CurrentFace is not null;
 
         GUI.enabled = guiEnabled;
 
@@ -137,7 +137,7 @@ public class ExpressionPane : BasePane
 
         GUILayout.EndHorizontal();
 
-        if (!guiEnabled)
+        if (CurrentFace is null)
             return;
 
         MpsGui.BlackLine();

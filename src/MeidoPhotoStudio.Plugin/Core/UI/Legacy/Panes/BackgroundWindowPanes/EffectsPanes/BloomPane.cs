@@ -76,8 +76,6 @@ public class BloomPane : EffectPane<BloomController>
         greenSlider.Draw();
         blueSlider.Draw();
         hdrToggle.Draw();
-
-        GUI.enabled = true;
     }
 
     protected override void ReloadTranslation()

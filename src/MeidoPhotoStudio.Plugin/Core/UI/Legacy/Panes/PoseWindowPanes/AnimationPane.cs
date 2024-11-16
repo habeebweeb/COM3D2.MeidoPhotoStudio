@@ -81,7 +81,7 @@ public class AnimationPane : BasePane
     public override void Draw()
     {
         var currentAnimation = CurrentAnimation;
-        var guiEnabled = currentAnimation is not null;
+        var guiEnabled = Parent.Enabled && currentAnimation is not null;
 
         GUI.enabled = guiEnabled;
 

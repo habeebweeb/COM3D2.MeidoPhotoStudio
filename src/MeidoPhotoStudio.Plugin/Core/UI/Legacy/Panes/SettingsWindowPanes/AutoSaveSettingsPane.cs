@@ -74,7 +74,7 @@ public class AutoSaveSettingsPane : BasePane
 
         MpsGui.BlackLine();
 
-        var guiEnabled = enabledToggle.Value;
+        var guiEnabled = Parent.Enabled && enabledToggle.Value;
 
         GUI.enabled = guiEnabled;
 
@@ -117,8 +117,6 @@ public class AutoSaveSettingsPane : BasePane
         resetSlotsButton.Draw(noExpandWidth);
 
         GUILayout.EndHorizontal();
-
-        GUI.enabled = true;
     }
 
     protected override void ReloadTranslation()

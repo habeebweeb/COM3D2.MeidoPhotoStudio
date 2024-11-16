@@ -87,8 +87,6 @@ public class FogPane : EffectPane<FogController>
         redSlider.Draw();
         greenSlider.Draw();
         blueSlider.Draw();
-
-        GUI.enabled = true;
     }
 
     protected override void ReloadTranslation()

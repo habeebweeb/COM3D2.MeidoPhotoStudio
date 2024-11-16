@@ -56,7 +56,7 @@ public class FreeLookPane : BasePane
 
     public override void Draw()
     {
-        var enabled = CurrentHead is not null;
+        var enabled = Parent.Enabled && CurrentHead is not null;
 
         GUI.enabled = enabled;
 

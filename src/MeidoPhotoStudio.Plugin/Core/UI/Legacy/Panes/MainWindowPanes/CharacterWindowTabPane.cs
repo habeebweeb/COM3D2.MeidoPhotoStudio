@@ -8,10 +8,14 @@ public class CharacterWindowTabPane : BasePane
 
     public override void Draw()
     {
+        GUI.enabled = Parent.Enabled;
+
         scrollPosition = GUILayout.BeginScrollView(scrollPosition);
 
         foreach (var pane in Panes)
             pane.Draw();
+
+        GUI.enabled = Parent.Enabled;
 
         GUILayout.EndScrollView();
     }

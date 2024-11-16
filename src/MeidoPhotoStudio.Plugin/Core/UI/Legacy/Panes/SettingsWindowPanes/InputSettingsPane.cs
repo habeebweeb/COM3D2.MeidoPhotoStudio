@@ -76,20 +76,16 @@ public class InputSettingsPane : BasePane
 
     public override void Draw()
     {
-        GUI.enabled = !inputRemapper.Listening;
+        var parentEnabled = Parent.Enabled;
 
         DrawGeneralControls();
         DrawCameraControls();
         DrawTransformDragHandleControls();
         DrawCharacterDragHandleControls();
 
-        GUI.enabled = true;
-
         void DrawGeneralControls()
         {
-            generalControlsHeader.Draw();
-
-            if (!generalControlsHeader.Enabled)
+            if (!DrawHeader(generalControlsHeader))
                 return;
 
             for (var shortcut = Shortcut.ActivatePlugin; shortcut <= Shortcut.CyclePreviousAnimation; shortcut++)
@@ -98,9 +94,7 @@ public class InputSettingsPane : BasePane
 
         void DrawCameraControls()
         {
-            cameraControlsHeader.Draw();
-
-            if (!cameraControlsHeader.Enabled)
+            if (!DrawHeader(cameraControlsHeader))
                 return;
 
             for (var shortcut = Shortcut.SaveCamera; shortcut <= Shortcut.ToggleCamera5; shortcut++)
@@ -112,9 +106,7 @@ public class InputSettingsPane : BasePane
 
         void DrawTransformDragHandleControls()
         {
-            transformDragHandleControlsHeader.Draw();
-
-            if (!transformDragHandleControlsHeader.Enabled)
+            if (!DrawHeader(transformDragHandleControlsHeader))
                 return;
 
             for (var hotkey = Hotkey.Select; hotkey <= Hotkey.Scale; hotkey++)
@@ -123,18 +115,29 @@ public class InputSettingsPane : BasePane
 
         void DrawCharacterDragHandleControls()
         {
-            characterControlsHeader.Draw();
-
-            if (!characterControlsHeader.Enabled)
+            if (!DrawHeader(characterControlsHeader))
                 return;
 
             for (var hotkey = Hotkey.DragFinger; hotkey <= Hotkey.MoveLocalY; hotkey++)
                 DrawControl(hotkey);
         }
 
+        bool DrawHeader(PaneHeader header)
+        {
+            GUI.enabled = parentEnabled && !inputRemapper.Listening;
+
+            header.Draw();
+
+            GUI.enabled = parentEnabled;
+
+            return header.Enabled;
+        }
+
         void DrawControl(Enum key)
         {
             var isShortcut = key.GetType() == typeof(Shortcut);
+
+            GUI.enabled = parentEnabled && !inputRemapper.Listening;
 
             DrawShortcutLabel(key, isShortcut);
 
@@ -144,7 +147,11 @@ public class InputSettingsPane : BasePane
 
             if (CurrentControlIsListening(key, isShortcut))
             {
+                GUI.enabled = false;
+
                 GUILayout.Button(pushAnyKeyLabel, buttonStyle, buttonWidth);
+
+                GUI.enabled = parentEnabled;
 
                 DrawCancelListeningButton();
             }
@@ -152,6 +159,8 @@ public class InputSettingsPane : BasePane
             {
                 ListenForNewKeyCombo(key, isShortcut);
             }
+
+            GUI.enabled = parentEnabled && !inputRemapper.Listening;
 
             if (GUILayout.Button("x", GUILayout.ExpandWidth(false)))
                 ClearButtonCombo(key, isShortcut);
@@ -169,7 +178,13 @@ public class InputSettingsPane : BasePane
                     ? shortcutMapping[(Shortcut)key]
                     : hotkeyMapping[(Hotkey)key];
 
-                return GUILayout.Button(mapping, buttonStyle, buttonWidth);
+                GUI.enabled = parentEnabled && !inputRemapper.Listening;
+
+                var clicked = GUILayout.Button(mapping, buttonStyle, buttonWidth);
+
+                GUI.enabled = parentEnabled;
+
+                return clicked;
             }
 
             void ListenForNewKeyCombo(Enum key, bool isShortcut)
@@ -214,12 +229,8 @@ public class InputSettingsPane : BasePane
 
             void DrawCancelListeningButton()
             {
-                GUI.enabled = true;
-
                 if (GUILayout.Button(cancelRebindLabel))
                     inputRemapper.Cancel();
-
-                GUI.enabled = false;
             }
 
             void DrawShortcutLabel(Enum key, bool isShortcut)

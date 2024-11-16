@@ -353,7 +353,12 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
     public override void GUIFunc(int id)
     {
         HandleResize();
+
+        GUI.enabled = Enabled;
+
         Draw();
+
+        GUI.enabled = true;
 
         if (!resizing)
             GUI.DragWindow();

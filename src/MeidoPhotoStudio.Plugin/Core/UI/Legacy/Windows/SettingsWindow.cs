@@ -130,7 +130,12 @@ public class SettingsWindow : BaseWindow
     public override void GUIFunc(int id)
     {
         HandleResize();
+
+        GUI.enabled = Enabled;
+
         Draw();
+
+        GUI.enabled = true;
 
         GUI.Box(resizeHandlRect, GUIContent.none);
 

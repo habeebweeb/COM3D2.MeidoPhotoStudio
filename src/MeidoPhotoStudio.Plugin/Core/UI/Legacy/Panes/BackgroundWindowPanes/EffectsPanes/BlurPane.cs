@@ -43,8 +43,6 @@ public class BlurPane : EffectPane<BlurController>
         blurSizeSlider.Draw();
         blurIterationsSlider.Draw();
         downsampleSlider.Draw();
-
-        GUI.enabled = true;
     }
 
     protected override void OnEffectPropertyChanged(object sender, PropertyChangedEventArgs e)

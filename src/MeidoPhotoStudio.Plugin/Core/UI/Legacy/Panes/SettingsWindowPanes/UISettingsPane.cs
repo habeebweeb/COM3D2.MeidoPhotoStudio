@@ -50,17 +50,17 @@ public class UISettingsPane : BasePane
 
         mainWindowWidthField.Draw();
 
-        GUI.enabled = validMainWindowWidth && mainWindowWidthField.Value != configuration.WindowWidth.Value;
+        var guiEnabled = Parent.Enabled;
+
+        GUI.enabled = guiEnabled && validMainWindowWidth && mainWindowWidthField.Value != configuration.WindowWidth.Value;
 
         saveMainWindowWidthButton.Draw(noExpandWidth);
 
-        GUI.enabled = configuration.WindowWidth.Value != (int)configuration.WindowWidth.DefaultValue;
+        GUI.enabled = guiEnabled && configuration.WindowWidth.Value != (int)configuration.WindowWidth.DefaultValue;
 
         resetMainWindowWidthButton.Draw(noExpandWidth);
 
         GUILayout.EndHorizontal();
-
-        GUI.enabled = true;
     }
 
     protected override void ReloadTranslation()

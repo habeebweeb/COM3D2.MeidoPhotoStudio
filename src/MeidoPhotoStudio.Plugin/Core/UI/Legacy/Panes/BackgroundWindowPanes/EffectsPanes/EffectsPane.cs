@@ -35,6 +35,8 @@ public class EffectsPane : BasePane
 
     public override void Draw()
     {
+        GUI.enabled = Parent.Enabled;
+
         paneHeader.Draw();
 
         if (!paneHeader.Enabled)

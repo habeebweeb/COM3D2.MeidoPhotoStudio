@@ -111,7 +111,7 @@ public class DressingPane : BasePane
 
     public override void Draw()
     {
-        var enabled = characterSelectionController.Current is not null;
+        var enabled = Parent.Enabled && characterSelectionController.Current is not null;
 
         GUI.enabled = enabled;
 

@@ -35,6 +35,7 @@ public partial class MainWindow : BaseWindow
     private BasePane currentPane;
     private Tab selectedTab;
 
+    // TODO: Global GUI enabled
     public MainWindow(
         TabSelectionController tabSelectionController,
         CustomMaidSceneService customMaidSceneService,
@@ -125,8 +126,6 @@ public partial class MainWindow : BaseWindow
 
         currentPane.Draw();
 
-        GUI.enabled = true;
-
         GUILayout.FlexibleSpace();
 
         GUILayout.BeginHorizontal();
@@ -137,11 +136,9 @@ public partial class MainWindow : BaseWindow
 
         GUILayout.FlexibleSpace();
 
-        GUI.enabled = !inputRemapper.Listening;
+        GUI.enabled = Enabled && !inputRemapper.Listening;
 
         settingsButton.Draw(GUILayout.ExpandWidth(false));
-
-        GUI.enabled = true;
 
         GUILayout.EndHorizontal();
     }
@@ -167,7 +164,11 @@ public partial class MainWindow : BaseWindow
     {
         HandleResize();
 
+        GUI.enabled = Enabled;
+
         Draw();
+
+        GUI.enabled = true;
 
         GUI.Box(resizeHandleRect, GUIContent.none);
 

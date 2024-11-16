@@ -167,6 +167,8 @@ public class LightsPane : BasePane
         if (!paneHeader.Enabled)
             return;
 
+        var enabled = Parent.Enabled;
+
         DrawTopBar();
 
         MpsGui.BlackLine();
@@ -182,9 +184,7 @@ public class LightsPane : BasePane
 
         MpsGui.BlackLine();
 
-        var enabled = GUI.enabled;
-
-        GUI.enabled = lightOnToggle.Value;
+        GUI.enabled = enabled && lightOnToggle.Value;
 
         if (CurrentLightController.Type is LightType.Directional)
             DrawDirectionalLightControls();
@@ -199,11 +199,9 @@ public class LightsPane : BasePane
 
         DrawReset();
 
-        GUI.enabled = enabled;
-
         void DrawTopBar()
         {
-            GUI.enabled = lightRepository.Count > 0;
+            GUI.enabled = enabled && lightRepository.Count > 0;
 
             GUILayout.BeginHorizontal();
 
@@ -211,11 +209,11 @@ public class LightsPane : BasePane
 
             var noExpandWidth = GUILayout.ExpandWidth(false);
 
-            GUI.enabled = true;
+            GUI.enabled = enabled;
 
             addLightButton.Draw(noExpandWidth);
 
-            GUI.enabled = lightRepository.Count > 0;
+            GUI.enabled = enabled && lightRepository.Count > 0;
 
             GUILayout.FlexibleSpace();
 
@@ -223,17 +221,13 @@ public class LightsPane : BasePane
             clearLightsButton.Draw(noExpandWidth);
 
             GUILayout.EndHorizontal();
-
-            GUI.enabled = true;
         }
 
         void DrawLightType()
         {
             GUILayout.BeginHorizontal();
 
-            var enabled = GUI.enabled;
-
-            GUI.enabled = lightOnToggle.Value;
+            GUI.enabled = enabled && lightOnToggle.Value;
 
             lightTypeGrid.Draw();
 

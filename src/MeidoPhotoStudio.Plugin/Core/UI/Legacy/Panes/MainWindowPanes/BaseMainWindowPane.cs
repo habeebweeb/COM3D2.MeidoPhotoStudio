@@ -10,15 +10,17 @@ public class BaseMainWindowPane : BasePane
 
     public override void Draw()
     {
+        GUI.enabled = Parent.Enabled;
+
         if (Scrollable)
             ScrollPosition = GUILayout.BeginScrollView(ScrollPosition);
 
         foreach (var pane in Panes)
             pane.Draw();
 
+        GUI.enabled = Parent.Enabled;
+
         if (Scrollable)
             GUILayout.EndScrollView();
-
-        GUI.enabled = true;
     }
 }

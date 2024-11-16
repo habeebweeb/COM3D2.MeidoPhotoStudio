@@ -62,8 +62,6 @@ public class DepthOfFieldPane : EffectPane<DepthOfFieldController>
         focalSizeSlider.Draw();
         apertureSlider.Draw();
         blurSizeSlider.Draw();
-
-        GUI.enabled = true;
     }
 
     protected override void ReloadTranslation()
