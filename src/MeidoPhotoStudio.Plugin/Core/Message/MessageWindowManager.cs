@@ -1,7 +1,5 @@
 using System.ComponentModel;
 
-using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
-
 using Alignment = NGUIText.Alignment;
 
 namespace MeidoPhotoStudio.Plugin.Core.Message;
@@ -10,7 +8,7 @@ public class MessageWindowManager : INotifyPropertyChanged
 {
     public const string Header = "TEXTBOX";
 
-    public static readonly SliderProp FontBounds = new(25f, 60f);
+    public static readonly (int Minimum, int Maximum) FontBounds = (25, 60);
 
     private readonly MessageWindowMgr messageWindowMgr;
     private readonly GameObject subtitlesDisplayPanel;
@@ -88,7 +86,7 @@ public class MessageWindowManager : INotifyPropertyChanged
         get => messageLabel.fontSize;
         set
         {
-            var newFontSize = (int)Mathf.Clamp(value, FontBounds.Left, FontBounds.Right);
+            var newFontSize = Mathf.Clamp(value, FontBounds.Minimum, FontBounds.Minimum);
 
             if (newFontSize == FontSize)
                 return;

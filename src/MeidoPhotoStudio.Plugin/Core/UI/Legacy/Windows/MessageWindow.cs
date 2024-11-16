@@ -41,7 +41,9 @@ public partial class MessageWindow : BaseWindow
 
         nameTextField = new();
 
-        fontSizeSlider = new(MessageWindowManager.FontBounds);
+        var (left, right) = MessageWindowManager.FontBounds;
+
+        fontSizeSlider = new(string.Empty, left, right);
         fontSizeSlider.ControlEvent += ChangeFontSize;
 
         messageTextArea = new();

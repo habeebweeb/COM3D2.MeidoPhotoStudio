@@ -21,16 +21,6 @@ public class Slider : BaseControl
         DefaultValue = defaultValue;
     }
 
-    public Slider(string label, SliderProp prop)
-        : this(label, prop.Left, prop.Right, prop.Initial, prop.Default)
-    {
-    }
-
-    public Slider(SliderProp prop)
-        : this(string.Empty, prop.Left, prop.Right, prop.Initial, prop.Default)
-    {
-    }
-
     public event EventHandler StartedInteraction;
 
     public event EventHandler EndedInteraction;
