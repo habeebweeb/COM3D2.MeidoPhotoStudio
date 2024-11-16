@@ -1,8 +1,6 @@
 using MeidoPhotoStudio.Plugin.Framework.UI;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
-using Window = MeidoPhotoStudio.Plugin.Constants.Window;
-
 namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
 public class WindowManager
@@ -13,6 +11,14 @@ public class WindowManager
 
     public WindowManager() =>
         ScreenSizeChecker.ScreenSizeChanged += OnScreenSizeChanged;
+
+    public enum Window
+    {
+        Main,
+        Message,
+        Save,
+        Settings,
+    }
 
     private static GUIStyle WindowStyle =>
         windowStyle ??= new(GUI.skin.box);

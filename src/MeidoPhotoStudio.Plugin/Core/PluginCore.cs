@@ -546,10 +546,10 @@ public partial class PluginCore : MonoBehaviour
 
         windowManager = new()
         {
-            [Constants.Window.Main] = mainWindow,
-            [Constants.Window.Message] = messageWindow,
-            [Constants.Window.Save] = sceneBrowser,
-            [Constants.Window.Settings] = settingsWindow,
+            [WindowManager.Window.Main] = mainWindow,
+            [WindowManager.Window.Message] = messageWindow,
+            [WindowManager.Window.Save] = sceneBrowser,
+            [WindowManager.Window.Settings] = settingsWindow,
         };
 
         dragHandleClickHandler.WindowManager = windowManager;
