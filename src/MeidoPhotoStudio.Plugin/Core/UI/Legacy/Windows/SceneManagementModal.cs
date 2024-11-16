@@ -428,7 +428,7 @@ public class SceneManagementModal : BaseWindow
             {
                 using var fileStream = File.OpenRead(scene.Filename);
 
-                Utility.SeekPngEnd(fileStream);
+                SeekToEndOfPNG(fileStream);
 
                 schema = sceneSerializer.DeserializeScene(fileStream);
 
@@ -463,6 +463,38 @@ public class SceneManagementModal : BaseWindow
             var (width, height) = loadOptionsToggle.Value ? loadOptionsWindowSize : manageSceneWindowSize;
 
             WindowRect = MiddlePosition(ScaledMinimum(width), ScaledMinimum(height));
+
+            static bool SeekToEndOfPNG(Stream stream)
+            {
+                var buffer = new byte[8];
+
+                var pngHeader = new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 };
+
+                stream.Read(buffer, 0, 8);
+
+                if (!buffer.SequenceEqual(pngHeader))
+                    return false;
+
+                var pngEnd = Encoding.ASCII.GetBytes("IEND");
+
+                buffer = new byte[4];
+
+                do
+                {
+                    stream.Read(buffer, 0, 4);
+
+                    if (BitConverter.IsLittleEndian)
+                        Array.Reverse(buffer);
+
+                    var length = BitConverter.ToUInt32(buffer, 0);
+
+                    stream.Read(buffer, 0, 4);
+                    stream.Seek(length + 4L, SeekOrigin.Current);
+                }
+                while (!buffer.SequenceEqual(pngEnd));
+
+                return true;
+            }
         }
 
         protected override void OnModeEnter()
