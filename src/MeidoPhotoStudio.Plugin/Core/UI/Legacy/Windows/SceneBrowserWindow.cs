@@ -337,7 +337,7 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
 
         sceneManagementModal.OnScreenDimensionsChanged(newScreenDimensions);
 
-        var minimumWidth = Utility.GetPix(CategoryListWidth + ThumbnailDimensions.x * ThumbnailScale + 20);
+        var minimumWidth = Utility.GetPix(CategoryListWidth + ThumbnailDimensions.x * ThumbnailScale + 38);
         var minimumHeight = Utility.GetPix(ThumbnailDimensions.y * ThumbnailScale + 40);
 
         WindowRect = WindowRect with
