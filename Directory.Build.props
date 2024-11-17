@@ -8,6 +8,7 @@
     <Platforms>AnyCPU</Platforms>
     <Configurations>Debug-COM25;Release-COM25;Release;Debug</Configurations>
     <ImplicitUsings>enable</ImplicitUsings>
+    <InformationalVersion>$([System.DateTime]::Now.ToString('yyyyMMdd_HHmmss'))</InformationalVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" $(Configuration.StartsWith('Debug')) ">

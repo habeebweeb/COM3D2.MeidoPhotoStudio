@@ -13,6 +13,7 @@ public class SettingsWindow : BaseWindow
     private readonly SelectionGrid settingCategorySelectionGrid;
     private readonly Button closeButton;
     private readonly Header currentSettingHeader;
+    private readonly Label pluginInformationLabel;
     private readonly LazyStyle settingCategoryStyle = new(
         15,
         static () => new(GUI.skin.button)
@@ -28,6 +29,13 @@ public class SettingsWindow : BaseWindow
             fontStyle = FontStyle.Bold,
             normal = { textColor = Color.white },
             wordWrap = true,
+        });
+
+    private readonly LazyStyle buildVersionStyle = new(
+        11,
+        static () => new(GUI.skin.label)
+        {
+            alignment = TextAnchor.LowerLeft,
         });
 
     private bool resizing;
@@ -48,6 +56,8 @@ public class SettingsWindow : BaseWindow
         };
 
         settingCategorySelectionGrid.ControlEvent += OnSettingCategoryChanged;
+
+        pluginInformationLabel = new(Plugin.BuildVersion);
 
         var minimumWidth = UIUtility.Scaled(CategoryListWidth * 2.75f + 38);
         var minimumHeight = UIUtility.Scaled(400);
@@ -85,6 +95,8 @@ public class SettingsWindow : BaseWindow
         DrawSettingsPane();
 
         GUILayout.EndHorizontal();
+
+        pluginInformationLabel.Draw(buildVersionStyle);
 
         GUILayout.EndArea();
 

@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using BepInEx;
 using BepInEx.Logging;
 using MeidoPhotoStudio.Plugin.Core.Patchers;
@@ -26,10 +28,24 @@ public class Plugin : BaseUnityPlugin
 
     public static Core.PluginCore Instance { get; private set; }
 
+    internal static string BuildVersion { get; private set; }
+
     internal static new ManualLogSource Logger { get; private set; }
 
     private void Awake()
     {
+        try
+        {
+            var attribute = Attribute.GetCustomAttribute(typeof(Plugin).Assembly, typeof(AssemblyInformationalVersionAttribute));
+            var version = (attribute as AssemblyInformationalVersionAttribute).InformationalVersion;
+
+            BuildVersion = $"build {version}";
+        }
+        catch
+        {
+            BuildVersion = PluginString;
+        }
+
         Logger = base.Logger;
 
         harmony = HarmonyLib.Harmony.CreateAndPatchAll(typeof(AllProcPropSeqPatcher));
