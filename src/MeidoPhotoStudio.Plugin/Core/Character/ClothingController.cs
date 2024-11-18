@@ -8,8 +8,7 @@ using MaskMode = TBody.MaskMode;
 
 namespace MeidoPhotoStudio.Plugin.Core.Character;
 
-public class ClothingController(CharacterController characterController, TransformWatcher transformWatcher)
-    : INotifyPropertyChanged
+public class ClothingController : INotifyPropertyChanged
 {
     private const float DefaultFloorHeight = -1000f;
 
@@ -17,12 +16,9 @@ public class ClothingController(CharacterController characterController, Transfo
     private static readonly MPN KousokuLower = SafeMpn.GetValue(nameof(MPN.kousoku_lower));
     private static readonly MPN[] AttachedAccessoryMpn = [KousokuUpper, KousokuLower];
 
-    private readonly CharacterController characterController = characterController
-        ?? throw new ArgumentNullException(nameof(characterController));
-
-    private readonly TransformWatcher transformWatcher = transformWatcher
-        ? transformWatcher : throw new ArgumentNullException(nameof(transformWatcher));
-
+    private readonly CharacterController characterController;
+    private readonly TransformWatcher transformWatcher;
+    private readonly HashSet<SlotID> changedSlots = [];
     private readonly Dictionary<SlotID, KeyedPropertyChangeEventArgs<SlotID>> clothingChangeEventArgsCache =
         new(EnumEqualityComparer<SlotID>.Instance);
 
@@ -32,6 +28,15 @@ public class ClothingController(CharacterController characterController, Transfo
     private GravityController clothingGravityController;
     private MenuFilePropModel attachedLowerAccessory;
     private MenuFilePropModel attachedUpperAccessory;
+
+    public ClothingController(CharacterController characterController, TransformWatcher transformWatcher)
+    {
+        this.characterController = characterController ?? throw new ArgumentNullException(nameof(characterController));
+        this.transformWatcher = transformWatcher ? transformWatcher : throw new ArgumentNullException(nameof(transformWatcher));
+
+        this.characterController.ProcessingCharacterProps += OnCharacterPropsProcessing;
+        this.characterController.ProcessedCharacterProps += OnCharacterPropsProcessed;
+    }
 
     public event PropertyChangedEventHandler PropertyChanged;
 
@@ -216,6 +221,37 @@ public class ClothingController(CharacterController characterController, Transfo
 
     private static bool IsAccessory(MPN value) =>
         AttachedAccessoryMpn.Any(mpn => mpn == value);
+
+    private void OnCharacterPropsProcessing(object sender, CharacterProcessingEventArgs e)
+    {
+        var mpnStart = (MPN)Enum.Parse(typeof(MPN_TYPE_RANGE), nameof(MPN_TYPE_RANGE.WEAR_START));
+        var mpnEnd = (MPN)Enum.Parse(typeof(MPN_TYPE_RANGE), nameof(MPN_TYPE_RANGE.WEAR_END));
+
+        changedSlots.Clear();
+
+        changedSlots.UnionWith(
+            from mpn in e.ChangingSlots
+            where mpn >= mpnStart && mpn <= mpnEnd
+            from skin in Body.goSlot
+            where skin.m_ParentMPN == mpn
+            select skin.SlotId);
+    }
+
+    private void OnCharacterPropsProcessed(object sender, CharacterProcessingEventArgs e)
+    {
+        var mpnStart = (MPN)Enum.Parse(typeof(MPN_TYPE_RANGE), nameof(MPN_TYPE_RANGE.WEAR_START));
+        var mpnEnd = (MPN)Enum.Parse(typeof(MPN_TYPE_RANGE), nameof(MPN_TYPE_RANGE.WEAR_END));
+
+        changedSlots.UnionWith(
+            from mpn in e.ChangingSlots
+            where mpn >= mpnStart && mpn <= mpnEnd
+            from skin in Body.goSlot
+            where skin.m_ParentMPN == mpn
+            select skin.SlotId);
+
+        foreach (var slot in changedSlots)
+            RaiseClothingChanged(slot);
+    }
 
     private void DetachAccessory(MPN category)
     {

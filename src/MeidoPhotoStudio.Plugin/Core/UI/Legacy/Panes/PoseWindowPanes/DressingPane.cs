@@ -82,7 +82,7 @@ public class DressingPane : BasePane
             .ToDictionary(slot => slot, CreateSlotToggle, EnumEqualityComparer<SlotID>.Instance);
 
         loadedSlots = ClothingSlots
-            .ToDictionary(slot => slot, _ => false);
+            .ToDictionary(slot => slot, _ => false, EnumEqualityComparer<SlotID>.Instance);
 
         curlingFrontToggle = new(Translation.Get("dressingPane", "curlingFront"));
         curlingFrontToggle.ControlEvent += OnCurlingFrontChanged;
@@ -304,18 +304,22 @@ public class DressingPane : BasePane
         if (WearSlots.Contains(e.Key))
         {
             clothingToggles[SlotID.wear].SetEnabledWithoutNotify(WearSlots.Any(slot => clothing[slot]));
+            loadedSlots[SlotID.wear] = WearSlots.Any(clothing.SlotLoaded);
         }
-        else if (e.Key is SlotID.megane or SlotID.accHead)
+        else if (e.Key is SlotID.megane)
         {
             clothingToggles[SlotID.megane].SetEnabledWithoutNotify(clothing[SlotID.megane] || clothing[SlotID.accHead]);
+            loadedSlots[SlotID.megane] = clothing.SlotLoaded(SlotID.megane) || clothing.SlotLoaded(SlotID.accHead);
         }
         else if (!detailedClothingToggle.Value && HeadwearSlots.Contains(e.Key))
         {
             clothingToggles[SlotID.headset].SetEnabledWithoutNotify(HeadwearSlots.Any(slot => clothing[slot]));
+            loadedSlots[SlotID.headset] = HeadwearSlots.Any(clothing.SlotLoaded);
         }
-        else
+        else if (clothingToggles.ContainsKey(e.Key))
         {
             clothingToggles[e.Key].SetEnabledWithoutNotify(clothing[e.Key]);
+            loadedSlots[e.Key] = clothing.SlotLoaded(e.Key);
         }
     }
 
