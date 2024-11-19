@@ -29,25 +29,14 @@ public class ExpressionPane : BasePane
     ];
 
     private readonly SelectionController<CharacterController> characterSelectionController;
-    private readonly FaceShapeKeyConfiguration faceShapeKeyConfiguration;
     private readonly ShapeKeyRangeConfiguration shapeKeyRangeConfiguration;
     private readonly Dictionary<string, BaseControl> controls = new(StringComparer.Ordinal);
-    private readonly HashSet<string> customShapeKeys = new(StringComparer.Ordinal);
     private readonly Toggle blinkToggle;
-    private readonly Toggle modifyShapeKeysToggle;
     private readonly Button refreshRangeButton;
-    private readonly Toggle deleteShapeKeysToggle;
     private readonly PaneHeader paneHeader;
-    private readonly Framework.UI.Legacy.ComboBox addShapeKeyComboBox;
-    private readonly Button addShapeKeyButton;
     private readonly PaneHeader baseGameShapeKeyHeader;
     private readonly PaneHeader customShapeKeyHeader;
-    private readonly LazyStyle deleteShapeKeyButtonStyle = new(13, static () => new(GUI.skin.button));
-    private readonly LazyStyle shapeKeyLabelStyle = new(13, static () => new(GUI.skin.label));
-
-    private bool validCustomShapeKey;
-    private string[] shapeKeys;
-    private bool hasShapeKeys;
+    private readonly ShapeKeysPane shapeKeysPane;
 
     public ExpressionPane(
         SelectionController<CharacterController> characterSelectionController,
@@ -55,37 +44,24 @@ public class ExpressionPane : BasePane
         ShapeKeyRangeConfiguration shapeKeyRangeConfiguration)
     {
         this.characterSelectionController = characterSelectionController ?? throw new ArgumentNullException(nameof(characterSelectionController));
-        this.faceShapeKeyConfiguration = faceShapeKeyConfiguration ?? throw new ArgumentNullException(nameof(faceShapeKeyConfiguration));
+        _ = faceShapeKeyConfiguration ?? throw new ArgumentNullException(nameof(faceShapeKeyConfiguration));
         this.shapeKeyRangeConfiguration = shapeKeyRangeConfiguration ?? throw new ArgumentNullException(nameof(shapeKeyRangeConfiguration));
 
         this.shapeKeyRangeConfiguration.Refreshed += OnFaceShapeKeyRangeConfigurationRefreshed;
         this.characterSelectionController.Selecting += OnCharacterSelectionChanging;
         this.characterSelectionController.Selected += OnCharacterSelectionChanged;
 
-        this.faceShapeKeyConfiguration.AddedShapeKey += OnShapeKeyAdded;
-        this.faceShapeKeyConfiguration.RemovedShapeKey += OnShapeKeyRemoved;
+        paneHeader = new(Translation.Get("expressionPane", "header"), true);
 
-        deleteShapeKeysToggle = new(Translation.Get("expressionPane", "deleteShapeKeysToggle"));
+        blinkToggle = new(Translation.Get("expressionPane", "blinkToggle"), true);
+        blinkToggle.ControlEvent += OnBlinkToggleChanged;
 
-        shapeKeys = [.. this.faceShapeKeyConfiguration.ShapeKeys];
-
-        modifyShapeKeysToggle = new(Translation.Get("expressionPane", "modifyShapeKeysToggle"));
-        modifyShapeKeysToggle.ControlEvent += OnModifyShapeKeysToggleChanged;
-
-        addShapeKeyComboBox = new(shapeKeys)
-        {
-            Placeholder = Translation.Get("expressionPane", "searchShapeKeyPlaceholder"),
-        };
-
-        addShapeKeyComboBox.ChangedValue += OnAddShapeKeyComboBoxValueChanged;
-
-        addShapeKeyButton = new(Translation.Get("expressionPane", "addShapeKeyButton"));
-        addShapeKeyButton.ControlEvent += OnAddShapeKeyButtonPushed;
+        refreshRangeButton = new(Translation.Get("expressionPane", "refreshShapeKeyRangeButton"));
+        refreshRangeButton.ControlEvent += OnRefreshRangeButtonPushed;
 
         baseGameShapeKeyHeader = new(Translation.Get("expressionPane", "baseGameExpressionKeys"));
-        customShapeKeyHeader = new(Translation.Get("expressionPane", "customExpressionKeys"));
 
-        foreach (var hashKey in EyeHashes.Concat(MouthHashes).Concat(shapeKeys))
+        foreach (var hashKey in EyeHashes.Concat(MouthHashes))
         {
             if (!shapeKeyRangeConfiguration.TryGetRange(hashKey, out var range))
                 range = new(0f, 1f);
@@ -97,6 +73,8 @@ public class ExpressionPane : BasePane
             controls.Add(hashKey, slider);
         }
 
+        customShapeKeyHeader = new(Translation.Get("expressionPane", "customExpressionKeys"));
+
         foreach (var hashKey in FaceHashes)
         {
             var toggle = new Toggle(Translation.Get("faceBlendValues", hashKey));
@@ -106,13 +84,24 @@ public class ExpressionPane : BasePane
             controls.Add(hashKey, toggle);
         }
 
-        blinkToggle = new(Translation.Get("expressionPane", "blinkToggle"), true);
-        blinkToggle.ControlEvent += OnBlinkToggleChanged;
+        shapeKeysPane = new(faceShapeKeyConfiguration, shapeKeyRangeConfiguration);
+        Add(shapeKeysPane);
 
-        refreshRangeButton = new(Translation.Get("expressionPane", "refreshShapeKeyRangeButton"));
-        refreshRangeButton.ControlEvent += OnRefreshRangeButtonPushed;
+        EventHandler OnControlChanged(string hashKey) =>
+            (object sender, EventArgs e) =>
+            {
+                if (CurrentFace is null)
+                    return;
 
-        paneHeader = new(Translation.Get("expressionPane", "header"), true);
+                var value = sender switch
+                {
+                    Slider slider => slider.Value,
+                    Toggle toggle => Convert.ToSingle(toggle.Value),
+                    _ => throw new NotSupportedException($"'{sender.GetType()} is not supported'"),
+                };
+
+                CurrentFace[hashKey] = value;
+            };
     }
 
     private FaceController CurrentFace =>
@@ -147,13 +136,10 @@ public class ExpressionPane : BasePane
         if (baseGameShapeKeyHeader.Enabled)
             DrawBuiltinTab();
 
-        if (hasShapeKeys)
-        {
-            customShapeKeyHeader.Draw();
+        customShapeKeyHeader.Draw();
 
-            if (customShapeKeyHeader.Enabled)
-                DrawShapeKeyTab();
-        }
+        if (customShapeKeyHeader.Enabled)
+            shapeKeysPane.Draw();
 
         void DrawBuiltinTab()
         {
@@ -204,86 +190,10 @@ public class ExpressionPane : BasePane
                 GUILayout.EndHorizontal();
             }
         }
-
-        void DrawShapeKeyTab()
-        {
-            modifyShapeKeysToggle.Draw();
-
-            if (modifyShapeKeysToggle.Value)
-            {
-                UIUtility.DrawBlackLine();
-
-                GUI.enabled = guiEnabled && hasShapeKeys && !deleteShapeKeysToggle.Value;
-
-                DrawComboBox(addShapeKeyComboBox);
-
-                GUILayout.BeginHorizontal();
-
-                GUI.enabled = guiEnabled;
-
-                deleteShapeKeysToggle.Draw();
-
-                GUI.enabled = guiEnabled && hasShapeKeys && !deleteShapeKeysToggle.Value && validCustomShapeKey;
-
-                addShapeKeyButton.Draw(GUILayout.ExpandWidth(false));
-
-                GUILayout.EndHorizontal();
-            }
-
-            UIUtility.DrawBlackLine();
-
-            if (deleteShapeKeysToggle.Value)
-                DrawDeleteShapeKeys();
-            else
-                DrawShapeKeySliders();
-
-            void DrawDeleteShapeKeys()
-            {
-                GUI.enabled = guiEnabled;
-
-                var noExpandWidth = GUILayout.ExpandWidth(false);
-                var maxWidth = GUILayout.MaxWidth(Parent.WindowRect.width);
-
-                foreach (var shapeKey in shapeKeys.Where(CurrentFace.ContainsShapeKey))
-                {
-                    GUILayout.BeginHorizontal(maxWidth);
-
-                    GUILayout.Label(shapeKey, shapeKeyLabelStyle);
-
-                    if (GUILayout.Button("X", deleteShapeKeyButtonStyle, noExpandWidth))
-                        faceShapeKeyConfiguration.RemoveShapeKey(shapeKey);
-
-                    GUILayout.EndHorizontal();
-                }
-            }
-
-            void DrawShapeKeySliders()
-            {
-                GUI.enabled = guiEnabled;
-
-                const int SliderColumnCount = 2;
-
-                var maxWidth = GUILayout.MaxWidth(Parent.WindowRect.width - 10f);
-                var sliderWidth = GUILayout.MaxWidth(Parent.WindowRect.width / SliderColumnCount - 10f);
-
-                foreach (var chunk in shapeKeys.Where(CurrentFace.ContainsShapeKey).Select(hash => controls[hash]).Chunk(2))
-                {
-                    GUILayout.BeginHorizontal(maxWidth);
-
-                    foreach (var slider in chunk)
-                        slider.Draw(sliderWidth);
-
-                    GUILayout.EndHorizontal();
-                }
-            }
-        }
     }
 
     protected override void ReloadTranslation()
     {
-        modifyShapeKeysToggle.Label = Translation.Get("expressionPane", "modifyShapeKeysToggle");
-        deleteShapeKeysToggle.Label = Translation.Get("expressionPane", "deleteShapeKeysToggle");
-
         foreach (var (hashKey, control) in EyeHashes.Concat(MouthHashes).Concat(FaceHashes).Select(hashKey => (hashKey, controls[hashKey])))
         {
             var translation = Translation.Get("faceBlendValues", hashKey);
@@ -297,27 +207,9 @@ public class ExpressionPane : BasePane
         blinkToggle.Label = Translation.Get("expressionPane", "blinkToggle");
         paneHeader.Label = Translation.Get("expressionPane", "header");
         refreshRangeButton.Label = Translation.Get("expressionPane", "refreshShapeKeyRangeButton");
-        addShapeKeyComboBox.Placeholder = Translation.Get("expressionPane", "searchShapeKeyPlaceholder");
-        addShapeKeyButton.Label = Translation.Get("expressionPane", "addShapeKeyButton");
         baseGameShapeKeyHeader.Label = Translation.Get("expressionPane", "baseGameExpressionKeys");
         customShapeKeyHeader.Label = Translation.Get("expressionPane", "customExpressionKeys");
     }
-
-    private EventHandler OnControlChanged(string hashKey) =>
-        (object sender, EventArgs e) =>
-        {
-            if (CurrentFace is null)
-                return;
-
-            var value = sender switch
-            {
-                Slider slider => slider.Value,
-                Toggle toggle => Convert.ToSingle(toggle.Value),
-                _ => throw new NotSupportedException($"'{sender.GetType()} is not supported'"),
-            };
-
-            CurrentFace[hashKey] = value;
-        };
 
     private void OnRefreshRangeButtonPushed(object sender, EventArgs e) =>
         shapeKeyRangeConfiguration.Refresh();
@@ -330,32 +222,6 @@ public class ExpressionPane : BasePane
         CurrentFace.Blink = blinkToggle.Value;
     }
 
-    private void OnShapeKeyAdded(object sender, ShapeKeyConfigurationEventArgs e)
-    {
-        if (!controls.TryGetValue(e.ChangedShapeKey, out var control))
-        {
-            if (!shapeKeyRangeConfiguration.TryGetRange(e.ChangedShapeKey, out var range))
-                range = new(0f, 1f);
-
-            control = new Slider(e.ChangedShapeKey, range.Lower, range.Upper);
-
-            control.ControlEvent += OnControlChanged(e.ChangedShapeKey);
-
-            controls.Add(e.ChangedShapeKey, control);
-        }
-
-        if (CurrentFace is not null && CurrentFace.ContainsShapeKey(e.ChangedShapeKey))
-        {
-            var slider = (Slider)control;
-
-            slider.SetValueWithoutNotify(CurrentFace[e.ChangedShapeKey]);
-        }
-
-        UpdateShapekeyList();
-
-        shapeKeys = [.. faceShapeKeyConfiguration.ShapeKeys];
-    }
-
     private void OnFaceShapeKeyRangeConfigurationRefreshed(object sender, EventArgs e)
     {
         foreach (var (key, slider) in controls.Where(static kvp => kvp.Value is Slider).Select(static kvp => (kvp.Key, (Slider)kvp.Value)))
@@ -366,19 +232,6 @@ public class ExpressionPane : BasePane
             slider.Left = range.Lower;
             slider.Right = range.Upper;
         }
-    }
-
-    private void OnShapeKeyRemoved(object sender, ShapeKeyConfigurationEventArgs e)
-    {
-        if (controls.ContainsKey(e.ChangedShapeKey))
-            controls.Remove(e.ChangedShapeKey);
-
-        if (CurrentFace is not null && CurrentFace.ContainsShapeKey(e.ChangedShapeKey))
-            CurrentFace[e.ChangedShapeKey] = 0f;
-
-        UpdateShapekeyList();
-
-        shapeKeys = [.. faceShapeKeyConfiguration.ShapeKeys];
     }
 
     private void OnCharacterSelectionChanging(object sender, SelectionEventArgs<CharacterController> e)
@@ -394,17 +247,17 @@ public class ExpressionPane : BasePane
 
     private void OnCharacterSelectionChanged(object sender, SelectionEventArgs<CharacterController> e)
     {
-        if (e.Selected is null)
-            return;
+        var face = e.Selected?.Face;
 
-        var face = e.Selected.Face;
+        if (face is not null)
+        {
+            face.PropertyChanged += OnFacePropertyChanged;
+            face.ChangedShapeKey += OnFaceBlendValueChanged;
 
-        face.PropertyChanged += OnFacePropertyChanged;
-        face.ChangedShapeKey += OnFaceBlendValueChanged;
+            UpdateControls();
+        }
 
-        UpdateShapekeyList();
-
-        UpdateControls();
+        shapeKeysPane.ShapeKeyController = face;
     }
 
     private void OnFaceBlendValueChanged(object sender, KeyedPropertyChangeEventArgs<string> e)
@@ -430,89 +283,26 @@ public class ExpressionPane : BasePane
             UpdateControls();
     }
 
-    private void OnAddShapeKeyComboBoxValueChanged(object sender, EventArgs e)
-    {
-        if (CurrentFace is null)
-            return;
-
-        validCustomShapeKey = customShapeKeys.Contains(addShapeKeyComboBox.Value);
-    }
-
-    private void OnAddShapeKeyButtonPushed(object sender, EventArgs e)
-    {
-        if (CurrentFace is null)
-            return;
-
-        if (string.IsNullOrEmpty(addShapeKeyComboBox.Value))
-            return;
-
-        if (!customShapeKeys.Contains(addShapeKeyComboBox.Value))
-            return;
-
-        faceShapeKeyConfiguration.AddShapeKey(addShapeKeyComboBox.Value);
-
-        addShapeKeyComboBox.Value = string.Empty;
-    }
-
-    private void OnModifyShapeKeysToggleChanged(object sender, EventArgs e) =>
-        deleteShapeKeysToggle.Value = false;
-
-    private void UpdateShapekeyList()
-    {
-        var shapeKeyList = CurrentFace.ShapeKeys
-            .Except(faceShapeKeyConfiguration.BlockedShapeKeys)
-            .Except(faceShapeKeyConfiguration.ShapeKeys)
-            .ToArray();
-
-        hasShapeKeys = shapeKeyList.Length is not 0;
-
-        customShapeKeys.Clear();
-        customShapeKeys.UnionWith(shapeKeyList);
-
-        validCustomShapeKey = customShapeKeys.Contains(addShapeKeyComboBox.Value);
-
-        addShapeKeyComboBox.SetItems(shapeKeyList);
-    }
-
     private void UpdateControls()
     {
         if (CurrentFace is null)
             return;
 
-        UpdateBaseGameSliders();
-        UpdateShapekeySliders();
-
         blinkToggle.SetEnabledWithoutNotify(CurrentFace.Blink);
 
-        void UpdateBaseGameSliders()
-        {
-            var hashKeyAndSliders = EyeHashes
-                .Concat(MouthHashes)
-                .Where(CurrentFace.ContainsShapeKey)
-                .Select(hashKey => (hashKey, (Slider)controls[hashKey]));
+        var hashKeyAndSliders = EyeHashes
+            .Concat(MouthHashes)
+            .Where(CurrentFace.ContainsShapeKey)
+            .Select(hashKey => (hashKey, (Slider)controls[hashKey]));
 
-            foreach (var (hashKey, slider) in hashKeyAndSliders)
-                slider.SetValueWithoutNotify(CurrentFace[hashKey]);
+        foreach (var (hashKey, slider) in hashKeyAndSliders)
+            slider.SetValueWithoutNotify(CurrentFace[hashKey]);
 
-            var hashKeyAndToggles = FaceHashes
-                .Where(CurrentFace.ContainsShapeKey)
-                .Select(hashKey => (hashKey, (Toggle)controls[hashKey]));
+        var hashKeyAndToggles = FaceHashes
+            .Where(CurrentFace.ContainsShapeKey)
+            .Select(hashKey => (hashKey, (Toggle)controls[hashKey]));
 
-            foreach (var (hashKey, toggle) in hashKeyAndToggles)
-                toggle.SetEnabledWithoutNotify(Convert.ToBoolean(CurrentFace[hashKey]));
-        }
-
-        void UpdateShapekeySliders()
-        {
-            if (CurrentFace is null)
-                return;
-
-            var hashKeyAndSliders = shapeKeys
-                .Where(CurrentFace.ContainsShapeKey)
-                .Select(hashKey => (hashKey, (Slider)controls[hashKey]));
-
-            foreach (var (hashKey, slider) in hashKeyAndSliders)
-                slider.SetValueWithoutNotify(CurrentFace[hashKey]);
-        }
+        foreach (var (hashKey, toggle) in hashKeyAndToggles)
+            toggle.SetEnabledWithoutNotify(Convert.ToBoolean(CurrentFace[hashKey]));
     }
 }

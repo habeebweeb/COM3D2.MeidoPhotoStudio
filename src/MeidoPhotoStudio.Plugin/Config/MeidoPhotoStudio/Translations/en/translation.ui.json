@@ -224,13 +224,8 @@
   },
   "expressionPane": {
     "header": "Facial Expression",
-    "deleteShapeKeysToggle": "Delete",
     "refreshShapeKeyRangeButton": "Refresh Slider Range",
-    "noShapeKeys": "No shape keys",
     "blinkToggle": "Blink",
-    "modifyShapeKeysToggle": "Edit Shape Keys",
-    "addShapeKeyButton": "Add Shape Key",
-    "searchShapeKeyPlaceholder": "Search Shape Keys",
     "baseGameExpressionKeys": "Base Expression Keys",
     "customExpressionKeys": "Custom Expression Keys",
   },
