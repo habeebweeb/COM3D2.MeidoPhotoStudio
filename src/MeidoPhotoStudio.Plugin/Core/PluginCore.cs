@@ -255,6 +255,9 @@ public partial class PluginCore : MonoBehaviour
         var faceShapekeyRangeConfiguration = new ShapeKeyRangeConfiguration(
             new ShapeKeyRangeSerializer(Path.Combine(databasePath, "face_shapekey_range.json")));
 
+        var bodyShapeKeyConfiguration = new BodyShapeKeyConfiguration(configuration);
+        var bodyShapeKeyRangeConfiguration = new ShapeKeyRangeConfiguration(new ShapeKeyRangeSerializer(Path.Combine(databasePath, "body_shapekey_range.json")));
+
         messageWindowManager = new();
 
         // TODO: Game hangs when first initializing. This happened before too but was hidden because MPS was initialized
@@ -494,6 +497,10 @@ public partial class PluginCore : MonoBehaviour
                             facialExpressionBuilder,
                             characterSelectionController),
                         new ExpressionPane(characterSelectionController, faceShapeKeyConfiguration, faceShapekeyRangeConfiguration),
+                    ],
+                    [CharacterPane.CharacterWindowTab.Body] =
+                    [
+                        new BodyShapeKeyPane(characterSelectionController, bodyShapeKeyConfiguration, bodyShapeKeyRangeConfiguration)
                     ],
                 },
             },

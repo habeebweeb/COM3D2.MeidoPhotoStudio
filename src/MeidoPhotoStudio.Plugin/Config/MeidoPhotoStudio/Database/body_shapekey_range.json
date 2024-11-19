@@ -1,0 +1,13 @@
+/*
+  This file contains the ranges for body shape keys.
+
+  By default the range is 0 to 1 if not defined.
+  
+  The format for a range is:
+  "shape_key_name": {
+    "lower": 0,
+    "upper": 1.5
+  }
+*/
+{
+}

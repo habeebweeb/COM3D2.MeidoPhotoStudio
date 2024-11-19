@@ -46,9 +46,12 @@
     "focusFaceButton": "Focus on Face"
   },
   "characterPane": {
-    "bodyTab": "Body",
-    "faceTab": "Face",
     "noCharactersLabel": "No Characters Called"
+  },
+  "characterPaneTabs": {
+    "pose": "Pose",
+    "face": "Face",
+    "body": "Body"
   },
   "characterAnimationPane": {
     "header": "Animation"
@@ -274,6 +277,9 @@
     "nameHeader": "Name",
     "saveButton": "Save Blendset",
     "deleteButton": "D"
+  },
+  "bodyShapeKeyPane": {
+    "header": "Body Shape Keys",
   },
   "shapeKeysPane": {
     "deleteShapeKeysToggle": "Delete",
