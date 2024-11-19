@@ -149,7 +149,7 @@ public class CharacterAspectLoader(
 
             face.ApplyBlendSet(blendSet);
 
-            foreach (var (hash, value) in schema.FacialExpressionSet.Where(kvp => face.ContainsExpressionKey(kvp.Key)))
+            foreach (var (hash, value) in schema.FacialExpressionSet.Where(kvp => face.ContainsShapeKey(kvp.Key)))
                 face[hash] = value;
 
             IBlendSetModel GetBlendSetModel(IBlendSetModelSchema blendSetModelSchema) =>

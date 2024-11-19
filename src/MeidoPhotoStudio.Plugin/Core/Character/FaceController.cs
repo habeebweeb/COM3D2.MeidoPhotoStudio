@@ -7,7 +7,7 @@ using MeidoPhotoStudio.Plugin.Framework.Extensions;
 
 namespace MeidoPhotoStudio.Plugin.Core.Character;
 
-public class FaceController : INotifyPropertyChanged
+public class FaceController : INotifyPropertyChanged, IShapeKeyController
 {
     private readonly Dictionary<string, KeyedPropertyChangeEventArgs<string>> blendValueChangeArgsCache =
         new(StringComparer.Ordinal);
@@ -25,7 +25,7 @@ public class FaceController : INotifyPropertyChanged
         BackupBlendSet();
     }
 
-    public event EventHandler<KeyedPropertyChangeEventArgs<string>> BlendValueChanged;
+    public event EventHandler<KeyedPropertyChangeEventArgs<string>> ChangedShapeKey;
 
     public event PropertyChangedEventHandler PropertyChanged;
 
@@ -40,7 +40,7 @@ public class FaceController : INotifyPropertyChanged
         }
     }
 
-    public IEnumerable<string> ExpressionKeys =>
+    public IEnumerable<string> ShapeKeys =>
         Face.BlendDatas.Where(static blendData => blendData is not null).Select(static blendData => blendData.name);
 
     public bool Blink
@@ -72,7 +72,7 @@ public class FaceController : INotifyPropertyChanged
             if (string.IsNullOrEmpty(key))
                 throw new ArgumentException($"'{nameof(key)}' cannot be null or empty.", nameof(key));
 
-            if (!ContainsExpressionKey(key))
+            if (!ContainsShapeKey(key))
                 return 0f;
 
             var index = (int)Face.hash[Face.GP01FbFaceHashKey(key)];
@@ -137,12 +137,12 @@ public class FaceController : INotifyPropertyChanged
 
             ApplyBackupBlendSet();
 
-            foreach (var (key, value) in facialExpressionSet.Where(kvp => ContainsExpressionKey(kvp.Key)))
+            foreach (var (key, value) in facialExpressionSet.Where(kvp => ContainsShapeKey(kvp.Key)))
                 SetBlendValue(key, value, false);
         }
     }
 
-    public bool ContainsExpressionKey(string key)
+    public bool ContainsShapeKey(string key)
     {
         if (string.IsNullOrEmpty(key))
             throw new ArgumentException($"'{nameof(key)}' cannot be null or empty.", nameof(key));
@@ -156,14 +156,14 @@ public class FaceController : INotifyPropertyChanged
         new(facialExpressionKeys
             .ToDictionary(
                 expressionKey => expressionKey,
-                expressionKey => ContainsExpressionKey(expressionKey) ? this[expressionKey] : 0f));
+                expressionKey => ContainsShapeKey(expressionKey) ? this[expressionKey] : 0f));
 
     private void SetBlendValue(string key, float value, bool notify = true)
     {
         if (string.IsNullOrEmpty(key))
             throw new ArgumentException($"'{nameof(key)}' cannot be null or empty.", nameof(key));
 
-        if (!ContainsExpressionKey(key))
+        if (!ContainsShapeKey(key))
             return;
 
         var index = (int)Face.hash[Face.GP01FbFaceHashKey(key)];
@@ -207,7 +207,7 @@ public class FaceController : INotifyPropertyChanged
         if (!blendValueChangeArgsCache.TryGetValue(key, out var e))
             e = blendValueChangeArgsCache[key] = new(key);
 
-        BlendValueChanged?.Invoke(this, e);
+        ChangedShapeKey?.Invoke(this, e);
     }
 
     private void RaisePropertyChanged(string name)

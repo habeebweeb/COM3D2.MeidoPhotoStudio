@@ -164,7 +164,7 @@ public class ExpressionPane : BasePane
             var sliderWidth = GUILayout.MaxWidth(Parent.WindowRect.width / SliderColumnCount - 10f);
 
             foreach (var chunk in EyeHashes
-                .Where(CurrentFace.ContainsExpressionKey)
+                .Where(CurrentFace.ContainsShapeKey)
                 .Select(hash => controls[hash])
                 .Chunk(SliderColumnCount))
             {
@@ -177,7 +177,7 @@ public class ExpressionPane : BasePane
             }
 
             foreach (var chunk in MouthHashes
-                .Where(CurrentFace.ContainsExpressionKey)
+                .Where(CurrentFace.ContainsShapeKey)
                 .Select(hash => controls[hash])
                 .Chunk(SliderColumnCount))
             {
@@ -192,7 +192,7 @@ public class ExpressionPane : BasePane
             UIUtility.DrawBlackLine();
 
             foreach (var chunk in FaceHashes
-                .Where(CurrentFace.ContainsExpressionKey)
+                .Where(CurrentFace.ContainsShapeKey)
                 .Select(hash => controls[hash])
                 .Chunk(ToggleColumnCount))
             {
@@ -244,7 +244,7 @@ public class ExpressionPane : BasePane
                 var noExpandWidth = GUILayout.ExpandWidth(false);
                 var maxWidth = GUILayout.MaxWidth(Parent.WindowRect.width);
 
-                foreach (var shapeKey in shapeKeys.Where(CurrentFace.ContainsExpressionKey))
+                foreach (var shapeKey in shapeKeys.Where(CurrentFace.ContainsShapeKey))
                 {
                     GUILayout.BeginHorizontal(maxWidth);
 
@@ -266,7 +266,7 @@ public class ExpressionPane : BasePane
                 var maxWidth = GUILayout.MaxWidth(Parent.WindowRect.width - 10f);
                 var sliderWidth = GUILayout.MaxWidth(Parent.WindowRect.width / SliderColumnCount - 10f);
 
-                foreach (var chunk in shapeKeys.Where(CurrentFace.ContainsExpressionKey).Select(hash => controls[hash]).Chunk(2))
+                foreach (var chunk in shapeKeys.Where(CurrentFace.ContainsShapeKey).Select(hash => controls[hash]).Chunk(2))
                 {
                     GUILayout.BeginHorizontal(maxWidth);
 
@@ -344,7 +344,7 @@ public class ExpressionPane : BasePane
             controls.Add(e.ChangedShapeKey, control);
         }
 
-        if (CurrentFace is not null && CurrentFace.ContainsExpressionKey(e.ChangedShapeKey))
+        if (CurrentFace is not null && CurrentFace.ContainsShapeKey(e.ChangedShapeKey))
         {
             var slider = (Slider)control;
 
@@ -373,7 +373,7 @@ public class ExpressionPane : BasePane
         if (controls.ContainsKey(e.ChangedShapeKey))
             controls.Remove(e.ChangedShapeKey);
 
-        if (CurrentFace is not null && CurrentFace.ContainsExpressionKey(e.ChangedShapeKey))
+        if (CurrentFace is not null && CurrentFace.ContainsShapeKey(e.ChangedShapeKey))
             CurrentFace[e.ChangedShapeKey] = 0f;
 
         UpdateShapekeyList();
@@ -389,7 +389,7 @@ public class ExpressionPane : BasePane
         var face = e.Selected.Face;
 
         face.PropertyChanged -= OnFacePropertyChanged;
-        face.BlendValueChanged -= OnFaceBlendValueChanged;
+        face.ChangedShapeKey -= OnFaceBlendValueChanged;
     }
 
     private void OnCharacterSelectionChanged(object sender, SelectionEventArgs<CharacterController> e)
@@ -400,7 +400,7 @@ public class ExpressionPane : BasePane
         var face = e.Selected.Face;
 
         face.PropertyChanged += OnFacePropertyChanged;
-        face.BlendValueChanged += OnFaceBlendValueChanged;
+        face.ChangedShapeKey += OnFaceBlendValueChanged;
 
         UpdateShapekeyList();
 
@@ -459,7 +459,7 @@ public class ExpressionPane : BasePane
 
     private void UpdateShapekeyList()
     {
-        var shapeKeyList = CurrentFace.ExpressionKeys
+        var shapeKeyList = CurrentFace.ShapeKeys
             .Except(faceShapeKeyConfiguration.BlockedShapeKeys)
             .Except(faceShapeKeyConfiguration.ShapeKeys)
             .ToArray();
@@ -488,14 +488,14 @@ public class ExpressionPane : BasePane
         {
             var hashKeyAndSliders = EyeHashes
                 .Concat(MouthHashes)
-                .Where(CurrentFace.ContainsExpressionKey)
+                .Where(CurrentFace.ContainsShapeKey)
                 .Select(hashKey => (hashKey, (Slider)controls[hashKey]));
 
             foreach (var (hashKey, slider) in hashKeyAndSliders)
                 slider.SetValueWithoutNotify(CurrentFace[hashKey]);
 
             var hashKeyAndToggles = FaceHashes
-                .Where(CurrentFace.ContainsExpressionKey)
+                .Where(CurrentFace.ContainsShapeKey)
                 .Select(hashKey => (hashKey, (Toggle)controls[hashKey]));
 
             foreach (var (hashKey, toggle) in hashKeyAndToggles)
@@ -508,7 +508,7 @@ public class ExpressionPane : BasePane
                 return;
 
             var hashKeyAndSliders = shapeKeys
-                .Where(CurrentFace.ContainsExpressionKey)
+                .Where(CurrentFace.ContainsShapeKey)
                 .Select(hashKey => (hashKey, (Slider)controls[hashKey]));
 
             foreach (var (hashKey, slider) in hashKeyAndSliders)
