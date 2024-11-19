@@ -34,6 +34,8 @@ public class CharacterController(CharacterModel characterModel, TransformWatcher
 
     public ClothingController Clothing { get; private set; }
 
+    public BodyController Body { get; private set; }
+
     public int Slot { get; private set; }
 
     public Maid Maid =>
@@ -154,6 +156,7 @@ public class CharacterController(CharacterModel characterModel, TransformWatcher
 
             IK ??= new(this);
             Head ??= new(this);
+            Body ??= new(this);
             Clothing ??= new(this, transformWatcher);
 
             Head.FreeLook = false;
@@ -171,6 +174,8 @@ public class CharacterController(CharacterModel characterModel, TransformWatcher
 
             if (initialzeFace)
                 Face.ApplyBlendSet(new GameBlendSetModel(PhotoFaceData.data[0]));
+
+            Body.ResetAllShapeKeys();
 
             initialized = true;
         }
