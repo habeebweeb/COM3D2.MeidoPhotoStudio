@@ -280,6 +280,14 @@
     "saveButton": "Save Blendset",
     "deleteButton": "D"
   },
+  "shapeKeysPane": {
+    "deleteShapeKeysToggle": "Delete",
+    "noShapeKeysLabel": "No shape keys",
+    "refreshShapeKeyRangeButton": "Refresh Slider Range",
+    "modifyShapeKeysToggle": "Edit Shape Keys",
+    "addShapeKeyButton": "Add Shape Key",
+    "searchShapeKeyPlaceholder": "Search Shape Keys"
+  },
   "backgroundWindow": {
     "saveLoadButton": "Save\nLoad",
     "manageScenesButton": "Manage Scenes",
