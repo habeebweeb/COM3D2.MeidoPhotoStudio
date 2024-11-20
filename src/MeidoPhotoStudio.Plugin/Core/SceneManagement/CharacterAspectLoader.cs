@@ -1,5 +1,6 @@
 using MeidoPhotoStudio.Plugin.Core.Character;
 using MeidoPhotoStudio.Plugin.Core.Character.Pose;
+using MeidoPhotoStudio.Plugin.Core.Configuration;
 using MeidoPhotoStudio.Plugin.Core.Database.Character;
 using MeidoPhotoStudio.Plugin.Core.Database.Props;
 using MeidoPhotoStudio.Plugin.Core.Schema;
@@ -20,9 +21,18 @@ public class CharacterAspectLoader(
     CustomAnimationRepository customAnimationRepository,
     GameBlendSetRepository gameBlendSetRepository,
     CustomBlendSetRepository customBlendSetRepository,
-    MenuPropRepository menuPropRepository)
+    MenuPropRepository menuPropRepository,
+    FaceShapeKeyConfiguration faceShapeKeyConfiguration)
     : ISceneAspectLoader<CharactersSchema>
 {
+    private static readonly HashSet<string> BaseGameFaceShapeKeys = new(StringComparer.Ordinal)
+    {
+        "eyeclose", "eyeclose2", "eyeclose3", "eyebig", "eyeclose6", "eyeclose5", "eyeclose8", "eyeclose7", "hitomih",
+        "hitomis", "mayuha", "mayuw", "mayuup", "mayuv", "mayuvhalf", "moutha", "mouths", "mouthc", "mouthi", "mouthup",
+        "mouthdw", "mouthhe", "mouthuphalf", "tangout", "tangup", "tangopen", "hoho2", "shock", "nosefook", "namida",
+        "yodare", "toothoff", "tear1", "tear2", "tear3", "hohos", "hoho", "hohol",
+    };
+
     private readonly CharacterService characterService = characterService
         ?? throw new ArgumentNullException(nameof(characterService));
 
@@ -52,6 +62,9 @@ public class CharacterAspectLoader(
 
     private readonly MenuPropRepository menuPropRepository = menuPropRepository
         ?? throw new ArgumentNullException(nameof(menuPropRepository));
+
+    private readonly FaceShapeKeyConfiguration faceShapeKeyConfiguration = faceShapeKeyConfiguration
+        ?? throw new ArgumentNullException(nameof(faceShapeKeyConfiguration));
 
     public void Load(CharactersSchema charactersSchema, LoadOptions loadOptions)
     {
@@ -149,8 +162,16 @@ public class CharacterAspectLoader(
 
             face.ApplyBlendSet(blendSet);
 
+            var blockedShapeKeys = new HashSet<string>(faceShapeKeyConfiguration.BlockedShapeKeys);
+            var shapeKeys = new HashSet<string>(faceShapeKeyConfiguration.ShapeKeys);
+
             foreach (var (hash, value) in schema.FacialExpressionSet.Where(kvp => face.ContainsShapeKey(kvp.Key)))
+            {
+                if (!BaseGameFaceShapeKeys.Contains(hash) && (blockedShapeKeys.Contains(hash) || !shapeKeys.Contains(hash)))
+                    continue;
+
                 face[hash] = value;
+            }
 
             IBlendSetModel GetBlendSetModel(IBlendSetModelSchema blendSetModelSchema) =>
                 blendSetModelSchema switch
