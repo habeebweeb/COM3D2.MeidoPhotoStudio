@@ -22,6 +22,8 @@ public class FaceController : INotifyPropertyChanged, IShapeKeyController
     {
         this.characterController = characterController ?? throw new ArgumentNullException(nameof(characterController));
 
+        this.characterController.ProcessedCharacterProps += OnCharacterPropsProcessed;
+
         BackupBlendSet();
     }
 
@@ -158,6 +160,17 @@ public class FaceController : INotifyPropertyChanged, IShapeKeyController
                 expressionKey => expressionKey,
                 expressionKey => ContainsShapeKey(expressionKey) ? this[expressionKey] : 0f));
 
+    private void OnCharacterPropsProcessed(object sender, CharacterProcessingEventArgs e)
+    {
+        if (!e.ChangingSlots.Contains(SafeMpn.GetValue(nameof(MPN.head))))
+            return;
+
+        BackupBlendSet();
+
+        if (BlendSet is not null)
+            ApplyBlendSet(BlendSet);
+    }
+
     private void SetBlendValue(string key, float value, bool notify = true)
     {
         if (string.IsNullOrEmpty(key))
@@ -187,7 +200,8 @@ public class FaceController : INotifyPropertyChanged, IShapeKeyController
 
         var blendSet = Face.dicBlendSet[Maid.ActiveFace];
 
-        backupBlendSetValues ??= new float[blendSet.Length];
+        if (backupBlendSetValues is null || backupBlendSetValues.Length != blendSet.Length)
+            backupBlendSetValues = new float[blendSet.Length];
 
         blendSet.CopyTo(backupBlendSetValues, 0);
     }
@@ -198,6 +212,9 @@ public class FaceController : INotifyPropertyChanged, IShapeKeyController
             return;
 
         var blendSet = Face.dicBlendSet[Maid.ActiveFace];
+
+        if (backupBlendSetValues is null || backupBlendSetValues.Length != blendSet.Length)
+            return;
 
         backupBlendSetValues.CopyTo(blendSet, 0);
     }
