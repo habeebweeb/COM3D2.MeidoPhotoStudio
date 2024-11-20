@@ -1,5 +1,6 @@
 using MeidoPhotoStudio.Plugin.Core.Character;
 using MeidoPhotoStudio.Plugin.Core.Character.Pose;
+using MeidoPhotoStudio.Plugin.Core.Configuration;
 using MeidoPhotoStudio.Plugin.Core.Database.Character;
 using MeidoPhotoStudio.Plugin.Core.Database.Props.Menu;
 using MeidoPhotoStudio.Plugin.Core.Schema;
@@ -10,6 +11,7 @@ namespace MeidoPhotoStudio.Plugin.Core.Serialization;
 
 public class CharacterSchemaBuilder(
     FacialExpressionBuilder facialExpressionBuilder,
+    BodyShapeKeyConfiguration bodyShapeKeyConfiguration,
     ISchemaBuilder<IAnimationModelSchema, IAnimationModel> animationModelSchemaBuilder,
     ISchemaBuilder<IBlendSetModelSchema, IBlendSetModel> blendSetSchemaBuilder,
     ISchemaBuilder<MenuFilePropModelSchema, MenuFilePropModel> menuFilePropModelSchemaBuilder,
@@ -18,6 +20,9 @@ public class CharacterSchemaBuilder(
 {
     private readonly FacialExpressionBuilder facialExpressionBuilder = facialExpressionBuilder
         ?? throw new ArgumentNullException(nameof(facialExpressionBuilder));
+
+    private readonly BodyShapeKeyConfiguration bodyShapeKeyConfiguration = bodyShapeKeyConfiguration
+        ?? throw new ArgumentNullException(nameof(bodyShapeKeyConfiguration));
 
     private readonly ISchemaBuilder<IAnimationModelSchema, IAnimationModel> animationSchemaBuilder =
         animationModelSchemaBuilder ?? throw new ArgumentNullException(nameof(animationModelSchemaBuilder));
@@ -41,6 +46,7 @@ public class CharacterSchemaBuilder(
             Head = MakeHeadSchema(character.Head),
             Face = MakeFaceSchema(character.Face),
             Pose = MakePoseSchema(character.IK),
+            Body = MakeBodySchema(character.Body),
             Clothing = MakeClothingSchema(character.Clothing),
         };
 
@@ -118,5 +124,11 @@ public class CharacterSchemaBuilder(
                     Playing = animation.Playing,
                 };
         }
+
+        BodySchema MakeBodySchema(BodyController body) =>
+            new()
+            {
+                BodyShapeKeySet = body.GetShapeKeyData(bodyShapeKeyConfiguration.ShapeKeys),
+            };
     }
 }

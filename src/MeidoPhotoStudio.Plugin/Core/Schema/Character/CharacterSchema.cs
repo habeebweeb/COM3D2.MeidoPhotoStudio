@@ -2,7 +2,7 @@ namespace MeidoPhotoStudio.Plugin.Core.Schema.Character;
 
 public class CharacterSchema(short version = CharacterSchema.SchemaVersion)
 {
-    public const short SchemaVersion = 2;
+    public const short SchemaVersion = 3;
 
     public short Version { get; } = version;
 
@@ -17,6 +17,8 @@ public class CharacterSchema(short version = CharacterSchema.SchemaVersion)
     public FaceSchema Face { get; init; }
 
     public PoseSchema Pose { get; init; }
+
+    public BodySchema Body { get; init; }
 
     public ClothingSchema Clothing { get; init; }
 }

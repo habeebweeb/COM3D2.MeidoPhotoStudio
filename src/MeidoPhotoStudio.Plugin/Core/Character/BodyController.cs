@@ -41,6 +41,11 @@ public class BodyController : IShapeKeyController
             ? throw new ArgumentException($"'{nameof(key)}' cannot be null or empty.", nameof(key))
             : Body.hash.ContainsKey(key);
 
+    public Dictionary<string, float> GetShapeKeyData(IEnumerable<string> shapeKeys) =>
+        shapeKeys.ToDictionary(
+            shapeKey => shapeKey,
+            shapeKey => ContainsShapeKey(shapeKey) ? this[shapeKey] : 0f);
+
     public void ResetAllShapeKeys()
     {
         foreach (var (hash, value) in backupShapeKeys)

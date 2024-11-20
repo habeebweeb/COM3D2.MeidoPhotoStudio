@@ -347,6 +347,7 @@ public partial class PluginCore : MonoBehaviour
                 globalGravityService,
                 new CharacterSchemaBuilder(
                     facialExpressionBuilder,
+                    bodyShapeKeyConfiguration,
                     new AnimationModelSchemaBuilder(),
                     new BlendSetModelSchemaBuilder(),
                     propModelSchemaBuilder,
@@ -394,7 +395,8 @@ public partial class PluginCore : MonoBehaviour
                 gameBlendSetRepository,
                 customBlendSetRepository,
                 menuPropRepository,
-                faceShapeKeyConfiguration),
+                faceShapeKeyConfiguration,
+                bodyShapeKeyConfiguration),
             new MessageAspectLoader(messageWindowManager),
             new CameraAspectLoader(cameraSaveSlotController),
             new LightAspectLoader(lightRepository, backgroundService),

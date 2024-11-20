@@ -22,7 +22,8 @@ public class CharacterAspectLoader(
     GameBlendSetRepository gameBlendSetRepository,
     CustomBlendSetRepository customBlendSetRepository,
     MenuPropRepository menuPropRepository,
-    FaceShapeKeyConfiguration faceShapeKeyConfiguration)
+    FaceShapeKeyConfiguration faceShapeKeyConfiguration,
+    BodyShapeKeyConfiguration bodyShapeKeyConfiguration)
     : ISceneAspectLoader<CharactersSchema>
 {
     private static readonly HashSet<string> BaseGameFaceShapeKeys = new(StringComparer.Ordinal)
@@ -31,6 +32,11 @@ public class CharacterAspectLoader(
         "hitomis", "mayuha", "mayuw", "mayuup", "mayuv", "mayuvhalf", "moutha", "mouths", "mouthc", "mouthi", "mouthup",
         "mouthdw", "mouthhe", "mouthuphalf", "tangout", "tangup", "tangopen", "hoho2", "shock", "nosefook", "namida",
         "yodare", "toothoff", "tear1", "tear2", "tear3", "hohos", "hoho", "hohol",
+    };
+
+    private static readonly HashSet<string> BaseGameBodyShapeKeys = new(StringComparer.Ordinal)
+    {
+        "arml", "hara", "munel", "munes", "munetare", "regfat", "regmeet",
     };
 
     private readonly CharacterService characterService = characterService
@@ -65,6 +71,9 @@ public class CharacterAspectLoader(
 
     private readonly FaceShapeKeyConfiguration faceShapeKeyConfiguration = faceShapeKeyConfiguration
         ?? throw new ArgumentNullException(nameof(faceShapeKeyConfiguration));
+
+    private readonly BodyShapeKeyConfiguration bodyShapeKeyConfiguration = bodyShapeKeyConfiguration
+        ?? throw new ArgumentNullException(nameof(bodyShapeKeyConfiguration));
 
     public void Load(CharactersSchema charactersSchema, LoadOptions loadOptions)
     {
@@ -124,6 +133,7 @@ public class CharacterAspectLoader(
         ApplyFace(character.Face, schema.Face);
         ApplyPose(character.IK, character.Animation, schema.Pose);
         ApplyClothing(character.Clothing, schema.Clothing);
+        ApplyBody(character.Body, schema.Body);
 
         void ApplyTransform(Transform transform, TransformSchema schema)
         {
@@ -306,6 +316,25 @@ public class CharacterAspectLoader(
                         CustomAnimationSchema customAnimation => customAnimationRepository.GetByID(customAnimation.ID),
                         _ => null,
                     };
+            }
+        }
+
+        void ApplyBody(BodyController body, BodySchema schema)
+        {
+            body.ResetAllShapeKeys();
+
+            if (schema?.BodyShapeKeySet?.Count is not > 0)
+                return;
+
+            var blockedShapeKeys = new HashSet<string>(bodyShapeKeyConfiguration.BlockedShapeKeys);
+            var shapeKeys = new HashSet<string>(bodyShapeKeyConfiguration.ShapeKeys);
+
+            foreach (var (hash, value) in schema.BodyShapeKeySet.Where(kvp => body.ContainsShapeKey(kvp.Key)))
+            {
+                if (!BaseGameBodyShapeKeys.Contains(hash) && (blockedShapeKeys.Contains(hash) || !shapeKeys.Contains(hash)))
+                    continue;
+
+                body[hash] = value;
             }
         }
 
