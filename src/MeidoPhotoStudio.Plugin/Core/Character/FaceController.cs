@@ -29,6 +29,8 @@ public class FaceController : INotifyPropertyChanged, IShapeKeyController
 
     public event EventHandler<KeyedPropertyChangeEventArgs<string>> ChangedShapeKey;
 
+    public event EventHandler ChangedShapeKeySet;
+
     public event PropertyChangedEventHandler PropertyChanged;
 
     public IBlendSetModel BlendSet
@@ -169,6 +171,8 @@ public class FaceController : INotifyPropertyChanged, IShapeKeyController
 
         if (BlendSet is not null)
             ApplyBlendSet(BlendSet);
+
+        ChangedShapeKeySet?.Invoke(this, EventArgs.Empty);
     }
 
     private void SetBlendValue(string key, float value, bool notify = true)

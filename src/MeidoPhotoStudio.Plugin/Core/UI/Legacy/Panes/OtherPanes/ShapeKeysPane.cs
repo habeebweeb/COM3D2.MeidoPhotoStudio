@@ -80,12 +80,18 @@ public class ShapeKeysPane : BasePane
                 return;
 
             if (shapeKeyController is not null)
+            {
                 shapeKeyController.ChangedShapeKey -= OnShapeKeyChanged;
+                shapeKeyController.ChangedShapeKeySet -= OnShapeKeySetChanged;
+            }
 
             shapeKeyController = value;
 
             if (shapeKeyController is not null)
+            {
                 shapeKeyController.ChangedShapeKey += OnShapeKeyChanged;
+                shapeKeyController.ChangedShapeKeySet += OnShapeKeySetChanged;
+            }
 
             UpdateShapeKeyList();
             UpdateControls();
@@ -232,6 +238,9 @@ public class ShapeKeysPane : BasePane
             slider.Right = range.Upper;
         }
     }
+
+    private void OnShapeKeySetChanged(object sender, EventArgs e) =>
+        UpdateShapeKeyList();
 
     private void OnShapeKeyChanged(object sender, KeyedPropertyChangeEventArgs<string> e)
     {

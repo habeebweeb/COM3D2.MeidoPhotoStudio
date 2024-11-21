@@ -24,6 +24,8 @@ public class BodyController : IShapeKeyController
 
     public event EventHandler<KeyedPropertyChangeEventArgs<string>> ChangedShapeKey;
 
+    public event EventHandler ChangedShapeKeySet;
+
     public IEnumerable<string> ShapeKeys =>
         Body.BlendDatas.Where(static blendData => blendData is not null).Select(static blendData => blendData.name);
 
@@ -79,6 +81,8 @@ public class BodyController : IShapeKeyController
             return;
 
         BackupShapeKeys();
+
+        ChangedShapeKeySet?.Invoke(this, EventArgs.Empty);
     }
 
     private float GetBlendValue(string key) =>
