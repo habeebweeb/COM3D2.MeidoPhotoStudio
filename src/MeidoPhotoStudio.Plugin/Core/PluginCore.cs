@@ -424,7 +424,8 @@ public partial class PluginCore : MonoBehaviour
             new(sceneRepository, screenshotService, sceneSchemaBuilder, sceneSerializer, sceneLoader),
             sceneSchemaBuilder,
             screenshotService,
-            new(configuration));
+            new(configuration),
+            inputRemapper);
 
         AddPluginActiveInputHandler(new SceneBrowserWindowInputHandler(sceneBrowser, inputConfiguration));
 
@@ -443,7 +444,7 @@ public partial class PluginCore : MonoBehaviour
             Slots = autoSaveConfiguration.Slots.Value,
         };
 
-        var messageWindow = new MessageWindow(messageWindowManager);
+        var messageWindow = new MessageWindow(messageWindowManager, inputRemapper);
 
         AddPluginActiveInputHandler(new MessageWindow.InputHandler(messageWindow, inputConfiguration));
 
@@ -457,7 +458,7 @@ public partial class PluginCore : MonoBehaviour
 
         var uiConfiguration = new UIConfiguration(configuration);
 
-        var settingsWindow = new SettingsWindow()
+        var settingsWindow = new SettingsWindow(inputRemapper)
         {
             [SettingsWindow.SettingType.Controls] = new InputSettingsPane(inputConfiguration, inputRemapper),
             [SettingsWindow.SettingType.DragHandle] = new DragHandleSettingsPane(dragHandleConfiguration, ikDragHandleService, propDragHandleService),

@@ -8,6 +8,7 @@ public class SettingsWindow : BaseWindow
     private const int CategoryListWidth = 200;
     private const float ResizeHandleSize = 15f;
 
+    private readonly InputRemapper inputRemapper;
     private readonly List<SettingType> settingCategories = [];
     private readonly Dictionary<SettingType, BasePane> settingPanes = [];
     private readonly SelectionGrid settingCategorySelectionGrid;
@@ -43,8 +44,10 @@ public class SettingsWindow : BaseWindow
     private Vector2 settingsCategoryScrollPosition;
     private Vector2 settingsScrollPosition;
 
-    public SettingsWindow()
+    public SettingsWindow(InputRemapper inputRemapper)
     {
+        this.inputRemapper = inputRemapper ? inputRemapper : throw new ArgumentNullException(nameof(inputRemapper));
+
         closeButton = new("X");
         closeButton.ControlEvent += OnCloseButtonPushed;
 
@@ -67,6 +70,7 @@ public class SettingsWindow : BaseWindow
             Screen.height * 0.5f - Screen.height * 0.6f / 2f,
             minimumWidth,
             Screen.height * 0.6f);
+        this.inputRemapper = inputRemapper;
     }
 
     public enum SettingType
@@ -77,6 +81,9 @@ public class SettingsWindow : BaseWindow
         Translation,
         UI,
     }
+
+    public override bool Enabled =>
+        base.Enabled && !inputRemapper.Listening;
 
     public BasePane this[SettingType settingType]
     {

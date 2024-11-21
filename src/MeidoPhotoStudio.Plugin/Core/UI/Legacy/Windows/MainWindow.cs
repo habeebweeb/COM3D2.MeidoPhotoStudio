@@ -72,6 +72,9 @@ public partial class MainWindow : BaseWindow
         Props,
     }
 
+    public override bool Enabled =>
+        base.Enabled && !inputRemapper.Listening;
+
     public override Rect WindowRect
     {
         set

@@ -143,7 +143,7 @@ public class InputSettingsPane : BasePane
         {
             var isShortcut = key.GetType() == typeof(Shortcut);
 
-            GUI.enabled = parentEnabled && !inputRemapper.Listening;
+            GUI.enabled = parentEnabled;
 
             DrawShortcutLabel(key, isShortcut);
 
@@ -166,7 +166,7 @@ public class InputSettingsPane : BasePane
                 if (DrawControlButton(key, isShortcut))
                     ListenForNewKeyCombo(key, isShortcut);
 
-                GUI.enabled = parentEnabled && !inputRemapper.Listening;
+                GUI.enabled = parentEnabled;
 
                 if (GUILayout.Button(clearBindingLabel, buttonStyle, GUILayout.ExpandWidth(false)))
                     ClearButtonCombo(key, isShortcut);
@@ -248,6 +248,8 @@ public class InputSettingsPane : BasePane
 
             void DrawCancelListeningButton()
             {
+                GUI.enabled = inputRemapper.Listening;
+
                 if (GUILayout.Button(cancelRebindLabel))
                     inputRemapper.Cancel();
             }

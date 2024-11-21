@@ -11,6 +11,7 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 public partial class MessageWindow : BaseWindow
 {
     private readonly MessageWindowManager messageWindowManager;
+    private readonly InputRemapper inputRemapper;
     private readonly TextField nameTextField;
     private readonly Slider fontSizeSlider;
     private readonly TextArea messageTextArea;
@@ -25,9 +26,11 @@ public partial class MessageWindow : BaseWindow
 
     private Vector2 scrollPosition;
 
-    public MessageWindow(MessageWindowManager messageWindowManager)
+    public MessageWindow(MessageWindowManager messageWindowManager, InputRemapper inputRemapper)
     {
         this.messageWindowManager = messageWindowManager;
+        this.inputRemapper = inputRemapper ? inputRemapper : throw new ArgumentNullException(nameof(inputRemapper));
+
         this.messageWindowManager.PropertyChanged += OnMessageWindowPropertyChanged;
 
         var width = Mathf.Max(Screen.width * 0.5f, 440);
@@ -75,6 +78,9 @@ public partial class MessageWindow : BaseWindow
         static LabelledDropdownItem AlignmentFormatter(Alignment alignment, int index) =>
             new(Translation.Get("messageWindow", string.Concat("align", alignment.ToString())));
     }
+
+    public override bool Enabled =>
+        base.Enabled && !inputRemapper.Listening;
 
     public override void Draw()
     {

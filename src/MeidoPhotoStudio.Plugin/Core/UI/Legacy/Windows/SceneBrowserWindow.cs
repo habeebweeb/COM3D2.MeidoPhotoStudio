@@ -22,6 +22,7 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
     private readonly SceneManagementModal sceneManagementModal;
     private readonly SceneSchemaBuilder sceneSchemaBuilder;
     private readonly SceneBrowserConfiguration configuration;
+    private readonly InputRemapper inputRemapper;
     private readonly ScreenshotService screenshotService;
     private readonly LazyStyle labelStyle = new(
         FontSize,
@@ -96,7 +97,8 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
         SceneManagementModal sceneManagementModal,
         SceneSchemaBuilder sceneSchemaBuilder,
         ScreenshotService screenshotService,
-        SceneBrowserConfiguration configuration)
+        SceneBrowserConfiguration configuration,
+        InputRemapper inputRemapper)
     {
         this.sceneRepository = sceneRepository ?? throw new ArgumentNullException(nameof(sceneRepository));
         this.sceneManagementModal = sceneManagementModal ?? throw new ArgumentNullException(nameof(sceneManagementModal));
@@ -105,6 +107,8 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
         this.screenshotService = screenshotService
             ? screenshotService
             : throw new ArgumentNullException(nameof(screenshotService));
+
+        this.inputRemapper = inputRemapper ? inputRemapper : throw new ArgumentNullException(nameof(inputRemapper));
 
         this.sceneRepository.AddedScene += OnScenesChanged;
         this.sceneRepository.RemovedScene += OnScenesChanged;
@@ -187,6 +191,9 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
         DateCreated,
         DateModified,
     }
+
+    public override bool Enabled =>
+        base.Enabled && !inputRemapper.Listening;
 
     int IVirtualListHandler.Count =>
         currentCategoryScenes.Count;
