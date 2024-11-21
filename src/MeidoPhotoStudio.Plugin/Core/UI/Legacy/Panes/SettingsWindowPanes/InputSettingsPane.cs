@@ -8,29 +8,33 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
 public class InputSettingsPane : BasePane
 {
-    private readonly Dictionary<Hotkey, string> hotkeyMapping;
-    private readonly Dictionary<Hotkey, string> hotkeyName;
+    private readonly Dictionary<Hotkey, GUIContent> hotkeyMapping;
+    private readonly Dictionary<Hotkey, GUIContent> hotkeyName;
     private readonly InputConfiguration inputConfiguration;
     private readonly InputRemapper inputRemapper;
-    private readonly Dictionary<Shortcut, string> shortcutMapping;
-    private readonly Dictionary<Shortcut, string> shortcutName;
+    private readonly Dictionary<Shortcut, GUIContent> shortcutMapping;
+    private readonly Dictionary<Shortcut, GUIContent> shortcutName;
     private readonly PaneHeader generalControlsHeader;
     private readonly PaneHeader cameraControlsHeader;
     private readonly PaneHeader transformDragHandleControlsHeader;
     private readonly PaneHeader characterControlsHeader;
+    private readonly GUIContent cancelRebindLabel = new("Cancel");
+    private readonly GUIContent pushAnyKeyLabel = new("Push any key combo");
+    private readonly GUIContent clearBindingLabel = new("Clear");
+    private readonly GUIContent resetBindingLabel = new("Reset");
     private readonly LazyStyle labelStyle = new(13, static () => new(GUI.skin.label));
-    private readonly LazyStyle buttonStyle = new(
+    private readonly LazyStyle inputButtonStyle = new(
         13,
         static () => new(GUI.skin.button)
         {
             wordWrap = true,
         });
 
+    private readonly LazyStyle buttonStyle = new(13, static () => new(GUI.skin.button));
+
     private Hotkey currentHotkey;
     private Shortcut currentShortcut;
     private bool listeningToShortcut;
-    private string cancelRebindLabel = "Cancel";
-    private string pushAnyKeyLabel = "Push any key combo";
 
     public InputSettingsPane(InputConfiguration inputConfiguration, InputRemapper inputRemapper)
     {
@@ -47,13 +51,13 @@ public class InputSettingsPane : BasePane
         shortcutMapping = shortcutValues
             .ToDictionary(
                 shortcut => shortcut,
-                shortcut => inputConfiguration[shortcut].ToString(),
+                shortcut => new GUIContent(inputConfiguration[shortcut].ToString()),
                 EnumEqualityComparer<Shortcut>.Instance);
 
         shortcutName = shortcutValues
             .ToDictionary(
                 shortcut => shortcut,
-                shortcut => Translation.Get("controls", shortcut.ToLower()),
+                shortcut => new GUIContent(Translation.Get("controls", shortcut.ToLower())),
                 EnumEqualityComparer<Shortcut>.Instance);
 
         var hotkeyValues = (Hotkey[])Enum.GetValues(typeof(Hotkey));
@@ -61,17 +65,19 @@ public class InputSettingsPane : BasePane
         hotkeyMapping = hotkeyValues
             .ToDictionary(
                 hotkey => hotkey,
-                hotkey => inputConfiguration[hotkey].ToString(),
+                hotkey => new GUIContent(inputConfiguration[hotkey].ToString()),
                 EnumEqualityComparer<Hotkey>.Instance);
 
         hotkeyName = hotkeyValues
             .ToDictionary(
                 hotkey => hotkey,
-                hotkey => Translation.Get("controls", hotkey.ToLower()),
+                hotkey => new GUIContent(Translation.Get("controls", hotkey.ToLower())),
                 EnumEqualityComparer<Hotkey>.Instance);
 
-        pushAnyKeyLabel = Translation.Get("inputSettingsPane", "pushAnyKeyLabel");
-        cancelRebindLabel = Translation.Get("inputSettingsPane", "cancelRebindLabel");
+        pushAnyKeyLabel.text = Translation.Get("inputSettingsPane", "pushAnyKeyLabel");
+        cancelRebindLabel.text = Translation.Get("inputSettingsPane", "cancelRebindLabel");
+        clearBindingLabel.text = Translation.Get("inputSettingsPane", "clearBindingLabel");
+        resetBindingLabel.text = Translation.Get("inputSettingsPane", "resetBindingLabel");
     }
 
     public override void Draw()
@@ -149,21 +155,25 @@ public class InputSettingsPane : BasePane
             {
                 GUI.enabled = false;
 
-                GUILayout.Button(pushAnyKeyLabel, buttonStyle, buttonWidth);
+                GUILayout.Button(pushAnyKeyLabel, inputButtonStyle, buttonWidth);
 
                 GUI.enabled = parentEnabled;
 
                 DrawCancelListeningButton();
             }
-            else if (DrawControlButton(key, isShortcut))
+            else
             {
-                ListenForNewKeyCombo(key, isShortcut);
+                if (DrawControlButton(key, isShortcut))
+                    ListenForNewKeyCombo(key, isShortcut);
+
+                GUI.enabled = parentEnabled && !inputRemapper.Listening;
+
+                if (GUILayout.Button(clearBindingLabel, buttonStyle, GUILayout.ExpandWidth(false)))
+                    ClearButtonCombo(key, isShortcut);
+
+                if (GUILayout.Button(resetBindingLabel, buttonStyle, GUILayout.ExpandWidth(false)))
+                    ResetButtonCombo(key, isShortcut);
             }
-
-            GUI.enabled = parentEnabled && !inputRemapper.Listening;
-
-            if (GUILayout.Button("x", GUILayout.ExpandWidth(false)))
-                ClearButtonCombo(key, isShortcut);
 
             GUILayout.EndHorizontal();
 
@@ -180,7 +190,7 @@ public class InputSettingsPane : BasePane
 
                 GUI.enabled = parentEnabled && !inputRemapper.Listening;
 
-                var clicked = GUILayout.Button(mapping, buttonStyle, buttonWidth);
+                var clicked = GUILayout.Button(mapping, inputButtonStyle, buttonWidth);
 
                 GUI.enabled = parentEnabled;
 
@@ -209,6 +219,15 @@ public class InputSettingsPane : BasePane
             void ClearButtonCombo(Enum key, bool isShortcut) =>
                 SetCombo(key, isShortcut, isShortcut ? KeyboardShortcut.Empty : KeyboardHotkey.Empty);
 
+            void ResetButtonCombo(Enum key, bool isShortcut)
+            {
+                KeyboardInput defaultKey = isShortcut
+                    ? inputConfiguration.DefaultBinding((Shortcut)key)
+                    : inputConfiguration.DefaultBinding((Hotkey)key);
+
+                SetCombo(key, isShortcut, defaultKey);
+            }
+
             void SetCombo(Enum key, bool isShortcut, KeyboardInput input)
             {
                 if (isShortcut)
@@ -216,14 +235,14 @@ public class InputSettingsPane : BasePane
                     var shortcut = (KeyboardShortcut)input;
 
                     inputConfiguration[(Shortcut)key] = shortcut;
-                    shortcutMapping[(Shortcut)key] = shortcut.ToString();
+                    shortcutMapping[(Shortcut)key] = new GUIContent(shortcut.ToString());
                 }
                 else
                 {
                     var hotkey = (KeyboardHotkey)input;
 
                     inputConfiguration[(Hotkey)key] = hotkey;
-                    hotkeyMapping[(Hotkey)key] = hotkey.ToString();
+                    hotkeyMapping[(Hotkey)key] = new GUIContent(hotkey.ToString());
                 }
             }
 
@@ -245,17 +264,19 @@ public class InputSettingsPane : BasePane
     protected override void ReloadTranslation()
     {
         foreach (var shortcut in (Shortcut[])Enum.GetValues(typeof(Shortcut)))
-            shortcutName[shortcut] = Translation.Get("controls", shortcut.ToLower());
+            shortcutName[shortcut].text = Translation.Get("controls", shortcut.ToLower());
 
         foreach (var hotkey in (Hotkey[])Enum.GetValues(typeof(Hotkey)))
-            hotkeyName[hotkey] = Translation.Get("controls", hotkey.ToLower());
+            hotkeyName[hotkey].text = Translation.Get("controls", hotkey.ToLower());
 
         generalControlsHeader.Label = Translation.Get("inputSettingsPane", "generalControlsHeader");
         cameraControlsHeader.Label = Translation.Get("inputSettingsPane", "cameraControlsHeader");
         transformDragHandleControlsHeader.Label = Translation.Get("inputSettingsPane", "transformDragHandleControlsHeader");
         characterControlsHeader.Label = Translation.Get("inputSettingsPane", "characterControlsHeader");
 
-        pushAnyKeyLabel = Translation.Get("inputSettingsPane", "pushAnyKeyLabel");
-        cancelRebindLabel = Translation.Get("inputSettingsPane", "cancelRebindLabel");
+        pushAnyKeyLabel.text = Translation.Get("inputSettingsPane", "pushAnyKeyLabel");
+        cancelRebindLabel.text = Translation.Get("inputSettingsPane", "cancelRebindLabel");
+        clearBindingLabel.text = Translation.Get("inputSettingsPane", "clearBindingLabel");
+        resetBindingLabel.text = Translation.Get("inputSettingsPane", "resetBindingLabel");
     }
 }

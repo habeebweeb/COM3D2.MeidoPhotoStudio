@@ -152,7 +152,7 @@ public class InputConfiguration
     {
         get => keyboardHotkeys.TryGetValue(hotkey, out var keyboardHotkey)
             ? keyboardHotkey
-            : throw new ArgumentException(nameof(keyboardHotkey));
+            : throw new ArgumentException(nameof(hotkey));
         set
         {
             if (value is null)
@@ -190,5 +190,25 @@ public class InputConfiguration
 
             configEntry.Value = value;
         }
+    }
+
+    public KeyboardShortcut DefaultBinding(Shortcut shortcut)
+    {
+        if (!shortcutDefinitions.TryGetValue(shortcut, out var definition))
+            throw new ArgumentException(nameof(shortcut));
+
+        var configEntryBase = configFile[definition];
+
+        return (KeyboardShortcut)configEntryBase.DefaultValue;
+    }
+
+    public KeyboardHotkey DefaultBinding(Hotkey hotkey)
+    {
+        if (!hotkeyDefinitions.TryGetValue(hotkey, out var definition))
+            throw new ArgumentException(nameof(hotkey));
+
+        var configEntryBase = configFile[definition];
+
+        return (KeyboardHotkey)configEntryBase.DefaultValue;
     }
 }

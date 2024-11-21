@@ -702,7 +702,9 @@
     "transformDragHandleControlsHeader": "Transform Drag Handle",
     "characterControlsHeader": "Character",
     "pushAnyKeyLabel": "Push Any Key Combo",
-    "cancelRebindLabel": "Cancel"
+    "cancelRebindLabel": "Cancel",
+    "clearBindingLabel": "Clear",
+    "resetBindingLabel": "Reset"
   },
   "dragHandleSettingsPane": {
     "smallDragHandleToggle": "Small transform drag handles",
