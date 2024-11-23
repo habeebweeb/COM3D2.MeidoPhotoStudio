@@ -13,7 +13,13 @@ public class SceneSerializer : ISceneSerializer
     private static JsonSerializer Serializer =>
         JsonSerializer.Create(new()
         {
-            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            ContractResolver = new DefaultContractResolver
+            {
+                NamingStrategy = new CamelCaseNamingStrategy
+                {
+                    ProcessDictionaryKeys = false,
+                },
+            },
             Converters = new JsonConverterCollection()
             {
                 new ColorConverter(),
