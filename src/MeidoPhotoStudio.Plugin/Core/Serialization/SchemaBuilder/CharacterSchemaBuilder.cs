@@ -79,7 +79,7 @@ public class CharacterSchemaBuilder(
                 ClothingSet = new[]
                 {
                     SlotID.wear, SlotID.mizugi, SlotID.onepiece, SlotID.skirt, SlotID.bra, SlotID.panz, SlotID.headset,
-                    SlotID.megane, SlotID.accUde, SlotID.glove, SlotID.accSenaka, SlotID.stkg,
+                    SlotID.megane, SlotID.accHead, SlotID.accUde, SlotID.glove, SlotID.accSenaka, SlotID.stkg,
                     SlotID.shoes, SlotID.accAshi, SlotID.accHana, SlotID.accHat, SlotID.accHeso, SlotID.accKamiSubL,
                     SlotID.accKamiSubR, SlotID.accKami_1_, SlotID.accKami_2_, SlotID.accKami_3_, SlotID.accKubi,
                     SlotID.accKubiwa, SlotID.accMiMiL, SlotID.accMiMiR, SlotID.accNipL, SlotID.accNipR,

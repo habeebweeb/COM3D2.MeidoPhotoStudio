@@ -14,10 +14,11 @@ public class DressingPane : BasePane
 {
     private static readonly string[] DressingModeTranslationKeys = ["all", "underwear", "nude"];
 
-    private static readonly SlotID[] ClothingSlots =
+    private static readonly HashSet<SlotID> ClothingSlots =
     [
-        SlotID.wear, SlotID.skirt, SlotID.bra, SlotID.panz, SlotID.headset, SlotID.megane, SlotID.accUde,
-        SlotID.glove, SlotID.accSenaka, SlotID.stkg, SlotID.shoes, SlotID.body,
+        SlotID.wear, SlotID.mizugi, SlotID.onepiece, SlotID.skirt, SlotID.bra, SlotID.panz, SlotID.headset,
+        SlotID.megane, SlotID.accHead, SlotID.accUde, SlotID.glove, SlotID.accSenaka, SlotID.stkg, SlotID.shoes,
+        SlotID.body,
 
         SlotID.accAshi, SlotID.accHana, SlotID.accHat, SlotID.accHeso, SlotID.accKamiSubL, SlotID.accKamiSubR,
         SlotID.accKami_1_, SlotID.accKami_2_, SlotID.accKami_3_, SlotID.accKubi, SlotID.accKubiwa, SlotID.accMiMiL,
@@ -43,6 +44,12 @@ public class DressingPane : BasePane
 
     private static readonly SlotID[][] DetailedSlotGroups =
     [
+        [SlotID.wear, SlotID.skirt],
+        [SlotID.mizugi, SlotID.onepiece],
+        [SlotID.bra, SlotID.panz],
+        [SlotID.headset, SlotID.megane, SlotID.accHead],
+        [SlotID.accUde, SlotID.glove, SlotID.accSenaka],
+        [SlotID.stkg, SlotID.shoes, SlotID.body],
         [SlotID.accShippo, SlotID.accHat],
         [SlotID.accKami_1_, SlotID.accKami_2_, SlotID.accKami_3_],
         [SlotID.accKamiSubL, SlotID.accKamiSubR],
@@ -128,15 +135,20 @@ public class DressingPane : BasePane
 
         UIUtility.DrawBlackLine();
 
-        foreach (var slotGroup in SlotGroups)
-            DrawSlotGroup(slotGroup);
-
         if (detailedClothingToggle.Value)
         {
-            UIUtility.DrawBlackLine();
+            for (var i = 0; i < DetailedSlotGroups.Length; i++)
+            {
+                DrawSlotGroup(DetailedSlotGroups[i]);
 
-            foreach (var slotGroup in DetailedSlotGroups)
-                DrawSlotGroup(slotGroup);
+                if (i is 5)
+                    UIUtility.DrawBlackLine();
+            }
+        }
+        else
+        {
+            for (var i = 0; i < SlotGroups.Length; i++)
+                DrawSlotGroup(SlotGroups[i]);
         }
 
         UIUtility.DrawBlackLine();
@@ -215,10 +227,10 @@ public class DressingPane : BasePane
         foreach (var slot in ClothingSlots)
             clothingToggles[slot].SetEnabledWithoutNotify(slot switch
             {
-                SlotID.wear => WearSlots.Any(slot => CurrentClothing[slot]),
-                SlotID.megane => CurrentClothing[SlotID.megane] || CurrentClothing[SlotID.accHead],
-                SlotID.body => CurrentClothing.BodyVisible,
+                SlotID.wear when !detailedClothingToggle.Value => WearSlots.Any(slot => CurrentClothing[slot]),
+                SlotID.megane or SlotID.accHead when !detailedClothingToggle.Value => CurrentClothing[SlotID.megane] || CurrentClothing[SlotID.accHead],
                 SlotID.headset when !detailedClothingToggle.Value => HeadwearSlots.Any(slot => CurrentClothing[slot]),
+                SlotID.body => CurrentClothing.BodyVisible,
                 _ => CurrentClothing[slot],
             });
 
@@ -252,8 +264,8 @@ public class DressingPane : BasePane
         foreach (var slot in ClothingSlots)
             loadedSlots[slot] = slot switch
             {
-                SlotID.wear => WearSlots.Any(CurrentClothing.SlotLoaded),
-                SlotID.megane => CurrentClothing.SlotLoaded(SlotID.megane) || CurrentClothing.SlotLoaded(SlotID.accHead),
+                SlotID.wear when !detailedClothingToggle.Value => WearSlots.Any(CurrentClothing.SlotLoaded),
+                SlotID.megane when !detailedClothingToggle.Value => CurrentClothing.SlotLoaded(SlotID.megane) || CurrentClothing.SlotLoaded(SlotID.accHead),
                 SlotID.headset when !detailedClothingToggle.Value => HeadwearSlots.Any(CurrentClothing.SlotLoaded),
                 _ => CurrentClothing.SlotLoaded(slot),
             };
@@ -301,22 +313,30 @@ public class DressingPane : BasePane
     {
         var clothing = (ClothingController)sender;
 
-        if (WearSlots.Contains(e.Key))
+        if (!ClothingSlots.Contains(e.Key))
+            return;
+
+        if (detailedClothingToggle.Value)
         {
-            clothingToggles[SlotID.wear].SetEnabledWithoutNotify(WearSlots.Any(slot => clothing[slot]));
-            loadedSlots[SlotID.wear] = WearSlots.Any(clothing.SlotLoaded);
+            clothingToggles[e.Key].SetEnabledWithoutNotify(clothing[e.Key]);
+            loadedSlots[e.Key] = clothing.SlotLoaded(e.Key);
         }
-        else if (e.Key is SlotID.megane)
-        {
-            clothingToggles[SlotID.megane].SetEnabledWithoutNotify(clothing[SlotID.megane] || clothing[SlotID.accHead]);
-            loadedSlots[SlotID.megane] = clothing.SlotLoaded(SlotID.megane) || clothing.SlotLoaded(SlotID.accHead);
-        }
-        else if (!detailedClothingToggle.Value && HeadwearSlots.Contains(e.Key))
+        else if (HeadwearSlots.Contains(e.Key))
         {
             clothingToggles[SlotID.headset].SetEnabledWithoutNotify(HeadwearSlots.Any(slot => clothing[slot]));
             loadedSlots[SlotID.headset] = HeadwearSlots.Any(clothing.SlotLoaded);
         }
-        else if (clothingToggles.ContainsKey(e.Key))
+        else if (WearSlots.Contains(e.Key))
+        {
+            clothingToggles[SlotID.wear].SetEnabledWithoutNotify(WearSlots.Any(slot => clothing[slot]));
+            loadedSlots[SlotID.wear] = WearSlots.Any(clothing.SlotLoaded);
+        }
+        else if (e.Key is SlotID.megane or SlotID.accHead)
+        {
+            clothingToggles[SlotID.megane].SetEnabledWithoutNotify(clothing[SlotID.megane] || clothing[SlotID.accHead]);
+            loadedSlots[SlotID.megane] = clothing.SlotLoaded(SlotID.megane) || clothing.SlotLoaded(SlotID.accHead);
+        }
+        else
         {
             clothingToggles[e.Key].SetEnabledWithoutNotify(clothing[e.Key]);
             loadedSlots[e.Key] = clothing.SlotLoaded(e.Key);
@@ -359,11 +379,12 @@ public class DressingPane : BasePane
         if (slot is SlotID.body)
         {
             CurrentClothing.BodyVisible = value;
-
-            return;
         }
-
-        if (!detailedClothingToggle.Value && slot is SlotID.headset)
+        else if (detailedClothingToggle.Value)
+        {
+            CurrentClothing[slot] = value;
+        }
+        else if (slot is SlotID.headset)
         {
             foreach (var headwearSlot in HeadwearSlots)
             {
@@ -371,25 +392,20 @@ public class DressingPane : BasePane
                 clothingToggles[headwearSlot].SetEnabledWithoutNotify(value);
             }
         }
+        else if (slot is SlotID.wear)
+        {
+            foreach (var wearSlot in WearSlots)
+                CurrentClothing[wearSlot] = value;
+        }
+        else if (slot is SlotID.megane)
+        {
+            CurrentClothing[SlotID.megane] = value;
+            CurrentClothing[SlotID.accHead] = value;
+        }
         else
         {
-            if (slot is SlotID.wear)
-            {
-                foreach (var wearSlot in WearSlots)
-                    CurrentClothing[wearSlot] = value;
-            }
-            else if (slot is SlotID.megane)
-            {
-                CurrentClothing[SlotID.megane] = value;
-                CurrentClothing[SlotID.accHead] = value;
-            }
-            else
-            {
-                CurrentClothing[slot] = value;
-            }
+            CurrentClothing[slot] = value;
         }
-
-        CurrentClothing[slot] = value;
     }
 
     private void OnCurlingFrontChanged(object sender, EventArgs e)
