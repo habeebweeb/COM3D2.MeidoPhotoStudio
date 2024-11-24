@@ -12,6 +12,9 @@ public class ClothingController : INotifyPropertyChanged
 {
     private const float DefaultFloorHeight = -1000f;
 
+    private static readonly Dictionary<SlotID, KeyedPropertyChangeEventArgs<SlotID>> ClothingChangeEventArgsCache =
+        new(EnumEqualityComparer<SlotID>.Instance);
+
     private static readonly MPN KousokuUpper = SafeMpn.GetValue(nameof(MPN.kousoku_upper));
     private static readonly MPN KousokuLower = SafeMpn.GetValue(nameof(MPN.kousoku_lower));
     private static readonly MPN[] AttachedAccessoryMpn = [KousokuUpper, KousokuLower];
@@ -19,8 +22,6 @@ public class ClothingController : INotifyPropertyChanged
     private readonly CharacterController characterController;
     private readonly TransformWatcher transformWatcher;
     private readonly HashSet<SlotID> changedSlots = [];
-    private readonly Dictionary<SlotID, KeyedPropertyChangeEventArgs<SlotID>> clothingChangeEventArgsCache =
-        new(EnumEqualityComparer<SlotID>.Instance);
 
     private bool customFloorHeight;
     private float floorHeight;
@@ -283,8 +284,8 @@ public class ClothingController : INotifyPropertyChanged
 
     private void RaiseClothingChanged(SlotID slot)
     {
-        if (!clothingChangeEventArgsCache.TryGetValue(slot, out var e))
-            e = clothingChangeEventArgsCache[slot] = new(slot);
+        if (!ClothingChangeEventArgsCache.TryGetValue(slot, out var e))
+            e = ClothingChangeEventArgsCache[slot] = new(slot);
 
         ClothingChanged?.Invoke(this, e);
     }

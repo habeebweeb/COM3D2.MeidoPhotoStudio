@@ -5,7 +5,7 @@ namespace MeidoPhotoStudio.Plugin.Core.Character;
 
 public class BodyController : IShapeKeyController
 {
-    private readonly Dictionary<string, KeyedPropertyChangeEventArgs<string>> blendValueChangeArgsCache =
+    private static readonly Dictionary<string, KeyedPropertyChangeEventArgs<string>> BlendValueChangeArgsCache =
         new(StringComparer.Ordinal);
 
     private readonly CharacterController characterController;
@@ -126,8 +126,8 @@ public class BodyController : IShapeKeyController
 
     private void OnBlendValueChanged(string key)
     {
-        if (!blendValueChangeArgsCache.TryGetValue(key, out var e))
-            e = blendValueChangeArgsCache[key] = new(key);
+        if (!BlendValueChangeArgsCache.TryGetValue(key, out var e))
+            e = BlendValueChangeArgsCache[key] = new(key);
 
         ChangedShapeKey?.Invoke(this, e);
     }

@@ -6,7 +6,8 @@ namespace MeidoPhotoStudio.Plugin.Core.Props;
 public class ShapeKeyController(Mesh mesh, TBodySkin.OriVert oriVert, BlendData[] blendDatas)
     : IEnumerable<(string HashKey, float BlendValue)>
 {
-    private readonly Dictionary<string, KeyedPropertyChangeEventArgs<string>> shapeKeyChangeArgsCache = new(StringComparer.Ordinal);
+    private static readonly Dictionary<string, KeyedPropertyChangeEventArgs<string>> ShapeKeyChangeArgsCache = new(StringComparer.Ordinal);
+
     private readonly Mesh mesh = mesh ? mesh : throw new ArgumentNullException(nameof(mesh));
     private readonly TBodySkin.OriVert oriVert = oriVert ?? throw new ArgumentNullException(nameof(oriVert));
     private readonly BlendData[] blendDatas = blendDatas ?? throw new ArgumentNullException(nameof(blendDatas));
@@ -68,8 +69,8 @@ public class ShapeKeyController(Mesh mesh, TBodySkin.OriVert oriVert, BlendData[
 
     private void OnShapeKeyChanged(string key)
     {
-        if (!shapeKeyChangeArgsCache.TryGetValue(key, out var e))
-            e = shapeKeyChangeArgsCache[key] = new(key);
+        if (!ShapeKeyChangeArgsCache.TryGetValue(key, out var e))
+            e = ShapeKeyChangeArgsCache[key] = new(key);
 
         ShapeKeyChanged?.Invoke(this, e);
     }
