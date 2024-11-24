@@ -31,6 +31,8 @@ public class FaceController : INotifyPropertyChanged, IShapeKeyController
 
     public event EventHandler ChangedShapeKeySet;
 
+    public event EventHandler ChangedMultipleShapeKeys;
+
     public event PropertyChangedEventHandler PropertyChanged;
 
     public IBlendSetModel BlendSet
@@ -39,6 +41,8 @@ public class FaceController : INotifyPropertyChanged, IShapeKeyController
         private set
         {
             blendSet = value;
+
+            ChangedMultipleShapeKeys?.Invoke(this, EventArgs.Empty);
 
             RaisePropertyChanged(nameof(BlendSet));
         }

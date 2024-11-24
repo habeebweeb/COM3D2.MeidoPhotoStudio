@@ -24,6 +24,8 @@ public class BodyController : IShapeKeyController
 
     public event EventHandler<KeyedPropertyChangeEventArgs<string>> ChangedShapeKey;
 
+    public event EventHandler ChangedMultipleShapeKeys;
+
     public event EventHandler ChangedShapeKeySet;
 
     public IEnumerable<string> ShapeKeys =>
@@ -65,6 +67,8 @@ public class BodyController : IShapeKeyController
         }
 
         Body.FixBlendValues();
+
+        ChangedMultipleShapeKeys?.Invoke(this, EventArgs.Empty);
     }
 
     private void OnCharacterPropsProcessing(object sender, CharacterProcessingEventArgs e)

@@ -6,6 +6,8 @@ public interface IShapeKeyController
 {
     event EventHandler<KeyedPropertyChangeEventArgs<string>> ChangedShapeKey;
 
+    event EventHandler ChangedMultipleShapeKeys;
+
     event EventHandler ChangedShapeKeySet;
 
     public IEnumerable<string> ShapeKeys { get; }
