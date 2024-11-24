@@ -178,7 +178,7 @@ public class MenuPropRepository : IEnumerable<MenuFilePropModel>
 
             Parallel.ForEach(
                 GameUty.ModOnlysMenuFiles,
-                new ParallelOptions { MaxDegreeOfParallelism = Math.Max(1, Environment.ProcessorCount - 4) },
+                new ParallelOptions { MaxDegreeOfParallelism = Math.Max(1, (int)Math.Ceiling(Environment.ProcessorCount * 0.75)) },
                 menuFilename =>
                 {
                     if (string.IsNullOrEmpty(menuFilename))
