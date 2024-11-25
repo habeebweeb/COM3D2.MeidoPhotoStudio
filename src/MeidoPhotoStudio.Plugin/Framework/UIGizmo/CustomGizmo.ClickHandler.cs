@@ -38,7 +38,7 @@ public partial class CustomGizmo
                 if (UICamera.Raycast(UInput.mousePosition))
                     return false;
 
-                if (WindowManager?.MouseOverAnyWindow() ?? false)
+                if (WindowManager && WindowManager.MouseOverAnyWindow())
                     return false;
 
                 if (UI.Legacy.Modal.MouseOverModal())

@@ -1,5 +1,3 @@
-using MeidoPhotoStudio.Plugin.Core;
-
 using ScreenshotScale = CMSystem.SSSuperSizeType;
 
 namespace MeidoPhotoStudio.Plugin.Framework.Service;
@@ -8,9 +6,9 @@ public class ScreenshotService : MonoBehaviour
 {
     private GameObject dragHandleParent;
 
-    public PluginCore PluginCore { get; set; }
-
     public bool TakingScreenshot { get; set; }
+
+    internal Core.UI.Legacy.WindowManager WindowManager { get; set; }
 
     private GameObject DragHandleParent =>
         dragHandleParent ? dragHandleParent : (dragHandleParent = GameObject.Find("[MPS Drag Handle Parent]"));
@@ -147,8 +145,8 @@ public class ScreenshotService : MonoBehaviour
 
             GizmoRender.UIVisible = visible;
 
-            if (PluginCore)
-                PluginCore.UIActive = visible;
+            if (WindowManager)
+                WindowManager.enabled = visible;
 
             if (DragHandleParent)
                 DragHandleParent.SetActive(visible);

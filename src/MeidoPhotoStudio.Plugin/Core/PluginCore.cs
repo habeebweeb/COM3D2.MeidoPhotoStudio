@@ -48,7 +48,6 @@ public partial class PluginCore : MonoBehaviour
     private InputConfiguration inputConfiguration;
     private InputRemapper inputRemapper;
     private bool active;
-    private bool uiActive;
     private BackgroundRepository backgroundRepository;
     private BackgroundService backgroundService;
     private BackgroundDragHandleService backgroundDragHandleService;
@@ -69,20 +68,6 @@ public partial class PluginCore : MonoBehaviour
     private ScreenSizeChecker screenSizeChecker;
     private FavouritePropRepository favouritePropRepository;
     private AutoSaveService autoSaveService;
-
-    public bool UIActive
-    {
-        get => uiActive;
-        set
-        {
-            var newValue = value;
-
-            if (!active)
-                newValue = false;
-
-            uiActive = newValue;
-        }
-    }
 
     private void Awake()
     {
@@ -148,22 +133,25 @@ public partial class PluginCore : MonoBehaviour
 
         inputPollingService.AddInputHandler(new InputHandler(this, inputConfiguration, customMaidSceneService));
 
-        // Screenshot
-        screenshotService = gameObject.AddComponent<ScreenshotService>();
-        screenshotService.PluginCore = this;
-
-        AddPluginActiveInputHandler(new ScreenshotServiceInputHandler(screenshotService, inputConfiguration));
-
-        // UI Gizmos
+        // UI
         dragHandleClickHandler = gameObject.AddComponent<DragHandle.ClickHandler>();
         dragHandleClickHandler.enabled = false;
 
         gizmoClickHandler = gameObject.AddComponent<CustomGizmo.ClickHandler>();
         gizmoClickHandler.enabled = false;
 
+        windowManager = gameObject.AddComponent<WindowManager>();
+        windowManager.enabled = false;
+
         var generalDragHandleInputService = new GeneralDragHandleInputHandler(inputConfiguration);
 
         AddPluginActiveInputHandler(generalDragHandleInputService);
+
+        // Screenshot
+        screenshotService = gameObject.AddComponent<ScreenshotService>();
+        screenshotService.WindowManager = windowManager;
+
+        AddPluginActiveInputHandler(new ScreenshotServiceInputHandler(screenshotService, inputConfiguration));
 
         // Undo/Redo
         undoRedoService = new UndoRedoService();
@@ -406,7 +394,7 @@ public partial class PluginCore : MonoBehaviour
             Slots = autoSaveConfiguration.Slots.Value,
         };
 
-        // UI
+        // Windows
         var sceneBrowser = new SceneBrowserWindow(
             sceneRepository,
             new(sceneRepository, screenshotService, sceneSchemaBuilder, sceneSerializer, sceneLoader),
@@ -517,13 +505,10 @@ public partial class PluginCore : MonoBehaviour
 
         AddPluginActiveInputHandler(new MainWindow.InputHandler(mainWindow, inputConfiguration));
 
-        windowManager = new WindowManager()
-        {
-            [WindowManager.Window.Main] = mainWindow,
-            [WindowManager.Window.Message] = messageWindow,
-            [WindowManager.Window.Save] = sceneBrowser,
-            [WindowManager.Window.Settings] = settingsWindow,
-        };
+        windowManager[WindowManager.Window.Main] = mainWindow;
+        windowManager[WindowManager.Window.Message] = messageWindow;
+        windowManager[WindowManager.Window.Save] = sceneBrowser;
+        windowManager[WindowManager.Window.Settings] = settingsWindow;
 
         dragHandleClickHandler.WindowManager = windowManager;
         gizmoClickHandler.WindowManager = windowManager;
@@ -531,34 +516,6 @@ public partial class PluginCore : MonoBehaviour
         void AddPluginActiveInputHandler<T>(T inputHandler)
             where T : IInputHandler =>
             inputPollingService.AddInputHandler(new PluginActiveInputHandler<T>(this, inputHandler));
-    }
-
-    private void Update()
-    {
-        if (!customMaidSceneService.ValidScene)
-            return;
-
-        if (!active)
-            return;
-
-        windowManager.Update();
-
-        if (Modal.Visible)
-            Modal.Update();
-    }
-
-    private void OnGUI()
-    {
-        if (!uiActive)
-            return;
-
-        windowManager.DrawWindows();
-
-        if (DropdownHelper.Visible)
-            DropdownHelper.DrawDropdown();
-
-        if (Modal.Visible)
-            Modal.Draw();
     }
 
     private void Activate()
@@ -598,11 +555,11 @@ public partial class PluginCore : MonoBehaviour
 
         autoSaveService.Activate();
 
+        windowManager.enabled = true;
         windowManager.Activate();
 
         characterService.CallingCharacters += OnCallingCharacters;
 
-        uiActive = true;
         active = true;
 
         if (!customMaidSceneService.EditScene)
@@ -623,13 +580,13 @@ public partial class PluginCore : MonoBehaviour
         if (!active)
             return;
 
-        uiActive = false;
+        windowManager.enabled = false;
 
         characterService.CalledCharacters += OnCharactersCalled;
 
         void OnCharactersCalled(object sender, CharacterServiceEventArgs e)
         {
-            uiActive = true;
+            windowManager.enabled = true;
 
             characterService.CalledCharacters -= OnCharactersCalled;
         }
@@ -646,7 +603,8 @@ public partial class PluginCore : MonoBehaviour
         if (!sysDialog.IsDecided && !force)
             return;
 
-        uiActive = false;
+        windowManager.enabled = false;
+
         active = false;
 
         if (force)
@@ -665,8 +623,8 @@ public partial class PluginCore : MonoBehaviour
         void Resume()
         {
             sysDialog.Close();
-            uiActive = true;
             active = true;
+            windowManager.enabled = true;
         }
 
         void Exit()
@@ -682,6 +640,7 @@ public partial class PluginCore : MonoBehaviour
             cameraController.Deactivate();
             messageWindowManager.Deactivate();
             windowManager.Deactivate();
+            windowManager.enabled = false;
             cameraSpeedController.Deactivate();
             screenshotService.enabled = false;
 

@@ -3,14 +3,11 @@ using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
-public class WindowManager
+public class WindowManager : MonoBehaviour
 {
     private static GUIStyle windowStyle;
 
     private readonly Dictionary<Window, BaseWindow> windows = [];
-
-    public WindowManager() =>
-        ScreenSizeChecker.ScreenSizeChanged += OnScreenSizeChanged;
 
     public enum Window
     {
@@ -45,23 +42,6 @@ public class WindowManager
         }
     }
 
-    internal void DrawWindows()
-    {
-        foreach (var window in windows.Values)
-        {
-            if (!window.Visible)
-                continue;
-
-            window.WindowRect = GUI.Window(window.ID, window.WindowRect, window.GUIFunc, string.Empty, WindowStyle);
-        }
-    }
-
-    internal void Update()
-    {
-        foreach (var window in windows.Values)
-            window.Update();
-    }
-
     internal void Activate()
     {
         foreach (var window in windows.Values)
@@ -72,6 +52,35 @@ public class WindowManager
     {
         foreach (var window in windows.Values)
             window.Deactivate();
+    }
+
+    private void Awake() =>
+        ScreenSizeChecker.ScreenSizeChanged += OnScreenSizeChanged;
+
+    private void OnGUI()
+    {
+        foreach (var window in windows.Values)
+        {
+            if (!window.Visible)
+                continue;
+
+            window.WindowRect = GUI.Window(window.ID, window.WindowRect, window.GUIFunc, string.Empty, WindowStyle);
+        }
+
+        if (Modal.Visible)
+            Modal.Draw();
+
+        if (DropdownHelper.Visible)
+            DropdownHelper.DrawDropdown();
+    }
+
+    private void Update()
+    {
+        foreach (var window in windows.Values)
+            window.Update();
+
+        if (Modal.Visible)
+            Modal.Update();
     }
 
     private void OnScreenSizeChanged(object sender, EventArgs e)
