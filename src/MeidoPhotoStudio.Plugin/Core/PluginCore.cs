@@ -111,52 +111,82 @@ public partial class PluginCore : MonoBehaviour
 
     private void Start()
     {
+        // Configuration
         var configRoot = Path.Combine(BepInEx.Paths.ConfigPath, Plugin.PluginName);
+        var presetsPath = Path.Combine(configRoot, "Presets");
+        var databasePath = Path.Combine(configRoot, "Database");
 
-        configuration = new(Path.Combine(configRoot, $"{Plugin.PluginName}.cfg"), false);
-
-        var translationConfiguration = new TranslationConfiguration(configuration);
-
-        Translation.Initialize(translationConfiguration.CurrentLanguage);
+        configuration = new ConfigFile(Path.Combine(configRoot, $"{Plugin.PluginName}.cfg"), false);
         inputConfiguration = new InputConfiguration(configuration);
 
-        inputPollingService = gameObject.AddComponent<InputPollingService>();
-        inputPollingService.AddInputHandler(new InputHandler(this, inputConfiguration, customMaidSceneService));
-        dragHandleClickHandler = gameObject.AddComponent<DragHandle.ClickHandler>();
-        dragHandleClickHandler.enabled = false;
-        gizmoClickHandler = gameObject.AddComponent<CustomGizmo.ClickHandler>();
-        gizmoClickHandler.enabled = false;
+        var translationConfiguration = new TranslationConfiguration(configuration);
+        var faceShapeKeyConfiguration = new FaceShapeKeyConfiguration(configuration);
+        var dragHandleConfiguration = new DragHandleConfiguration(configuration);
+        var bodyShapeKeyConfiguration = new BodyShapeKeyConfiguration(configuration);
+        var menuPropsConfiguration = new MenuPropsConfiguration(configuration);
+        var autoSaveConfiguration = new AutoSaveConfiguration(configuration);
+        var uiConfiguration = new UIConfiguration(configuration);
+
+        // Translation
+        Translation.Initialize(translationConfiguration.CurrentLanguage);
+
+        // Utilities
         screenSizeChecker = gameObject.AddComponent<ScreenSizeChecker>();
         screenSizeChecker.enabled = false;
 
         transformWatcher = gameObject.AddComponent<TransformWatcher>();
 
-        screenshotService = gameObject.AddComponent<ScreenshotService>();
-        screenshotService.PluginCore = this;
+        customMaidSceneService = new CustomMaidSceneService();
+
+        var tabSelectionController = new TabSelectionController();
+
+        // Input
+        inputPollingService = gameObject.AddComponent<InputPollingService>();
 
         inputRemapper = gameObject.AddComponent<InputRemapper>();
         inputRemapper.InputPollingService = inputPollingService;
 
+        inputPollingService.AddInputHandler(new InputHandler(this, inputConfiguration, customMaidSceneService));
+
+        // Screenshot
+        screenshotService = gameObject.AddComponent<ScreenshotService>();
+        screenshotService.PluginCore = this;
+
         AddPluginActiveInputHandler(new ScreenshotServiceInputHandler(screenshotService, inputConfiguration));
 
-        undoRedoService = new();
+        // UI Gizmos
+        dragHandleClickHandler = gameObject.AddComponent<DragHandle.ClickHandler>();
+        dragHandleClickHandler.enabled = false;
 
-        var dragHandleConfiguration = new DragHandleConfiguration(configuration);
-
-        AddPluginActiveInputHandler(new UndoRedoInputHandler(undoRedoService, inputConfiguration));
+        gizmoClickHandler = gameObject.AddComponent<CustomGizmo.ClickHandler>();
+        gizmoClickHandler.enabled = false;
 
         var generalDragHandleInputService = new GeneralDragHandleInputHandler(inputConfiguration);
 
         AddPluginActiveInputHandler(generalDragHandleInputService);
 
-        var tabSelectionController = new TabSelectionController();
+        // Undo/Redo
+        undoRedoService = new UndoRedoService();
 
-        characterRepository = new();
+        AddPluginActiveInputHandler(new UndoRedoInputHandler(undoRedoService, inputConfiguration));
 
+        // Characters
+        var gameBlendSetRepository = new GameBlendSetRepository();
+        var customBlendSetRepository = new CustomBlendSetRepository(Path.Combine(presetsPath, "Face Presets"));
+        var gameAnimationRepository = new GameAnimationRepository(databasePath);
+        var customAnimationRepository = new CustomAnimationRepository(Path.Combine(presetsPath, "Custom Poses"));
+        var customAnimationRepositorySorter = new CustomAnimationRepositorySorter(customAnimationRepository.RootCategoryName);
+
+        characterRepository = new CharacterRepository();
         editModeMaidService = new EditModeMaidService(customMaidSceneService, characterRepository);
         characterService = new CharacterService(customMaidSceneService, editModeMaidService, transformWatcher, undoRedoService);
 
         var characterSelectionController = new SelectionController<CharacterController>(characterService);
+        var facialExpressionBuilder = new FacialExpressionBuilder(faceShapeKeyConfiguration);
+        var faceShapekeyRangeConfiguration = new ShapeKeyRangeConfiguration(
+            new ShapeKeyRangeSerializer(Path.Combine(databasePath, "face_shapekey_range.json")));
+
+        var bodyShapeKeyRangeConfiguration = new ShapeKeyRangeConfiguration(new ShapeKeyRangeSerializer(Path.Combine(databasePath, "body_shapekey_range.json")));
 
         AddPluginActiveInputHandler(new CharacterDressingCycler(characterService, inputConfiguration));
 
@@ -165,7 +195,6 @@ public partial class PluginCore : MonoBehaviour
         AddPluginActiveInputHandler(gravityDragHandleInputService);
 
         var gravityDragHandleService = new GravityDragHandleService(gravityDragHandleInputService, characterService);
-
         var globalGravityService = new GlobalGravityService(characterService);
 
         var characterDragHandleInputService = new CharacterDragHandleInputService(
@@ -200,46 +229,39 @@ public partial class PluginCore : MonoBehaviour
             CubeEnabled = dragHandleConfiguration.CharacterTransformCube.Value,
         };
 
-        var presetsPath = Path.Combine(configRoot, "Presets");
-        var databasePath = Path.Combine(configRoot, "Database");
-        var customPosePath = Path.Combine(presetsPath, "Custom Poses");
-        var customBlendSetPath = Path.Combine(presetsPath, "Face Presets");
-        var customHandPresetPath = Path.Combine(presetsPath, "Hand Presets");
+        AddPluginActiveInputHandler(new AnimationCycler(
+            characterService,
+            new AnimationCyclingService(
+                characterService, characterUndoRedoService, gameAnimationRepository, customAnimationRepository, customAnimationRepositorySorter),
+            inputConfiguration));
 
-        var faceShapeKeyConfiguration = new FaceShapeKeyConfiguration(configuration);
-        var facialExpressionBuilder = new FacialExpressionBuilder(faceShapeKeyConfiguration);
+        // Message
+        messageWindowManager = new MessageWindowManager();
 
-        var faceShapekeyRangeConfiguration = new ShapeKeyRangeConfiguration(
-            new ShapeKeyRangeSerializer(Path.Combine(databasePath, "face_shapekey_range.json")));
+        // Camera
+        cameraController = new CameraController(customMaidSceneService);
 
-        var bodyShapeKeyConfiguration = new BodyShapeKeyConfiguration(configuration);
-        var bodyShapeKeyRangeConfiguration = new ShapeKeyRangeConfiguration(new ShapeKeyRangeSerializer(Path.Combine(databasePath, "body_shapekey_range.json")));
-
-        messageWindowManager = new();
-
-        // TODO: Game hangs when first initializing. This happened before too but was hidden because MPS was initialized
-        // while the game was starting up so you don't really notice.
-        backgroundRepository = new BackgroundRepository();
-        backgroundService = new BackgroundService(backgroundRepository);
-        backgroundDragHandleService = new(generalDragHandleInputService, backgroundService);
-
-        lightRepository = new LightRepository(transformWatcher);
-
-        var lightSelectionController = new SelectionController<LightController>(lightRepository);
-
-        // TODO: This reference is not used anywhere else.
-        var lightDragHandleRepository = new LightDragHandleRepository(
-            generalDragHandleInputService, lightRepository, lightSelectionController, tabSelectionController);
-
-        cameraController = new(customMaidSceneService);
-
-        cameraSpeedController = new();
-        cameraSaveSlotController = new(cameraController);
+        cameraSaveSlotController = new CameraSaveSlotController(cameraController);
+        cameraSpeedController = new CameraSpeedController();
 
         AddPluginActiveInputHandler(
             new CameraInputHandler(
                 cameraController, cameraSpeedController, cameraSaveSlotController, inputConfiguration));
 
+        // Backgrounds
+        backgroundRepository = new BackgroundRepository();
+        backgroundService = new BackgroundService(backgroundRepository);
+        backgroundDragHandleService = new BackgroundDragHandleService(generalDragHandleInputService, backgroundService);
+
+        // Lights
+        lightRepository = new LightRepository(transformWatcher);
+
+        var lightSelectionController = new SelectionController<LightController>(lightRepository);
+
+        _ = new LightDragHandleRepository(
+            generalDragHandleInputService, lightRepository, lightSelectionController, tabSelectionController);
+
+        // Effects
         bloomController = new BloomController(GameMain.Instance.MainCamera.camera);
         depthOfFieldController = new DepthOfFieldController(GameMain.Instance.MainCamera.camera);
         vignetteController = new VignetteController(GameMain.Instance.MainCamera.camera);
@@ -247,11 +269,20 @@ public partial class PluginCore : MonoBehaviour
         blurController = new BlurController(GameMain.Instance.MainCamera.camera);
         sepiaToneController = new SepiaToneController(GameMain.Instance.MainCamera.camera);
 
-        propService = new(transformWatcher);
+        // Props
+        var gamePropRepository = new PhotoBgPropRepository();
+        var deskPropRepository = new DeskPropRepository();
+        var otherPropRepository = new OtherPropRepository(backgroundRepository);
+        var backgroundPropRepository = new BackgroundPropRepository(backgroundRepository);
+        var myRoomPropRepository = new MyRoomPropRepository();
+        var menuPropRepository = new MenuPropRepository(
+            menuPropsConfiguration,
+            new MenuFileCacheSerializer(Path.Combine(BepInEx.Paths.ConfigPath, Plugin.PluginName)));
 
-        var propAttachmentService = new PropAttachmentService(characterService, propService);
+        propService = new PropService(transformWatcher);
 
         var propSelectionController = new SelectionController<PropController>(propService);
+
         var propDragHandleService = new PropDragHandleService(
             generalDragHandleInputService,
             propService,
@@ -261,25 +292,7 @@ public partial class PluginCore : MonoBehaviour
             SmallHandle = dragHandleConfiguration.SmallTransformCube.Value,
         };
 
-        var gamePropRepository = new PhotoBgPropRepository();
-        var deskPropRepository = new DeskPropRepository();
-        var otherPropRepository = new OtherPropRepository(backgroundRepository);
-        var backgroundPropRepository = new BackgroundPropRepository(backgroundRepository);
-        var myRoomPropRepository = new MyRoomPropRepository();
-
-        var menuPropsConfiguration = new MenuPropsConfiguration(configuration);
-        var menuPropRepository = new MenuPropRepository(
-            menuPropsConfiguration,
-            new MenuFileCacheSerializer(Path.Combine(BepInEx.Paths.ConfigPath, Plugin.PluginName)));
-
-        var gameAnimationRepository = new GameAnimationRepository(databasePath);
-        var customAnimationRepository = new CustomAnimationRepository(customPosePath);
-
-        var gameBlendSetRepository = new GameBlendSetRepository();
-        var customBlendSetRepository = new CustomBlendSetRepository(customBlendSetPath);
-
-        var transformSchemaBuilder = new TransformSchemaBuilder();
-        var propModelSchemaBuilder = new PropModelSchemaBuilder();
+        var propAttachmentService = new PropAttachmentService(characterService, propService);
 
         var propSchemaMapper = new PropSchemaToPropModelMapper(
             backgroundPropRepository,
@@ -289,11 +302,16 @@ public partial class PluginCore : MonoBehaviour
             menuPropRepository,
             otherPropRepository);
 
+        var propModelSchemaBuilder = new PropModelSchemaBuilder();
+
         favouritePropRepository = new FavouritePropRepository(
             new FavouritePropListSerializer(
                 Path.Combine(BepInEx.Paths.ConfigPath, Plugin.PluginName),
                 propModelSchemaBuilder,
                 propSchemaMapper));
+
+        // Scenes
+        var transformSchemaBuilder = new TransformSchemaBuilder();
 
         // TODO: This is kinda stupid tbf. Maybe look into writing a code generator and attributes to create these
         // "schema" things instead of manually building it.
@@ -373,9 +391,22 @@ public partial class PluginCore : MonoBehaviour
                 propSchemaMapper));
 
         var sceneSerializer = new WrappedSerializer(new(), new());
+        var quickSaveService = new QuickSaveService(configRoot, characterService, sceneSchemaBuilder, sceneSerializer, sceneLoader);
+
+        AddPluginActiveInputHandler(new QuickSaveInputHandler(
+            quickSaveService,
+            inputConfiguration));
 
         var sceneRepository = new SceneRepository(Path.Combine(configRoot, "Scenes"), sceneSerializer);
 
+        autoSaveService = new AutoSaveService(characterService, sceneRepository, screenshotService, sceneSchemaBuilder)
+        {
+            Enabled = autoSaveConfiguration.Enabled.Value,
+            AutoSaveInterval = autoSaveConfiguration.Frequency.Value,
+            Slots = autoSaveConfiguration.Slots.Value,
+        };
+
+        // UI
         var sceneBrowser = new SceneBrowserWindow(
             sceneRepository,
             new(sceneRepository, screenshotService, sceneSchemaBuilder, sceneSerializer, sceneLoader),
@@ -386,34 +417,9 @@ public partial class PluginCore : MonoBehaviour
 
         AddPluginActiveInputHandler(new SceneBrowserWindowInputHandler(sceneBrowser, inputConfiguration));
 
-        var quickSaveService = new QuickSaveService(configRoot, characterService, sceneSchemaBuilder, sceneSerializer, sceneLoader);
-
-        AddPluginActiveInputHandler(new QuickSaveInputHandler(
-            quickSaveService,
-            inputConfiguration));
-
-        var autoSaveConfiguration = new AutoSaveConfiguration(configuration);
-
-        autoSaveService = new(characterService, sceneRepository, screenshotService, sceneSchemaBuilder)
-        {
-            Enabled = autoSaveConfiguration.Enabled.Value,
-            AutoSaveInterval = autoSaveConfiguration.Frequency.Value,
-            Slots = autoSaveConfiguration.Slots.Value,
-        };
-
         var messageWindow = new MessageWindow(messageWindowManager, inputRemapper);
 
         AddPluginActiveInputHandler(new MessageWindow.InputHandler(messageWindow, inputConfiguration));
-
-        var customAnimationRepositorySorter = new CustomAnimationRepositorySorter(customAnimationRepository.RootCategoryName);
-
-        AddPluginActiveInputHandler(new AnimationCycler(
-            characterService,
-            new AnimationCyclingService(
-                characterService, characterUndoRedoService, gameAnimationRepository, customAnimationRepository, customAnimationRepositorySorter),
-            inputConfiguration));
-
-        var uiConfiguration = new UIConfiguration(configuration);
 
         var settingsWindow = new SettingsWindow(inputRemapper)
         {
@@ -447,7 +453,7 @@ public partial class PluginCore : MonoBehaviour
                         new DressingPane(characterSelectionController),
                         new GravityControlPane(gravityDragHandleService, globalGravityService, characterSelectionController),
                         new AttachedAccessoryPane(menuPropRepository, characterSelectionController),
-                        new HandPresetSelectorPane(new(customHandPresetPath), characterUndoRedoService, characterSelectionController),
+                        new HandPresetSelectorPane(new(Path.Combine(presetsPath, "Hand Presets")), characterUndoRedoService, characterSelectionController),
                         new CopyPosePane(characterService, characterUndoRedoService, characterSelectionController),
                     ],
                     [CharacterPane.CharacterWindowTab.Face] =
@@ -507,12 +513,11 @@ public partial class PluginCore : MonoBehaviour
             },
         };
 
-        // TODO: lol
         settingsWindow[SettingsWindow.SettingType.UI] = new UISettingsPane(uiConfiguration, mainWindow);
 
         AddPluginActiveInputHandler(new MainWindow.InputHandler(mainWindow, inputConfiguration));
 
-        windowManager = new()
+        windowManager = new WindowManager()
         {
             [WindowManager.Window.Main] = mainWindow,
             [WindowManager.Window.Message] = messageWindow,
