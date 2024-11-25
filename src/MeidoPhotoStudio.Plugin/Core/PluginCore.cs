@@ -45,7 +45,6 @@ public partial class PluginCore : MonoBehaviour
     private ScreenshotService screenshotService;
     private CustomMaidSceneService customMaidSceneService;
     private InputPollingService inputPollingService;
-    private bool initialized;
     private InputConfiguration inputConfiguration;
     private InputRemapper inputRemapper;
     private bool active;
@@ -89,8 +88,6 @@ public partial class PluginCore : MonoBehaviour
     {
         DontDestroyOnLoad(this);
 
-        customMaidSceneService = new();
-
         SceneManager.sceneUnloaded += OnSceneUnloaded;
     }
 
@@ -131,45 +128,6 @@ public partial class PluginCore : MonoBehaviour
         gizmoClickHandler.enabled = false;
         screenSizeChecker = gameObject.AddComponent<ScreenSizeChecker>();
         screenSizeChecker.enabled = false;
-
-        Initialize();
-    }
-
-    private void Update()
-    {
-        if (!customMaidSceneService.ValidScene)
-            return;
-
-        if (!active)
-            return;
-
-        windowManager.Update();
-
-        if (Modal.Visible)
-            Modal.Update();
-    }
-
-    private void OnGUI()
-    {
-        if (!uiActive)
-            return;
-
-        windowManager.DrawWindows();
-
-        if (DropdownHelper.Visible)
-            DropdownHelper.DrawDropdown();
-
-        if (Modal.Visible)
-            Modal.Draw();
-    }
-
-    // TODO: Clean this up.
-    private void Initialize()
-    {
-        if (initialized)
-            return;
-
-        initialized = true;
 
         transformWatcher = gameObject.AddComponent<TransformWatcher>();
 
@@ -242,7 +200,6 @@ public partial class PluginCore : MonoBehaviour
             CubeEnabled = dragHandleConfiguration.CharacterTransformCube.Value,
         };
 
-        var configRoot = Path.Combine(BepInEx.Paths.ConfigPath, Plugin.PluginName);
         var presetsPath = Path.Combine(configRoot, "Presets");
         var databasePath = Path.Combine(configRoot, "Database");
         var customPosePath = Path.Combine(presetsPath, "Custom Poses");
@@ -571,13 +528,38 @@ public partial class PluginCore : MonoBehaviour
             inputPollingService.AddInputHandler(new PluginActiveInputHandler<T>(this, inputHandler));
     }
 
+    private void Update()
+    {
+        if (!customMaidSceneService.ValidScene)
+            return;
+
+        if (!active)
+            return;
+
+        windowManager.Update();
+
+        if (Modal.Visible)
+            Modal.Update();
+    }
+
+    private void OnGUI()
+    {
+        if (!uiActive)
+            return;
+
+        windowManager.DrawWindows();
+
+        if (DropdownHelper.Visible)
+            DropdownHelper.DrawDropdown();
+
+        if (Modal.Visible)
+            Modal.Draw();
+    }
+
     private void Activate()
     {
         if (!GameMain.Instance.SysDlg.IsDecided)
             return;
-
-        if (!initialized)
-            Initialize();
 
         dragHandleClickHandler.enabled = true;
         transformWatcher.enabled = true;
