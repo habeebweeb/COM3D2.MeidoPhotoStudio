@@ -4,7 +4,7 @@ using MeidoPhotoStudio.Plugin.Framework.Service;
 
 namespace MeidoPhotoStudio.Plugin.Core.Character;
 
-public class EditModeMaidService
+public class EditModeMaidService : IActivateable
 {
     private readonly CustomMaidSceneService customMaidSceneService;
     private readonly CharacterRepository characterRepository;
@@ -63,7 +63,7 @@ public class EditModeMaidService
         }
     }
 
-    internal void Activate()
+    void IActivateable.Activate()
     {
         if (!EditMode)
             return;
@@ -72,7 +72,7 @@ public class EditModeMaidService
         IntegrateWithOkButton();
     }
 
-    internal void Deactivate()
+    void IActivateable.Deactivate()
     {
         if (!EditMode)
             return;

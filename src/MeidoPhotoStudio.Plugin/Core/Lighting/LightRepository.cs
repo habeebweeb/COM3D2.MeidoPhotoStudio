@@ -1,6 +1,6 @@
 namespace MeidoPhotoStudio.Plugin.Core.Lighting;
 
-public class LightRepository(TransformWatcher transformWatcher) : IEnumerable<LightController>, IIndexableCollection<LightController>
+public class LightRepository(TransformWatcher transformWatcher) : IEnumerable<LightController>, IIndexableCollection<LightController>, IActivateable
 {
     private static GameObject lightParent;
 
@@ -121,6 +121,12 @@ public class LightRepository(TransformWatcher transformWatcher) : IEnumerable<Li
 
     IEnumerator IEnumerable.GetEnumerator() =>
         GetEnumerator();
+
+    void IActivateable.Activate() =>
+        AddLight(GameMain.Instance.MainLight.GetComponent<Light>());
+
+    void IActivateable.Deactivate() =>
+        RemoveAllLights();
 
     internal static void DestroyParent()
     {

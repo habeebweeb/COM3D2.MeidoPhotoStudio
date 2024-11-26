@@ -4,7 +4,7 @@ using MyRoomCustom;
 
 namespace MeidoPhotoStudio.Plugin.Core.Database.Background;
 
-public class BackgroundRepository : IEnumerable<BackgroundModel>
+public class BackgroundRepository : IEnumerable<BackgroundModel>, IActivateable
 {
     private static ReadOnlyCollection<BackgroundModel> com3d2BackgroundsCache;
     private static ReadOnlyCollection<BackgroundModel> cm3d2BackgroundsCache;
@@ -44,6 +44,13 @@ public class BackgroundRepository : IEnumerable<BackgroundModel>
         }
 
         return null;
+    }
+
+    void IActivateable.Activate() =>
+        Refresh();
+
+    void IActivateable.Deactivate()
+    {
     }
 
     private static CsvParser OpenCsvParser(string neiFile, AFileSystemBase fileSystem)

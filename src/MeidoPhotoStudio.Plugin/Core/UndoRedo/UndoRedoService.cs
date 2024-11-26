@@ -1,6 +1,6 @@
 namespace MeidoPhotoStudio.Plugin.Core.UndoRedo;
 
-public class UndoRedoService
+public class UndoRedoService : IActivateable
 {
     private readonly Stack<IUndoRedo> undoStack = [];
     private readonly Stack<IUndoRedo> redoStack = [];
@@ -42,4 +42,11 @@ public class UndoRedoService
 
         undoStack.Push(redoStack.Pop());
     }
+
+    void IActivateable.Activate()
+    {
+    }
+
+    void IActivateable.Deactivate() =>
+        Clear();
 }

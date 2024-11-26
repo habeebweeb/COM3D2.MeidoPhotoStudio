@@ -3,7 +3,7 @@ using MeidoPhotoStudio.Plugin.Core.Database.Props.Menu;
 
 namespace MeidoPhotoStudio.Plugin.Core.Props;
 
-public class PropService(TransformWatcher transformWatcher) : IEnumerable<PropController>, IIndexableCollection<PropController>
+public class PropService(TransformWatcher transformWatcher) : IEnumerable<PropController>, IIndexableCollection<PropController>, IActivateable
 {
     private readonly List<PropController> propControllers = [];
     private readonly TransformWatcher transformWatcher =
@@ -133,6 +133,13 @@ public class PropService(TransformWatcher transformWatcher) : IEnumerable<PropCo
 
     IEnumerator IEnumerable.GetEnumerator() =>
         GetEnumerator();
+
+    void IActivateable.Activate()
+    {
+    }
+
+    void IActivateable.Deactivate() =>
+        Clear();
 
     private GameObject InstantiateMenuProp(
         MenuFilePropModel menuFilePropModel, out ShapeKeyController shapeKeyController)

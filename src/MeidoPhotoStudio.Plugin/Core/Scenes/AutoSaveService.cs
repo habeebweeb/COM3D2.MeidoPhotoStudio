@@ -7,7 +7,7 @@ using MeidoPhotoStudio.Plugin.Framework.Service;
 
 namespace MeidoPhotoStudio.Plugin.Core.Scenes;
 
-public class AutoSaveService
+public class AutoSaveService : IActivateable
 {
     private const string AutoSaveCategoryName = "autosave";
 
@@ -103,13 +103,13 @@ public class AutoSaveService
     private SceneModel CurrentSceneModel =>
         scenes[currentSlot];
 
-    internal void Activate()
+    void IActivateable.Activate()
     {
         active = true;
         StartAutoSaveTimer();
     }
 
-    internal void Deactivate()
+    void IActivateable.Deactivate()
     {
         active = false;
         StopAutoSaveTimer();

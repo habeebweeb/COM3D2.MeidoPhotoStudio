@@ -2,7 +2,7 @@ using System.ComponentModel;
 
 namespace MeidoPhotoStudio.Plugin.Core.Effects;
 
-public abstract class EffectControllerBase : INotifyPropertyChanged
+public abstract class EffectControllerBase : INotifyPropertyChanged, IActivateable
 {
     private bool active;
 
@@ -21,10 +21,16 @@ public abstract class EffectControllerBase : INotifyPropertyChanged
 
     public abstract void Reset();
 
-    internal virtual void Activate() =>
+    void IActivateable.Activate() =>
+        Activate();
+
+    void IActivateable.Deactivate() =>
+        Deactivate();
+
+    protected virtual void Activate() =>
         Active = false;
 
-    internal virtual void Deactivate() =>
+    protected virtual void Deactivate() =>
         Active = false;
 
     protected void RaisePropertyChanged(string name)

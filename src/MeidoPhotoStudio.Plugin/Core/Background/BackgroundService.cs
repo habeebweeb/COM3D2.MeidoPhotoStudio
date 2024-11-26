@@ -6,7 +6,7 @@ using MeidoPhotoStudio.Plugin.Core.Database.Background;
 
 namespace MeidoPhotoStudio.Plugin.Core.Background;
 
-public class BackgroundService : INotifyPropertyChanged
+public class BackgroundService : INotifyPropertyChanged, IActivateable
 {
     private static bool internalBackgroundChange;
     private readonly BackgroundRepository backgroundRepository;
@@ -108,6 +108,13 @@ public class BackgroundService : INotifyPropertyChanged
         }
 
         internalBackgroundChange = false;
+    }
+
+    void IActivateable.Activate() =>
+        ChangeBackground(DefaultBackgroundModel);
+
+    void IActivateable.Deactivate()
+    {
     }
 
     [HarmonyPrefix]

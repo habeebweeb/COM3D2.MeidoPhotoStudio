@@ -4,7 +4,7 @@ using Alignment = NGUIText.Alignment;
 
 namespace MeidoPhotoStudio.Plugin.Core.Message;
 
-public class MessageWindowManager : INotifyPropertyChanged
+public class MessageWindowManager : INotifyPropertyChanged, IActivateable
 {
     public const string Header = "TEXTBOX";
 
@@ -126,7 +126,7 @@ public class MessageWindowManager : INotifyPropertyChanged
         ShowingMessage = false;
     }
 
-    internal void Activate()
+    void IActivateable.Activate()
     {
         if (Product.supportMultiLanguage)
             subtitlesDisplayPanel.SetActive(false);
@@ -140,7 +140,7 @@ public class MessageWindowManager : INotifyPropertyChanged
         CloseMessagePanel();
     }
 
-    internal void Deactivate()
+    void IActivateable.Deactivate()
     {
         if (Product.supportMultiLanguage)
         {

@@ -100,14 +100,14 @@ public class BloomController(UnityEngine.Camera camera) : EffectControllerBase
         GameMain.Instance.CMSystem.BloomValue = initialGameBloomValue;
     }
 
-    internal override void Activate()
+    protected override void Activate()
     {
         base.Activate();
 
         backupBloomValue = initialGameBloomValue = GameMain.Instance.CMSystem.BloomValue;
     }
 
-    internal override void Deactivate()
+    protected override void Deactivate()
     {
         base.Deactivate();
 

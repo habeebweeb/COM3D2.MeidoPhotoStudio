@@ -3,7 +3,7 @@ using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
-public class WindowManager : MonoBehaviour
+public class WindowManager : MonoBehaviour, IActivateable
 {
     private static GUIStyle windowStyle;
 
@@ -42,16 +42,19 @@ public class WindowManager : MonoBehaviour
         }
     }
 
-    internal void Activate()
+    void IActivateable.Activate()
     {
         foreach (var window in windows.Values)
             window.Activate();
     }
 
-    internal void Deactivate()
+    void IActivateable.Deactivate()
     {
         foreach (var window in windows.Values)
             window.Deactivate();
+
+        DropdownHelper.CloseDropdown();
+        Modal.Close();
     }
 
     private void Awake() =>

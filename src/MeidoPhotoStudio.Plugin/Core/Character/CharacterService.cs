@@ -11,7 +11,7 @@ public class CharacterService(
     EditModeMaidService editModeMaidService,
     TransformWatcher transformWatcher,
     UndoRedoService undoRedoService)
-    : IEnumerable<CharacterController>, IIndexableCollection<CharacterController>
+    : IEnumerable<CharacterController>, IIndexableCollection<CharacterController>, IActivateable
 {
     private const int MaidCount = 12;
 
@@ -223,7 +223,7 @@ public class CharacterService(
         }
     }
 
-    internal void Activate()
+    void IActivateable.Activate()
     {
         if (customMaidSceneService.EditScene)
             Call(new CharacterModel[] { editModeMaidService.OriginalEditingCharacter });
@@ -231,7 +231,7 @@ public class CharacterService(
             GameMain.Instance.CharacterMgr.DeactivateMaid(0);
     }
 
-    internal void Deactivate()
+    void IActivateable.Deactivate()
     {
         if (Busy)
             return;

@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 
 namespace MeidoPhotoStudio.Plugin.Core.Database.Character;
 
-public class CharacterRepository : IEnumerable<CharacterModel>
+public class CharacterRepository : IEnumerable<CharacterModel>, IActivateable
 {
     private ReadOnlyCollection<CharacterModel> characters;
 
@@ -30,11 +30,15 @@ public class CharacterRepository : IEnumerable<CharacterModel>
     public IEnumerator<CharacterModel> GetEnumerator() =>
         Characters.GetEnumerator();
 
-    public void Refresh() =>
-        characters = Initialize();
-
     IEnumerator IEnumerable.GetEnumerator() =>
         GetEnumerator();
+
+    void IActivateable.Activate() =>
+        characters = Initialize();
+
+    void IActivateable.Deactivate()
+    {
+    }
 
     private static ReadOnlyCollection<CharacterModel> Initialize() =>
         GameMain.Instance.CharacterMgr.GetStockMaidList()

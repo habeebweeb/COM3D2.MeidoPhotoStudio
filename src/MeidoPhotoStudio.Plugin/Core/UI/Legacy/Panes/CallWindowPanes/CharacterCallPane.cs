@@ -180,8 +180,6 @@ public class CharacterCallPane : BasePane, IVirtualListHandler
 
     public override void Activate()
     {
-        characterCallController.Activate();
-
         charactersListScrollPosition = Vector2.zero;
         activeCharactersListScrollPosition = Vector2.zero;
         searchBar.Value = string.Empty;

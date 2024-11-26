@@ -7,7 +7,7 @@ using MeidoPhotoStudio.Plugin.Framework.Service;
 
 namespace MeidoPhotoStudio.Plugin.Core.Character;
 
-public class CallController : IEnumerable<CharacterModel>, INotifyPropertyChanged
+public class CallController : IEnumerable<CharacterModel>, INotifyPropertyChanged, IActivateable
 {
     private static readonly IComparer<CharacterModel> DefaultComparer =
         ComparisonComparer<CharacterModel>.Create(CompareDefault);
@@ -210,7 +210,7 @@ public class CallController : IEnumerable<CharacterModel>, INotifyPropertyChange
         UpdateCharacterList();
     }
 
-    internal void Activate()
+    void IActivateable.Activate()
     {
         ClearSelected();
 
@@ -234,6 +234,10 @@ public class CallController : IEnumerable<CharacterModel>, INotifyPropertyChange
         RaisePropertyChanged(nameof(Sort));
         RaisePropertyChanged(nameof(Descending));
         RaisePropertyChanged(nameof(ActiveOnly));
+    }
+
+    void IActivateable.Deactivate()
+    {
     }
 
     private static int CompareDefault(CharacterModel a, CharacterModel b) =>

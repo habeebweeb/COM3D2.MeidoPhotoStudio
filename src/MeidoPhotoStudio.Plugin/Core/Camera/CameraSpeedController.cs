@@ -1,6 +1,6 @@
 namespace MeidoPhotoStudio.Plugin.Core.Camera;
 
-public class CameraSpeedController
+public class CameraSpeedController : IActivateable
 {
     private readonly float fastMoveSpeed = 0.1f;
     private readonly float fastZoomSpeed = 3f;
@@ -78,6 +78,10 @@ public class CameraSpeedController
         UltimateOrbitCamera.zoomSpeed = defaultZoomSpeed;
     }
 
-    internal void Deactivate() =>
+    void IActivateable.Activate()
+    {
+    }
+
+    void IActivateable.Deactivate() =>
         ApplyDefaultSpeed();
 }

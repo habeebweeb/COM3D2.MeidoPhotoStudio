@@ -3,7 +3,7 @@ using MeidoPhotoStudio.Plugin.Framework.Service;
 
 namespace MeidoPhotoStudio.Plugin.Core.Camera;
 
-public class CameraController(CustomMaidSceneService customMaidSceneService)
+public class CameraController(CustomMaidSceneService customMaidSceneService) : IActivateable
 {
     private readonly CustomMaidSceneService customMaidSceneService = customMaidSceneService
         ?? throw new ArgumentNullException(nameof(customMaidSceneService));
@@ -29,7 +29,7 @@ public class CameraController(CustomMaidSceneService customMaidSceneService)
         CameraChange?.Invoke(this, EventArgs.Empty);
     }
 
-    internal void Activate()
+    void IActivateable.Activate()
     {
         if (MainCamera.m_UOCamera)
             MainCamera.m_UOCamera.enabled = true;
@@ -40,7 +40,7 @@ public class CameraController(CustomMaidSceneService customMaidSceneService)
         MainCamera.ForceCalcNearClip();
     }
 
-    internal void Deactivate()
+    void IActivateable.Deactivate()
     {
         MainCamera.camera.backgroundColor = Color.black;
 

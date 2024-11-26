@@ -3,7 +3,7 @@ using MeidoPhotoStudio.Plugin.Framework.Extensions;
 
 namespace MeidoPhotoStudio.Plugin.Core.Camera;
 
-public class CameraSaveSlotController : IEnumerable<CameraInfo>
+public class CameraSaveSlotController : IEnumerable<CameraInfo>, IActivateable
 {
     private readonly CameraInfo defaultCameraInfo = new(new(0f, 0.9f, 0f), Quaternion.Euler(10f, 180f, 0f), 3f, 35f);
     private readonly CameraController cameraController;
@@ -56,10 +56,14 @@ public class CameraSaveSlotController : IEnumerable<CameraInfo>
         }
     }
 
-    public void Activate()
+    void IActivateable.Activate()
     {
         temporaryCameraInfo = defaultCameraInfo;
         cameraInfoSelectList = new(Enumerable.Repeat(defaultCameraInfo, cameraInfoSelectList.Count).ToArray());
+    }
+
+    void IActivateable.Deactivate()
+    {
     }
 
     public void LoadCameraSlot(int index)

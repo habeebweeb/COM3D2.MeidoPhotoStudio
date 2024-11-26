@@ -24,7 +24,6 @@ using MeidoPhotoStudio.Plugin.Framework.Input;
 using MeidoPhotoStudio.Plugin.Framework.Menu;
 using MeidoPhotoStudio.Plugin.Framework.Service;
 using MeidoPhotoStudio.Plugin.Framework.UI;
-using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 using MeidoPhotoStudio.Plugin.Framework.UIGizmo;
 using UnityEngine.SceneManagement;
 
@@ -34,40 +33,17 @@ namespace MeidoPhotoStudio.Plugin.Core;
 public partial class PluginCore : MonoBehaviour
 {
     private readonly IconCache iconCache = new();
+    private readonly List<IActivateable> activateables = [];
 
     private ConfigFile configuration;
     private WindowManager windowManager;
-    private MessageWindowManager messageWindowManager;
-    private PropService propService;
-    private CameraController cameraController;
-    private CameraSpeedController cameraSpeedController;
-    private CameraSaveSlotController cameraSaveSlotController;
-    private ScreenshotService screenshotService;
     private CustomMaidSceneService customMaidSceneService;
-    private InputPollingService inputPollingService;
-    private InputConfiguration inputConfiguration;
-    private InputRemapper inputRemapper;
     private bool active;
-    private BackgroundRepository backgroundRepository;
-    private BackgroundService backgroundService;
-    private BackgroundDragHandleService backgroundDragHandleService;
-    private LightRepository lightRepository;
     private CharacterService characterService;
-    private EditModeMaidService editModeMaidService;
     private DragHandle.ClickHandler dragHandleClickHandler;
     private CustomGizmo.ClickHandler gizmoClickHandler;
-    private CharacterRepository characterRepository;
-    private BloomController bloomController;
-    private DepthOfFieldController depthOfFieldController;
-    private VignetteController vignetteController;
-    private FogController fogController;
-    private BlurController blurController;
-    private SepiaToneController sepiaToneController;
     private TransformWatcher transformWatcher;
-    private UndoRedoService undoRedoService;
     private ScreenSizeChecker screenSizeChecker;
-    private FavouritePropRepository favouritePropRepository;
-    private AutoSaveService autoSaveService;
 
     private void Awake()
     {
@@ -102,7 +78,8 @@ public partial class PluginCore : MonoBehaviour
         var databasePath = Path.Combine(configRoot, "Database");
 
         configuration = new ConfigFile(Path.Combine(configRoot, $"{Plugin.PluginName}.cfg"), false);
-        inputConfiguration = new InputConfiguration(configuration);
+
+        var inputConfiguration = new InputConfiguration(configuration);
 
         var translationConfiguration = new TranslationConfiguration(configuration);
         var faceShapeKeyConfiguration = new FaceShapeKeyConfiguration(configuration);
@@ -126,9 +103,9 @@ public partial class PluginCore : MonoBehaviour
         var tabSelectionController = new TabSelectionController();
 
         // Input
-        inputPollingService = gameObject.AddComponent<InputPollingService>();
+        var inputPollingService = gameObject.AddComponent<InputPollingService>();
 
-        inputRemapper = gameObject.AddComponent<InputRemapper>();
+        var inputRemapper = gameObject.AddComponent<InputRemapper>();
         inputRemapper.InputPollingService = inputPollingService;
 
         inputPollingService.AddInputHandler(new InputHandler(this, inputConfiguration, customMaidSceneService));
@@ -148,13 +125,14 @@ public partial class PluginCore : MonoBehaviour
         AddPluginActiveInputHandler(generalDragHandleInputService);
 
         // Screenshot
-        screenshotService = gameObject.AddComponent<ScreenshotService>();
+        var screenshotService = gameObject.AddComponent<ScreenshotService>();
+
         screenshotService.WindowManager = windowManager;
 
         AddPluginActiveInputHandler(new ScreenshotServiceInputHandler(screenshotService, inputConfiguration));
 
         // Undo/Redo
-        undoRedoService = new UndoRedoService();
+        var undoRedoService = new UndoRedoService();
 
         AddPluginActiveInputHandler(new UndoRedoInputHandler(undoRedoService, inputConfiguration));
 
@@ -165,10 +143,13 @@ public partial class PluginCore : MonoBehaviour
         var customAnimationRepository = new CustomAnimationRepository(Path.Combine(presetsPath, "Custom Poses"));
         var customAnimationRepositorySorter = new CustomAnimationRepositorySorter(customAnimationRepository.RootCategoryName);
 
-        characterRepository = new CharacterRepository();
-        editModeMaidService = new EditModeMaidService(customMaidSceneService, characterRepository);
-        characterService = new CharacterService(customMaidSceneService, editModeMaidService, transformWatcher, undoRedoService);
+        var characterRepository = new CharacterRepository();
+        var editModeMaidService = new EditModeMaidService(customMaidSceneService, characterRepository);
 
+        characterService = new CharacterService(customMaidSceneService, editModeMaidService, transformWatcher, undoRedoService);
+        characterService.CallingCharacters += OnCallingCharacters;
+
+        var characterCallController = new CallController(characterRepository, characterService, customMaidSceneService, editModeMaidService);
         var characterSelectionController = new SelectionController<CharacterController>(characterService);
         var facialExpressionBuilder = new FacialExpressionBuilder(faceShapeKeyConfiguration);
         var faceShapekeyRangeConfiguration = new ShapeKeyRangeConfiguration(
@@ -224,25 +205,25 @@ public partial class PluginCore : MonoBehaviour
             inputConfiguration));
 
         // Message
-        messageWindowManager = new MessageWindowManager();
+        var messageWindowManager = new MessageWindowManager();
 
         // Camera
-        cameraController = new CameraController(customMaidSceneService);
+        var cameraController = new CameraController(customMaidSceneService);
 
-        cameraSaveSlotController = new CameraSaveSlotController(cameraController);
-        cameraSpeedController = new CameraSpeedController();
+        var cameraSaveSlotController = new CameraSaveSlotController(cameraController);
+        var cameraSpeedController = new CameraSpeedController();
 
         AddPluginActiveInputHandler(
             new CameraInputHandler(
                 cameraController, cameraSpeedController, cameraSaveSlotController, inputConfiguration));
 
         // Backgrounds
-        backgroundRepository = new BackgroundRepository();
-        backgroundService = new BackgroundService(backgroundRepository);
-        backgroundDragHandleService = new BackgroundDragHandleService(generalDragHandleInputService, backgroundService);
+        var backgroundRepository = new BackgroundRepository();
+        var backgroundService = new BackgroundService(backgroundRepository);
+        var backgroundDragHandleService = new BackgroundDragHandleService(generalDragHandleInputService, backgroundService);
 
         // Lights
-        lightRepository = new LightRepository(transformWatcher);
+        var lightRepository = new LightRepository(transformWatcher);
 
         var lightSelectionController = new SelectionController<LightController>(lightRepository);
 
@@ -250,12 +231,12 @@ public partial class PluginCore : MonoBehaviour
             generalDragHandleInputService, lightRepository, lightSelectionController, tabSelectionController);
 
         // Effects
-        bloomController = new BloomController(GameMain.Instance.MainCamera.camera);
-        depthOfFieldController = new DepthOfFieldController(GameMain.Instance.MainCamera.camera);
-        vignetteController = new VignetteController(GameMain.Instance.MainCamera.camera);
-        fogController = new FogController(GameMain.Instance.MainCamera.camera);
-        blurController = new BlurController(GameMain.Instance.MainCamera.camera);
-        sepiaToneController = new SepiaToneController(GameMain.Instance.MainCamera.camera);
+        var bloomController = new BloomController(GameMain.Instance.MainCamera.camera);
+        var depthOfFieldController = new DepthOfFieldController(GameMain.Instance.MainCamera.camera);
+        var vignetteController = new VignetteController(GameMain.Instance.MainCamera.camera);
+        var fogController = new FogController(GameMain.Instance.MainCamera.camera);
+        var blurController = new BlurController(GameMain.Instance.MainCamera.camera);
+        var sepiaToneController = new SepiaToneController(GameMain.Instance.MainCamera.camera);
 
         // Props
         var gamePropRepository = new PhotoBgPropRepository();
@@ -267,7 +248,7 @@ public partial class PluginCore : MonoBehaviour
             menuPropsConfiguration,
             new MenuFileCacheSerializer(Path.Combine(BepInEx.Paths.ConfigPath, Plugin.PluginName)));
 
-        propService = new PropService(transformWatcher);
+        var propService = new PropService(transformWatcher);
 
         var propSelectionController = new SelectionController<PropController>(propService);
 
@@ -292,7 +273,7 @@ public partial class PluginCore : MonoBehaviour
 
         var propModelSchemaBuilder = new PropModelSchemaBuilder();
 
-        favouritePropRepository = new FavouritePropRepository(
+        var favouritePropRepository = new FavouritePropRepository(
             new FavouritePropListSerializer(
                 Path.Combine(BepInEx.Paths.ConfigPath, Plugin.PluginName),
                 propModelSchemaBuilder,
@@ -387,7 +368,7 @@ public partial class PluginCore : MonoBehaviour
 
         var sceneRepository = new SceneRepository(Path.Combine(configRoot, "Scenes"), sceneSerializer);
 
-        autoSaveService = new AutoSaveService(characterService, sceneRepository, screenshotService, sceneSchemaBuilder)
+        var autoSaveService = new AutoSaveService(characterService, sceneRepository, screenshotService, sceneSchemaBuilder)
         {
             Enabled = autoSaveConfiguration.Enabled.Value,
             AutoSaveInterval = autoSaveConfiguration.Frequency.Value,
@@ -424,7 +405,7 @@ public partial class PluginCore : MonoBehaviour
             [MainWindow.Tab.Call] = new CallWindowPane()
             {
                 new CharacterPlacementPane(new(characterService)),
-                new CharacterCallPane(new(characterRepository, characterService, customMaidSceneService, editModeMaidService)),
+                new CharacterCallPane(characterCallController),
             },
             [MainWindow.Tab.Character] = new CharacterWindowPane()
             {
@@ -513,9 +494,48 @@ public partial class PluginCore : MonoBehaviour
         dragHandleClickHandler.WindowManager = windowManager;
         gizmoClickHandler.WindowManager = windowManager;
 
+        AddActivateable(cameraController);
+
+        AddActivateable(characterRepository);
+        AddActivateable(editModeMaidService);
+        AddActivateable(characterService);
+        AddActivateable(characterCallController);
+
+        AddActivateable(cameraSaveSlotController);
+        AddActivateable(cameraSpeedController);
+
+        AddActivateable(messageWindowManager);
+
+        AddActivateable(backgroundRepository);
+        AddActivateable(backgroundService);
+
+        AddActivateable(lightRepository);
+
+        AddActivateable(bloomController);
+        AddActivateable(depthOfFieldController);
+        AddActivateable(vignetteController);
+        AddActivateable(fogController);
+        AddActivateable(blurController);
+        AddActivateable(sepiaToneController);
+
+        AddActivateable(propService);
+        AddActivateable(favouritePropRepository);
+
+        AddActivateable(autoSaveService);
+
+        AddActivateable(windowManager);
+
         void AddPluginActiveInputHandler<T>(T inputHandler)
             where T : IInputHandler =>
             inputPollingService.AddInputHandler(new PluginActiveInputHandler<T>(this, inputHandler));
+
+        T AddActivateable<T>(T activateable)
+            where T : IActivateable
+        {
+            activateables.Add(activateable);
+
+            return activateable;
+        }
     }
 
     private void Activate()
@@ -527,38 +547,10 @@ public partial class PluginCore : MonoBehaviour
         transformWatcher.enabled = true;
         gizmoClickHandler.enabled = true;
         screenSizeChecker.enabled = true;
-
-        favouritePropRepository.Refresh();
-
-        // TODO: Move all this activation/deactivation stuff.
-        backgroundRepository.Refresh();
-        characterRepository.Refresh();
-
-        cameraController.Activate();
-        editModeMaidService.Activate();
-        characterService.Activate();
-        messageWindowManager.Activate();
-        cameraSaveSlotController.Activate();
-
-        screenshotService.enabled = true;
-
-        lightRepository.AddLight(GameMain.Instance.MainLight.GetComponent<Light>());
-
-        backgroundService.ChangeBackground(new(BackgroundCategory.COM3D2, "Theater"));
-
-        bloomController.Activate();
-        depthOfFieldController.Activate();
-        vignetteController.Activate();
-        fogController.Activate();
-        blurController.Activate();
-        sepiaToneController.Activate();
-
-        autoSaveService.Activate();
-
         windowManager.enabled = true;
-        windowManager.Activate();
 
-        characterService.CallingCharacters += OnCallingCharacters;
+        foreach (var activateable in activateables)
+            activateable.Activate();
 
         active = true;
 
@@ -635,27 +627,12 @@ public partial class PluginCore : MonoBehaviour
             transformWatcher.enabled = false;
             gizmoClickHandler.enabled = false;
             screenSizeChecker.enabled = false;
-
-            characterService.Deactivate();
-            cameraController.Deactivate();
-            messageWindowManager.Deactivate();
-            windowManager.Deactivate();
             windowManager.enabled = false;
-            cameraSpeedController.Deactivate();
-            screenshotService.enabled = false;
 
-            bloomController.Deactivate();
-            depthOfFieldController.Deactivate();
-            vignetteController.Deactivate();
-            fogController.Deactivate();
-            blurController.Deactivate();
-            sepiaToneController.Deactivate();
+            transformWatcher.Clear();
 
-            autoSaveService.Deactivate();
-
-            editModeMaidService.Deactivate();
-
-            characterService.CallingCharacters -= OnCallingCharacters;
+            foreach (var activateable in activateables)
+                activateable.Deactivate();
 
             // TODO: Should this deactivation stuff be somewhere else?
             if (customMaidSceneService.EditScene)
@@ -676,16 +653,7 @@ public partial class PluginCore : MonoBehaviour
                     GameMain.Instance.BgMgr.ChangeBg(DailyAPI.nightBg);
             }
 
-            lightRepository.RemoveAllLights();
-            propService.Clear();
-            undoRedoService.Clear();
-
-            transformWatcher.Clear();
-
-            Modal.Close();
-
             configuration.Save();
-            favouritePropRepository.Save();
 
             if (customMaidSceneService.EditScene)
                 return;

@@ -1,7 +1,7 @@
 namespace MeidoPhotoStudio.Plugin.Core.Database.Props;
 
 public class FavouritePropRepository(IFavouritePropListSerializer favouritePropListSerializer)
-    : IEnumerable<FavouritePropModel>
+    : IEnumerable<FavouritePropModel>, IActivateable
 {
     private readonly IFavouritePropListSerializer favouritePropListSerializer = favouritePropListSerializer
         ?? throw new ArgumentNullException(nameof(favouritePropListSerializer));
@@ -105,6 +105,12 @@ public class FavouritePropRepository(IFavouritePropListSerializer favouritePropL
 
     public void Save() =>
         favouritePropListSerializer.Serialize(this);
+
+    void IActivateable.Activate() =>
+        Refresh();
+
+    void IActivateable.Deactivate() =>
+        Save();
 
     private void Initialize()
     {
