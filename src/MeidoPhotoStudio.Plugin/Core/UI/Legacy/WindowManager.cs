@@ -59,6 +59,8 @@ public class WindowManager : MonoBehaviour, IActivateable
     {
         foreach (var window in windows.Values)
             window.Activate();
+
+        enabled = true;
     }
 
     void IActivateable.Deactivate()
@@ -68,6 +70,8 @@ public class WindowManager : MonoBehaviour, IActivateable
 
         DropdownHelper.CloseDropdown();
         Modal.Close();
+
+        enabled = false;
     }
 
     private void Awake() =>
@@ -82,10 +86,14 @@ public class WindowManager : MonoBehaviour, IActivateable
             throw new InvalidOperationException($"{nameof(CharacterService)} cannot be null");
 
         CharacterService.CallingCharacters += OnCallingCharacters;
+
+        enabled = false;
     }
 
     private void OnDestroy()
     {
+        ScreenSizeChecker.ScreenSizeChanged -= OnScreenSizeChanged;
+
         if (CharacterService is null)
             return;
 

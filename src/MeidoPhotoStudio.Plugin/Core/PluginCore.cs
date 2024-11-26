@@ -36,7 +36,6 @@ public partial class PluginCore : MonoBehaviour
     private readonly List<IActivateable> activateables = [];
 
     private ConfigFile configuration;
-    private WindowManager windowManager;
     private CustomMaidSceneService customMaidSceneService;
     private CharacterService characterService;
     private DragHandle.ClickHandler dragHandleClickHandler;
@@ -118,8 +117,7 @@ public partial class PluginCore : MonoBehaviour
         gizmoClickHandler = gameObject.AddComponent<CustomGizmo.ClickHandler>();
         gizmoClickHandler.enabled = false;
 
-        windowManager = gameObject.AddComponent<WindowManager>();
-        windowManager.enabled = false;
+        var windowManager = gameObject.AddComponent<WindowManager>();
 
         windowManager.PluginCore = this;
 
@@ -551,7 +549,6 @@ public partial class PluginCore : MonoBehaviour
         transformWatcher.enabled = true;
         gizmoClickHandler.enabled = true;
         screenSizeChecker.enabled = true;
-        windowManager.enabled = true;
 
         foreach (var activateable in activateables)
             activateable.Activate();
@@ -600,7 +597,6 @@ public partial class PluginCore : MonoBehaviour
             transformWatcher.enabled = false;
             gizmoClickHandler.enabled = false;
             screenSizeChecker.enabled = false;
-            windowManager.enabled = false;
 
             transformWatcher.Clear();
 
