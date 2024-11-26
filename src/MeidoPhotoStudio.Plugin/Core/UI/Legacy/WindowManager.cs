@@ -1,3 +1,4 @@
+using MeidoPhotoStudio.Plugin.Core.Character;
 using MeidoPhotoStudio.Plugin.Framework.UI;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
@@ -9,6 +10,8 @@ public class WindowManager : MonoBehaviour, IActivateable
 
     private readonly Dictionary<Window, BaseWindow> windows = [];
 
+    private bool visible = true;
+
     public enum Window
     {
         Main,
@@ -17,8 +20,18 @@ public class WindowManager : MonoBehaviour, IActivateable
         Settings,
     }
 
+    internal PluginCore PluginCore { get; set; }
+
+    internal CharacterService CharacterService { get; set; }
+
     private static GUIStyle WindowStyle =>
         windowStyle ??= new(GUI.skin.box);
+
+    private bool Visible
+    {
+        get => visible && GameMain.Instance.SysDlg.IsDecided;
+        set => visible = value;
+    }
 
     public BaseWindow this[Window id]
     {
@@ -60,8 +73,30 @@ public class WindowManager : MonoBehaviour, IActivateable
     private void Awake() =>
         ScreenSizeChecker.ScreenSizeChanged += OnScreenSizeChanged;
 
+    private void Start()
+    {
+        if (!PluginCore)
+            throw new InvalidOperationException($"{nameof(PluginCore)} cannot be null");
+
+        if (CharacterService is null)
+            throw new InvalidOperationException($"{nameof(CharacterService)} cannot be null");
+
+        CharacterService.CallingCharacters += OnCallingCharacters;
+    }
+
+    private void OnDestroy()
+    {
+        if (CharacterService is null)
+            return;
+
+        CharacterService.CallingCharacters -= OnCallingCharacters;
+    }
+
     private void OnGUI()
     {
+        if (!Visible)
+            return;
+
         foreach (var window in windows.Values)
         {
             if (!window.Visible)
@@ -91,4 +126,28 @@ public class WindowManager : MonoBehaviour, IActivateable
         foreach (var window in windows.Values)
             window.OnScreenDimensionsChanged(new(Screen.width, Screen.height));
     }
+
+    private void OnCallingCharacters(object sender, CharacterServiceEventArgs e)
+    {
+#if DEBUG
+        return;
+#else
+        if (!PluginCore.Active)
+            return;
+
+        visible = false;
+
+        CharacterService.CalledCharacters += OnCharactersCalled;
+
+        void OnCharactersCalled(object sender, CharacterServiceEventArgs e)
+        {
+            visible = true;
+
+            CharacterService.CalledCharacters -= OnCharactersCalled;
+        }
+#endif
+    }
+
+    private void OnCalledCharacters(object sender, CharacterServiceEventArgs e) =>
+        Visible = true;
 }

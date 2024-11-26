@@ -24,7 +24,7 @@ public partial class PluginCore
         }
 
         public bool Active =>
-            pluginCore.active && inputHandler.Active;
+            pluginCore.Active && inputHandler.Active;
 
         public void CheckInput() =>
             inputHandler.CheckInput();

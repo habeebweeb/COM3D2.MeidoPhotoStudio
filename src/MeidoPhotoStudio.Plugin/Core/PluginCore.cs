@@ -38,12 +38,13 @@ public partial class PluginCore : MonoBehaviour
     private ConfigFile configuration;
     private WindowManager windowManager;
     private CustomMaidSceneService customMaidSceneService;
-    private bool active;
     private CharacterService characterService;
     private DragHandle.ClickHandler dragHandleClickHandler;
     private CustomGizmo.ClickHandler gizmoClickHandler;
     private TransformWatcher transformWatcher;
     private ScreenSizeChecker screenSizeChecker;
+
+    public bool Active { get; private set; }
 
     private void Awake()
     {
@@ -54,7 +55,7 @@ public partial class PluginCore : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (active)
+        if (Active)
             Deactivate(true);
 
         GameMain.Instance.MainCamera.ResetCalcNearClip();
@@ -120,6 +121,8 @@ public partial class PluginCore : MonoBehaviour
         windowManager = gameObject.AddComponent<WindowManager>();
         windowManager.enabled = false;
 
+        windowManager.PluginCore = this;
+
         var generalDragHandleInputService = new GeneralDragHandleInputHandler(inputConfiguration);
 
         AddPluginActiveInputHandler(generalDragHandleInputService);
@@ -147,7 +150,8 @@ public partial class PluginCore : MonoBehaviour
         var editModeMaidService = new EditModeMaidService(customMaidSceneService, characterRepository);
 
         characterService = new CharacterService(customMaidSceneService, editModeMaidService, transformWatcher, undoRedoService);
-        characterService.CallingCharacters += OnCallingCharacters;
+
+        windowManager.CharacterService = characterService;
 
         var characterCallController = new CallController(characterRepository, characterService, customMaidSceneService, editModeMaidService);
         var characterSelectionController = new SelectionController<CharacterController>(characterService);
@@ -554,28 +558,7 @@ public partial class PluginCore : MonoBehaviour
 
         SetDailyPanelActive(false);
 
-        active = true;
-    }
-
-    private void OnCallingCharacters(object sender, CharacterServiceEventArgs e)
-    {
-#if DEBUG
-        return;
-#else
-        if (!active)
-            return;
-
-        windowManager.enabled = false;
-
-        characterService.CalledCharacters += OnCharactersCalled;
-
-        void OnCharactersCalled(object sender, CharacterServiceEventArgs e)
-        {
-            windowManager.enabled = true;
-
-            characterService.CalledCharacters -= OnCharactersCalled;
-        }
-#endif
+        Active = true;
     }
 
     private void Deactivate(bool force = false)
@@ -588,9 +571,7 @@ public partial class PluginCore : MonoBehaviour
         if (!sysDialog.IsDecided && !force)
             return;
 
-        windowManager.enabled = false;
-
-        active = false;
+        Active = false;
 
         if (force)
         {
@@ -608,8 +589,7 @@ public partial class PluginCore : MonoBehaviour
         void Resume()
         {
             sysDialog.Close();
-            active = true;
-            windowManager.enabled = true;
+            Active = true;
         }
 
         void Exit()
@@ -654,7 +634,7 @@ public partial class PluginCore : MonoBehaviour
 
     private void OnSceneUnloaded(Scene arg0)
     {
-        if (active)
+        if (Active)
             Deactivate(true);
 
         GameMain.Instance.MainCamera.ResetCalcNearClip();
@@ -662,7 +642,7 @@ public partial class PluginCore : MonoBehaviour
 
     private void ToggleActive()
     {
-        if (active)
+        if (Active)
             Deactivate();
         else
             Activate();
