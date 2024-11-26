@@ -552,16 +552,9 @@ public partial class PluginCore : MonoBehaviour
         foreach (var activateable in activateables)
             activateable.Activate();
 
+        SetDailyPanelActive(false);
+
         active = true;
-
-        if (!customMaidSceneService.EditScene)
-        {
-            // TODO: Rework this to not use null propagation (UNT008)
-            var dailyPanel = GameObject.Find("UI Root")?.transform.Find("DailyPanel")?.gameObject;
-
-            if (dailyPanel)
-                dailyPanel.SetActive(false);
-        }
     }
 
     private void OnCallingCharacters(object sender, CharacterServiceEventArgs e)
@@ -655,15 +648,7 @@ public partial class PluginCore : MonoBehaviour
 
             configuration.Save();
 
-            if (customMaidSceneService.EditScene)
-                return;
-
-            // TODO: Rework this to not use null propagation (UNT008)
-            var dailyPanel = GameObject.Find("UI Root")?.transform.Find("DailyPanel")?.gameObject;
-
-            // NOTE: using is (not) for null checks on UnityEngine.Object does not work
-            if (dailyPanel)
-                dailyPanel.SetActive(true);
+            SetDailyPanelActive(true);
         }
     }
 
@@ -681,5 +666,23 @@ public partial class PluginCore : MonoBehaviour
             Deactivate();
         else
             Activate();
+    }
+
+    private void SetDailyPanelActive(bool active)
+    {
+        if (!customMaidSceneService.OfficeScene)
+            return;
+
+        var uiRoot = GameObject.Find("UI Root");
+
+        if (!uiRoot)
+            return;
+
+        var dailyPanel = uiRoot.transform.Find("DailyPanel");
+
+        if (!dailyPanel)
+            return;
+
+        dailyPanel.gameObject.SetActive(active);
     }
 }
