@@ -12,6 +12,8 @@ public partial class CustomGizmo
         private static readonly int DragHandleLayer = LayerMask.NameToLayer("AbsolutFront");
         private static readonly int NguiLayer = LayerMask.NameToLayer("NGUI");
 
+        private readonly RaycastHit[] raycastHits = new RaycastHit[10];
+
         private Camera mainCamera;
         private bool clicked;
 
@@ -51,11 +53,12 @@ public partial class CustomGizmo
 
                 var ray = mainCamera.ScreenPointToRay(UInput.mousePosition);
 
-                Physics.Raycast(ray, out var hit);
+                var hitCount = Physics.RaycastNonAlloc(ray, raycastHits);
 
-                return !hit.transform
-                    || hit.transform.gameObject.layer != DragHandleLayer
-                    && hit.transform.gameObject.layer != NguiLayer;
+                return raycastHits
+                    .Take(hitCount)
+                    .Select(static hit => hit.transform.gameObject.layer)
+                    .All(static layer => layer != DragHandleLayer && layer != NguiLayer);
             }
         }
 
