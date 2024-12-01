@@ -60,18 +60,35 @@ public class PropSchemaToPropModelMapper(
                 if (string.IsNullOrEmpty(menuFilePropModelSchema.Filename))
                     return null;
 
-                var menuFile = new MenuFileParser().ParseMenuFile(menuFilePropModelSchema.Filename, false);
+                var sanitizedFilename = SanitizeFilename(menuFilePropModelSchema.Filename);
+
+                var menuFile = new MenuFileParser()
+                    .ParseMenuFile(sanitizedFilename, false);
 
                 if (menuFile.CategoryMpn == SafeMpn.GetValue(nameof(MPN.handitem)))
                     menuFile.Name = Translation.Get("propNames", menuFile.Filename);
 
                 return menuFile;
             }
+            else
+            {
+                if (string.IsNullOrEmpty(menuFilePropModelSchema.ID))
+                    return null;
 
-            if (string.IsNullOrEmpty(menuFilePropModelSchema.ID))
-                return null;
+                var sanitizedID = SanitizeFilename(menuFilePropModelSchema.ID);
 
-            return menuPropRepository.GetByID(menuFilePropModelSchema.ID);
+                return menuPropRepository.GetByID(sanitizedID);
+            }
+
+            static string SanitizeFilename(string filename)
+            {
+                var sanitized = Path.GetFileName(filename);
+
+                if (!string.Equals(filename, sanitized, StringComparison.OrdinalIgnoreCase))
+                    Plugin.Logger.LogInfo($"menu filename is invalid: original: '{filename}', sanitized: '{sanitized}'");
+
+                return sanitized;
+            }
         }
 
         return null;
