@@ -79,15 +79,18 @@ public class CharacterGeneralDragHandleController : GeneralDragHandleController,
     {
         get => Destroyed
             ? throw new InvalidOperationException("Drag handle controller is destroyed.")
-            : ikEnabled;
+            : IsCube || ikEnabled;
         set
         {
             if (Destroyed)
                 throw new InvalidOperationException("Drag handle controller is destroyed.");
 
-            ikEnabled = value;
+            ikEnabled = IsCube || value;
 
-            CurrentMode.OnModeEnter();
+            if (!ikEnabled)
+                CurrentMode = None;
+            else
+                CurrentMode.OnModeEnter();
         }
     }
 
