@@ -12,6 +12,12 @@ public class CharacterGeneralDragHandleController : GeneralDragHandleController,
 
     private bool ikEnabled = true;
     private CharacterSelectMode select;
+    private DragHandleMode moveWorldXZ;
+    private DragHandleMode moveWorldY;
+    private DragHandleMode rotateLocalXZ;
+    private DragHandleMode rotateWorldY;
+    private DragHandleMode rotateLocalY;
+    private DragHandleMode scale;
 
     public CharacterGeneralDragHandleController(
         DragHandle dragHandle,
@@ -95,22 +101,22 @@ public class CharacterGeneralDragHandleController : GeneralDragHandleController,
     }
 
     public override DragHandleMode MoveWorldXZ =>
-        IKEnabled ? base.MoveWorldXZ : None;
+        IKEnabled ? moveWorldXZ ??= new TransformMode(this, base.MoveWorldXZ) : None;
 
     public override DragHandleMode MoveWorldY =>
-        IKEnabled ? base.MoveWorldY : None;
+        IKEnabled ? moveWorldY ??= new TransformMode(this, base.MoveWorldY) : None;
 
     public override DragHandleMode RotateLocalXZ =>
-        IKEnabled ? base.RotateLocalXZ : None;
+        IKEnabled ? rotateLocalXZ ??= new TransformMode(this, base.RotateLocalXZ) : None;
 
     public override DragHandleMode RotateWorldY =>
-        IKEnabled ? base.RotateWorldY : None;
+        IKEnabled ? rotateWorldY ??= new TransformMode(this, base.RotateWorldY) : None;
 
     public override DragHandleMode RotateLocalY =>
-        IKEnabled ? base.RotateLocalY : None;
+        IKEnabled ? rotateLocalY ??= new TransformMode(this, base.RotateLocalY) : None;
 
     public override DragHandleMode Scale =>
-        IKEnabled ? base.Scale : None;
+        IKEnabled ? scale ??= new TransformMode(this, base.Scale) : None;
 
     public override DragHandleMode Select =>
         select ??= new CharacterSelectMode(this);
@@ -130,6 +136,26 @@ public class CharacterGeneralDragHandleController : GeneralDragHandleController,
             return;
 
         DragHandle.Size = character.GameObject.transform.localScale.x;
+    }
+
+    private class TransformMode(
+        CharacterGeneralDragHandleController controller,
+        DragHandleMode originalMode)
+        : WrapperDragHandleMode<DragHandleMode>(originalMode)
+    {
+        public override void OnClicked()
+        {
+            base.OnClicked();
+
+            controller.selectionController.Select(controller.character);
+        }
+
+        public override void OnGizmoClicked()
+        {
+            base.OnGizmoClicked();
+
+            controller.selectionController.Select(controller.character);
+        }
     }
 
     private class CharacterSelectMode(CharacterGeneralDragHandleController controller)

@@ -4,8 +4,12 @@ using MeidoPhotoStudio.Plugin.Framework.UIGizmo;
 namespace MeidoPhotoStudio.Plugin.Core.Character.Pose;
 
 public class ChestSubGizmoController(
-    CustomGizmo gizmo, CharacterController characterController, CharacterUndoRedoController undoRedoController, Transform bone)
-    : CharacterDragHandleController(gizmo, characterController, undoRedoController)
+    CustomGizmo gizmo,
+    CharacterController characterController,
+    CharacterUndoRedoController undoRedoController,
+    SelectionController<CharacterController> selectionController,
+    Transform bone)
+    : CharacterDragHandleController(gizmo, characterController, undoRedoController, selectionController)
 {
     private readonly bool left = bone.name.StartsWith("Mune_L");
 

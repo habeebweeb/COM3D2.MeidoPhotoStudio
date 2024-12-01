@@ -19,9 +19,10 @@ public class DigitDragHandleController : CharacterIKDragHandleController
         CustomGizmo gizmo,
         CharacterController characterController,
         CharacterUndoRedoController undoRedoController,
+        SelectionController<CharacterController> selectionController,
         Transform digit,
         Transform ikTarget)
-        : base(dragHandle, gizmo, characterController, undoRedoController, digit, ikTarget)
+        : base(dragHandle, gizmo, characterController, undoRedoController, selectionController, digit, ikTarget)
     {
         var digitNumberIndex = digit.name.EndsWith("Nub") ? 4 : 2;
 

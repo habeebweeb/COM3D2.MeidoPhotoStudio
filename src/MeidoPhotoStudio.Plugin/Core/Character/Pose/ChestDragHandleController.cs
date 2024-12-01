@@ -16,9 +16,10 @@ public class ChestDragHandleController : CharacterIKDragHandleController
         CustomGizmo gizmo,
         CharacterController characterController,
         CharacterUndoRedoController undoRedoController,
+        SelectionController<CharacterController> selectionController,
         Transform bone,
         Transform ikTarget)
-        : base(dragHandle, gizmo, characterController, undoRedoController, bone, ikTarget)
+        : base(dragHandle, gizmo, characterController, undoRedoController, selectionController, bone, ikTarget)
     {
         left = Bone.name.StartsWith("Mune_L");
 

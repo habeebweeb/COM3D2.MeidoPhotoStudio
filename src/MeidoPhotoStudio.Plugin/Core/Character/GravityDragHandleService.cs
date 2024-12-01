@@ -6,14 +6,17 @@ public class GravityDragHandleService
 {
     private readonly GravityDragHandleInputService gravityDragHandleInputService;
     private readonly CharacterService characterService;
+    private readonly SelectionController<CharacterController> selectionController;
     private readonly Dictionary<CharacterController, GravityDragHandleSet> dragHandleSets = [];
 
     public GravityDragHandleService(
         GravityDragHandleInputService gravityDragHandleInputService,
-        CharacterService characterService)
+        CharacterService characterService,
+        SelectionController<CharacterController> selectionController)
     {
         this.gravityDragHandleInputService = gravityDragHandleInputService ?? throw new ArgumentNullException(nameof(gravityDragHandleInputService));
         this.characterService = characterService ?? throw new ArgumentNullException(nameof(characterService));
+        this.selectionController = selectionController ?? throw new ArgumentNullException(nameof(selectionController));
 
         this.characterService.CalledCharacters += OnCharactersCalled;
         this.characterService.Deactivating += OnDeactivating;
@@ -87,8 +90,15 @@ public class GravityDragHandleService
         if (character.Clothing?.ClothingGravityController is null)
             Plugin.Logger.LogDebug("Clothing gravity controller is null");
 
-        var clothingDragHandle = BuildDragHandle(character.Clothing.ClothingGravityController);
-        var hairDraghandle = BuildDragHandle(character.Clothing.HairGravityController);
+        var clothingDragHandle = BuildDragHandle(
+            character.Clothing.ClothingGravityController,
+            character,
+            selectionController);
+
+        var hairDraghandle = BuildDragHandle(
+            character.Clothing.HairGravityController,
+            character,
+            selectionController);
 
         gravityDragHandleInputService.AddController(clothingDragHandle);
         gravityDragHandleInputService.AddController(hairDraghandle);
@@ -99,7 +109,10 @@ public class GravityDragHandleService
             HairDragHandle = hairDraghandle,
         };
 
-        GravityDragHandleController BuildDragHandle(GravityController gravityController)
+        GravityDragHandleController BuildDragHandle(
+            GravityController gravityController,
+            CharacterController character,
+            SelectionController<CharacterController> selectionController)
         {
             var gravityControl = gravityController.Transform;
 
@@ -112,7 +125,7 @@ public class GravityDragHandleService
                 PositionDelegate = () => gravityControl.position,
             }.Build();
 
-            return new GravityDragHandleController(gravityController, dragHandle)
+            return new GravityDragHandleController(dragHandle, gravityController, character, selectionController)
             {
                 Enabled = false,
             };

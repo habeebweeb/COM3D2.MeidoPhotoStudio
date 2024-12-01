@@ -14,9 +14,10 @@ public abstract class CharacterIKDragHandleController : CharacterDragHandleContr
         CustomGizmo gizmo,
         CharacterController characterController,
         CharacterUndoRedoController characterUndoRedoController,
+        SelectionController<CharacterController> selectionController,
         Transform bone,
         Transform ikTarget)
-        : base(dragHandle, gizmo, characterController, characterUndoRedoController)
+        : base(dragHandle, gizmo, characterController, characterUndoRedoController, selectionController)
     {
         Bone = bone ? bone : throw new ArgumentNullException(nameof(bone));
         IKTarget = ikTarget ? ikTarget : throw new ArgumentNullException(nameof(ikTarget));
@@ -28,9 +29,10 @@ public abstract class CharacterIKDragHandleController : CharacterDragHandleContr
         DragHandle dragHandle,
         CharacterController characterController,
         CharacterUndoRedoController characterUndoRedoController,
+        SelectionController<CharacterController> selectionController,
         Transform bone,
         Transform ikTarget)
-        : base(dragHandle, characterController, characterUndoRedoController)
+        : base(dragHandle, characterController, characterUndoRedoController, selectionController)
     {
         Bone = bone ? bone : throw new ArgumentNullException(nameof(bone));
         IKTarget = ikTarget ? ikTarget : throw new ArgumentNullException(nameof(ikTarget));

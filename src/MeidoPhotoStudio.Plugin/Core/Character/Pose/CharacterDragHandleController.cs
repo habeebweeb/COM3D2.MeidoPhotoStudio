@@ -16,32 +16,38 @@ public abstract class CharacterDragHandleController : DragHandleControllerBase, 
     public CharacterDragHandleController(
         CustomGizmo gizmo,
         CharacterController characterController,
-        CharacterUndoRedoController characterUndoRedoController)
+        CharacterUndoRedoController characterUndoRedoController,
+        SelectionController<CharacterController> selectionController)
         : base(gizmo)
     {
         CharacterController = characterController ?? throw new ArgumentNullException(nameof(characterController));
         UndoRedoController = characterUndoRedoController ?? throw new ArgumentNullException(nameof(characterUndoRedoController));
+        SelectionController = selectionController ?? throw new ArgumentNullException(nameof(selectionController));
     }
 
     public CharacterDragHandleController(
         DragHandle dragHandle,
         CharacterController characterController,
-        CharacterUndoRedoController characterUndoRedoController)
+        CharacterUndoRedoController characterUndoRedoController,
+        SelectionController<CharacterController> selectionController)
         : base(dragHandle)
     {
         CharacterController = characterController ?? throw new ArgumentNullException(nameof(characterController));
         UndoRedoController = characterUndoRedoController ?? throw new ArgumentNullException(nameof(characterUndoRedoController));
+        SelectionController = selectionController ?? throw new ArgumentNullException(nameof(selectionController));
     }
 
     public CharacterDragHandleController(
         DragHandle dragHandle,
         CustomGizmo gizmo,
         CharacterController characterController,
-        CharacterUndoRedoController characterUndoRedoController)
+        CharacterUndoRedoController characterUndoRedoController,
+        SelectionController<CharacterController> selectionController)
         : base(dragHandle, gizmo)
     {
         CharacterController = characterController ?? throw new ArgumentNullException(nameof(characterController));
         UndoRedoController = characterUndoRedoController ?? throw new ArgumentNullException(nameof(characterUndoRedoController));
+        SelectionController = selectionController ?? throw new ArgumentNullException(nameof(selectionController));
     }
 
     public bool BoneMode
@@ -88,6 +94,8 @@ public abstract class CharacterDragHandleController : DragHandleControllerBase, 
                 characterController.ChangedTransform += ResizeDragHandle;
         }
     }
+
+    protected SelectionController<CharacterController> SelectionController { get; set; }
 
     protected AnimationController AnimationController =>
         CharacterController.Animation;
@@ -136,6 +144,7 @@ public abstract class CharacterDragHandleController : DragHandleControllerBase, 
             controller.IKController.Dirty = true;
 
             controller.BackupBoneRotations();
+            controller.SelectionController.Select(controller.CharacterController);
         }
 
         public override void OnReleased() =>
@@ -145,6 +154,7 @@ public abstract class CharacterDragHandleController : DragHandleControllerBase, 
         {
             controller.UndoRedoController.StartPoseChange();
             controller.BackupBoneRotations();
+            controller.SelectionController.Select(controller.CharacterController);
         }
 
         public override void OnGizmoReleased() =>

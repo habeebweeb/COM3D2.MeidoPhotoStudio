@@ -13,6 +13,12 @@ public class PropDragHandleController : GeneralDragHandleController
 
     private PropSelectMode select;
     private PropDeleteMode delete;
+    private DragHandleMode moveWorldXZ;
+    private DragHandleMode moveWorldY;
+    private DragHandleMode rotateLocalXZ;
+    private DragHandleMode rotateWorldY;
+    private DragHandleMode rotateLocalY;
+    private DragHandleMode scale;
 
     public PropDragHandleController(
         DragHandle dragHandle,
@@ -38,6 +44,25 @@ public class PropDragHandleController : GeneralDragHandleController
     public override DragHandleMode Delete =>
         delete ??= new PropDeleteMode(this);
 
+    // TODO: I don't think having to override every single one of these just to change behaviour is a good idea :/
+    public override DragHandleMode MoveWorldXZ =>
+        moveWorldXZ ??= new TransformMode(this, base.MoveWorldXZ);
+
+    public override DragHandleMode MoveWorldY =>
+        moveWorldY ??= new TransformMode(this, base.MoveWorldY);
+
+    public override DragHandleMode RotateLocalXZ =>
+        rotateLocalXZ ??= new TransformMode(this, base.RotateLocalXZ);
+
+    public override DragHandleMode RotateWorldY =>
+        rotateWorldY ??= new TransformMode(this, base.RotateWorldY);
+
+    public override DragHandleMode RotateLocalY =>
+        rotateLocalY ??= new TransformMode(this, base.RotateLocalY);
+
+    public override DragHandleMode Scale =>
+        scale ??= new TransformMode(this, base.Scale);
+
     public float HandleSize
     {
         get => DragHandle.Size;
@@ -48,6 +73,26 @@ public class PropDragHandleController : GeneralDragHandleController
     {
         get => Gizmo.offsetScale;
         set => Gizmo.offsetScale = value;
+    }
+
+    private class TransformMode(
+        PropDragHandleController controller,
+        DragHandleMode originalMode)
+        : WrapperDragHandleMode<DragHandleMode>(originalMode)
+    {
+        public override void OnClicked()
+        {
+            base.OnClicked();
+
+            controller.propSelectionController.Select(controller.propController);
+        }
+
+        public override void OnGizmoClicked()
+        {
+            base.OnGizmoClicked();
+
+            controller.propSelectionController.Select(controller.propController);
+        }
     }
 
     private class PropSelectMode(PropDragHandleController controller) : SelectMode<PropDragHandleController>(controller)

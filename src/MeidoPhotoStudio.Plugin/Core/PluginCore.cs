@@ -165,7 +165,7 @@ public partial class PluginCore : MonoBehaviour
 
         AddPluginActiveInputHandler(gravityDragHandleInputService);
 
-        var gravityDragHandleService = new GravityDragHandleService(gravityDragHandleInputService, characterService);
+        var gravityDragHandleService = new GravityDragHandleService(gravityDragHandleInputService, characterService, characterSelectionController);
         var globalGravityService = new GlobalGravityService(characterService);
 
         var characterDragHandleInputService = new CharacterDragHandleInputService(

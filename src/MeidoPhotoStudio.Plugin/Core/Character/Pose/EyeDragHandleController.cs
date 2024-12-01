@@ -5,8 +5,12 @@ using MeidoPhotoStudio.Plugin.Framework.UIGizmo;
 namespace MeidoPhotoStudio.Plugin.Core.Character.Pose;
 
 public class EyeDragHandleController(
-    DragHandle dragHandle, CharacterController characterController, CharacterUndoRedoController undoRedoController, bool left)
-    : CharacterDragHandleController(dragHandle, characterController, undoRedoController)
+    DragHandle dragHandle,
+    CharacterController characterController,
+    CharacterUndoRedoController undoRedoController,
+    SelectionController<CharacterController> selectionController,
+    bool left)
+    : CharacterDragHandleController(dragHandle, characterController, undoRedoController, selectionController)
 {
     private readonly bool left = left;
 

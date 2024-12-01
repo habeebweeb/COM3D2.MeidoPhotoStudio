@@ -8,11 +8,12 @@ public class TorsoDragHandleController(
     DragHandle dragHandle,
     CharacterController characterController,
     CharacterUndoRedoController undoRedoController,
+    SelectionController<CharacterController> selectionController,
     Transform spine1a,
     Transform spine1,
     Transform spine0a,
     Transform spine)
-    : CharacterDragHandleController(dragHandle, characterController, undoRedoController)
+    : CharacterDragHandleController(dragHandle, characterController, undoRedoController, selectionController)
 {
     private static readonly float[] XZRotationSensitivity = [0.03f, 0.1f, 0.09f, 0.07f];
     private static readonly float[] YRotationSensitivity = [0.08f, 0.08f, 0.15f, 0.15f];

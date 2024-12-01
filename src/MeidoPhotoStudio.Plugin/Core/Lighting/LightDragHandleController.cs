@@ -113,6 +113,7 @@ public class LightDragHandleController : GeneralDragHandleController
             base.OnClicked();
 
             controller.lightScaleBackup = LightScaleValueBackup.Create(controller.LightController);
+            controller.lightSelectionController.Select(controller.LightController);
         }
 
         public override void OnCancelled()
@@ -152,6 +153,7 @@ public class LightDragHandleController : GeneralDragHandleController
             base.OnClicked();
 
             Controller.lightScaleBackup = LightScaleValueBackup.Create(LightController);
+            Controller.lightSelectionController.Select(Controller.LightController);
         }
 
         public override void OnDoubleClicked()

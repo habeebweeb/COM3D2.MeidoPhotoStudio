@@ -9,8 +9,9 @@ public class HipDragHandleController(
     CustomGizmo gizmo,
     CharacterController characterController,
     CharacterUndoRedoController undoRedoController,
+    SelectionController<CharacterController> selectionController,
     Transform spineSegment)
-    : CharacterDragHandleController(dragHandle, gizmo, characterController, undoRedoController)
+    : CharacterDragHandleController(dragHandle, gizmo, characterController, undoRedoController, selectionController)
 {
     private readonly Transform spineSegment = spineSegment ? spineSegment : throw new ArgumentNullException(nameof(spineSegment));
 

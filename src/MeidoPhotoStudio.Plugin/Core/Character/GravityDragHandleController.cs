@@ -7,6 +7,8 @@ namespace MeidoPhotoStudio.Plugin.Core.Character;
 public class GravityDragHandleController : DragHandleControllerBase
 {
     private readonly GravityController gravityController;
+    private readonly CharacterController characterController;
+    private readonly SelectionController<CharacterController> selectionController;
     private readonly TransformBackup transformBackup;
 
     private TransformBackup startingTransform;
@@ -14,10 +16,17 @@ public class GravityDragHandleController : DragHandleControllerBase
     private MoveWorldYMode moveWorldY;
     private IgnoreMode ignore;
 
-    public GravityDragHandleController(GravityController gravityController, DragHandle dragHandle)
+    public GravityDragHandleController(
+        DragHandle dragHandle,
+        GravityController gravityController,
+        CharacterController characterController,
+        SelectionController<CharacterController> selectionController)
         : base(dragHandle)
     {
         this.gravityController = gravityController ?? throw new ArgumentNullException(nameof(gravityController));
+        this.characterController = characterController ?? throw new ArgumentNullException(nameof(characterController));
+        this.selectionController = selectionController ?? throw new ArgumentNullException(nameof(selectionController));
+
         this.gravityController.EnabledChanged += OnEnabledChanged;
 
         transformBackup = new(gravityController.Transform, Space.Self);
@@ -47,8 +56,12 @@ public class GravityDragHandleController : DragHandleControllerBase
         public override void OnModeEnter() =>
             controller.DragHandleActive = controller.gravityController.Enabled;
 
-        public override void OnClicked() =>
+        public override void OnClicked()
+        {
             controller.startingTransform = new(controller.gravityController.Transform, Space.Self);
+
+            controller.selectionController.Select(controller.characterController);
+        }
 
         public override void OnCancelled() =>
             controller.startingTransform.Apply(controller.gravityController.Transform);

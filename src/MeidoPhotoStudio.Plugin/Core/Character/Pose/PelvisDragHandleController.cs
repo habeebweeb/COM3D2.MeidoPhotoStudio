@@ -9,8 +9,9 @@ public class PelvisDragHandleController(
     CustomGizmo gizmo,
     CharacterController characterController,
     CharacterUndoRedoController undoRedoController,
+    SelectionController<CharacterController> selectionController,
     Transform pelvisBone)
-    : CharacterDragHandleController(dragHandle, gizmo, characterController, undoRedoController)
+    : CharacterDragHandleController(dragHandle, gizmo, characterController, undoRedoController, selectionController)
 {
     private readonly Transform pelvisBone = pelvisBone;
 

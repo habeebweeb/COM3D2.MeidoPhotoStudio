@@ -19,9 +19,10 @@ public class DigitBaseDragHandleController : CharacterIKDragHandleController
         CustomGizmo gizmo,
         CharacterController characterController,
         CharacterUndoRedoController undoRedoController,
+        SelectionController<CharacterController> selectionController,
         Transform bone,
         Transform ikTarget)
-        : base(dragHandle, gizmo, characterController, undoRedoController, bone, ikTarget)
+        : base(dragHandle, gizmo, characterController, undoRedoController, selectionController, bone, ikTarget)
     {
         var baseBone = Bone.parent;
 

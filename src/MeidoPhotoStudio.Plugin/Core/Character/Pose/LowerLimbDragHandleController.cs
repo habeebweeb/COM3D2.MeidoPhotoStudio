@@ -9,9 +9,10 @@ public class LowerLimbDragHandleController(
     CustomGizmo gizmo,
     CharacterController characterController,
     CharacterUndoRedoController undoRedoController,
+    SelectionController<CharacterController> selectionController,
     Transform bone,
     Transform ikTarget)
-    : CharacterIKDragHandleController(dragHandle, gizmo, characterController, undoRedoController, bone, ikTarget)
+    : CharacterIKDragHandleController(dragHandle, gizmo, characterController, undoRedoController, selectionController, bone, ikTarget)
 {
     private DragHandleMode drag;
     private RotateMode rotate;
