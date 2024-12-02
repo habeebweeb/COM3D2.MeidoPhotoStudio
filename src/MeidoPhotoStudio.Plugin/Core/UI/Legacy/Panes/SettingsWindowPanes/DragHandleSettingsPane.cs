@@ -1,5 +1,8 @@
+using MeidoPhotoStudio.Plugin.Core.Background;
+using MeidoPhotoStudio.Plugin.Core.Character;
 using MeidoPhotoStudio.Plugin.Core.Character.Pose;
 using MeidoPhotoStudio.Plugin.Core.Configuration;
+using MeidoPhotoStudio.Plugin.Core.Lighting;
 using MeidoPhotoStudio.Plugin.Core.Props;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
@@ -10,17 +13,26 @@ public class DragHandleSettingsPane : BasePane
     private readonly DragHandleConfiguration configuration;
     private readonly IKDragHandleService ikDragHandleService;
     private readonly PropDragHandleService propDragHandleService;
+    private readonly GravityDragHandleService gravityDragHandleService;
+    private readonly LightDragHandleRepository lightDragHandleRepository;
+    private readonly BackgroundDragHandleService backgroundDragHandleService;
     private readonly Toggle smallDragHandleToggle;
     private readonly Toggle characterTransformDragHandleToggle;
 
     public DragHandleSettingsPane(
         DragHandleConfiguration configuration,
         IKDragHandleService ikDragHandleService,
-        PropDragHandleService propDragHandleService)
+        PropDragHandleService propDragHandleService,
+        GravityDragHandleService gravityDragHandleService,
+        LightDragHandleRepository lightDragHandleRepository,
+        BackgroundDragHandleService backgroundDragHandleService)
     {
         this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         this.ikDragHandleService = ikDragHandleService ?? throw new ArgumentNullException(nameof(ikDragHandleService));
         this.propDragHandleService = propDragHandleService ?? throw new ArgumentNullException(nameof(propDragHandleService));
+        this.gravityDragHandleService = gravityDragHandleService ?? throw new ArgumentNullException(nameof(gravityDragHandleService));
+        this.lightDragHandleRepository = lightDragHandleRepository ?? throw new ArgumentNullException(nameof(lightDragHandleRepository));
+        this.backgroundDragHandleService = backgroundDragHandleService ?? throw new ArgumentNullException(nameof(backgroundDragHandleService));
 
         this.configuration.SmallTransformCube.SettingChanged += OnSettingsChanged;
         this.configuration.CharacterTransformCube.SettingChanged += OnSettingsChanged;
@@ -56,6 +68,9 @@ public class DragHandleSettingsPane : BasePane
 
         propDragHandleService.SmallHandle = configuration.SmallTransformCube.Value;
         ikDragHandleService.SmallHandle = configuration.SmallTransformCube.Value;
+        gravityDragHandleService.SmallHandle = configuration.SmallTransformCube.Value;
+        lightDragHandleRepository.SmallHandle = configuration.SmallTransformCube.Value;
+        backgroundDragHandleService.SmallHandle = configuration.SmallTransformCube.Value;
     }
 
     private void OnCharacterTransformDragHandleToggleChanged(object sender, EventArgs e)

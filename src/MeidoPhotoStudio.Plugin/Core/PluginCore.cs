@@ -165,7 +165,11 @@ public partial class PluginCore : MonoBehaviour
 
         AddPluginActiveInputHandler(gravityDragHandleInputService);
 
-        var gravityDragHandleService = new GravityDragHandleService(gravityDragHandleInputService, characterService, characterSelectionController);
+        var gravityDragHandleService = new GravityDragHandleService(gravityDragHandleInputService, characterService, characterSelectionController)
+        {
+            SmallHandle = dragHandleConfiguration.SmallTransformCube.Value,
+        };
+
         var globalGravityService = new GlobalGravityService(characterService);
 
         var characterDragHandleInputService = new CharacterDragHandleInputService(
@@ -222,15 +226,21 @@ public partial class PluginCore : MonoBehaviour
         // Backgrounds
         var backgroundRepository = new BackgroundRepository();
         var backgroundService = new BackgroundService(backgroundRepository);
-        var backgroundDragHandleService = new BackgroundDragHandleService(generalDragHandleInputService, backgroundService);
+        var backgroundDragHandleService = new BackgroundDragHandleService(generalDragHandleInputService, backgroundService)
+        {
+            SmallHandle = dragHandleConfiguration.SmallTransformCube.Value,
+        };
 
         // Lights
         var lightRepository = new LightRepository(transformWatcher);
 
         var lightSelectionController = new SelectionController<LightController>(lightRepository);
 
-        _ = new LightDragHandleRepository(
-            generalDragHandleInputService, lightRepository, lightSelectionController, tabSelectionController);
+        var lightDragHandleRepository = new LightDragHandleRepository(
+            generalDragHandleInputService, lightRepository, lightSelectionController, tabSelectionController)
+        {
+            SmallHandle = dragHandleConfiguration.SmallTransformCube.Value,
+        };
 
         // Effects
         var bloomController = new BloomController(GameMain.Instance.MainCamera.camera);
@@ -395,7 +405,13 @@ public partial class PluginCore : MonoBehaviour
         var settingsWindow = new SettingsWindow(inputRemapper)
         {
             [SettingsWindow.SettingType.Controls] = new InputSettingsPane(inputConfiguration, inputRemapper),
-            [SettingsWindow.SettingType.DragHandle] = new DragHandleSettingsPane(dragHandleConfiguration, ikDragHandleService, propDragHandleService),
+            [SettingsWindow.SettingType.DragHandle] = new DragHandleSettingsPane(
+                dragHandleConfiguration,
+                ikDragHandleService,
+                propDragHandleService,
+                gravityDragHandleService,
+                lightDragHandleRepository,
+                backgroundDragHandleService),
             [SettingsWindow.SettingType.AutoSave] = new AutoSaveSettingsPane(autoSaveConfiguration, autoSaveService),
             [SettingsWindow.SettingType.Translation] = new TranslationSettingsPane(),
         };

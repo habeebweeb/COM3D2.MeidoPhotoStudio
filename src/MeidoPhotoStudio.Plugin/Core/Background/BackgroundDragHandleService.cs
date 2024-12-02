@@ -6,10 +6,13 @@ namespace MeidoPhotoStudio.Plugin.Core.Background;
 
 public class BackgroundDragHandleService
 {
+    private static readonly (float Small, float Normal) HandleSize = (0.5f, 1f);
+
     private readonly GeneralDragHandleInputHandler generalDragHandleInputService;
 
     private BackgroundDragHandleController backgroundDragHandleController;
     private bool enabled = false;
+    private bool smallHandle;
 
     public BackgroundDragHandleService(GeneralDragHandleInputHandler generalDragHandleInputService, BackgroundService backgroundService)
     {
@@ -34,6 +37,23 @@ public class BackgroundDragHandleService
         }
     }
 
+    public bool SmallHandle
+    {
+        get => smallHandle;
+        set
+        {
+            if (value == smallHandle)
+                return;
+
+            smallHandle = value;
+
+            if (backgroundDragHandleController is null)
+                return;
+
+            backgroundDragHandleController.HandleSize = smallHandle ? HandleSize.Small : HandleSize.Normal;
+        }
+    }
+
     private void CreateDragHandle(BackgroundModel backgroundModel, Transform backgroundTransform)
     {
         if (!backgroundTransform)
@@ -46,6 +66,7 @@ public class BackgroundDragHandleService
             ConstantSize = true,
             Scale = Vector3.one * 0.12f,
             PositionDelegate = () => backgroundTransform.position,
+            Size = SmallHandle ? HandleSize.Small : HandleSize.Normal,
         }.Build();
 
         backgroundDragHandleController = new(dragHandle, backgroundTransform)

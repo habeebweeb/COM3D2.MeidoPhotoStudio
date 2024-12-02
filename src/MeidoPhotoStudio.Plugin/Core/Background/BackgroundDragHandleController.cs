@@ -11,4 +11,10 @@ public class BackgroundDragHandleController(DragHandle dragHandle, Transform bac
 
     public override DragHandleMode Delete =>
         None;
+
+    public float HandleSize
+    {
+        get => DragHandle.Size;
+        set => DragHandle.Size = value;
+    }
 }

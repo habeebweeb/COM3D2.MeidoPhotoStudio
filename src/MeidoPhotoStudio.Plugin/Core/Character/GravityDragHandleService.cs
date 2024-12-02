@@ -4,10 +4,14 @@ namespace MeidoPhotoStudio.Plugin.Core.Character;
 
 public class GravityDragHandleService
 {
+    private static readonly (float Small, float Normal) HandleSize = (0.5f, 1f);
+
     private readonly GravityDragHandleInputService gravityDragHandleInputService;
     private readonly CharacterService characterService;
     private readonly SelectionController<CharacterController> selectionController;
     private readonly Dictionary<CharacterController, GravityDragHandleSet> dragHandleSets = [];
+
+    private bool smallHandle;
 
     public GravityDragHandleService(
         GravityDragHandleInputService gravityDragHandleInputService,
@@ -20,6 +24,26 @@ public class GravityDragHandleService
 
         this.characterService.CalledCharacters += OnCharactersCalled;
         this.characterService.Deactivating += OnDeactivating;
+    }
+
+    public bool SmallHandle
+    {
+        get => smallHandle;
+        set
+        {
+            if (value == smallHandle)
+                return;
+
+            smallHandle = value;
+
+            foreach (var (hair, clothing) in dragHandleSets.Values)
+            {
+                var handleSize = smallHandle ? HandleSize.Small : HandleSize.Normal;
+
+                hair.HandleSize = handleSize;
+                clothing.HandleSize = handleSize;
+            }
+        }
     }
 
     public GravityDragHandleSet this[CharacterController characterController] =>
@@ -123,6 +147,7 @@ public class GravityDragHandleService
                 Priority = 10,
                 Scale = Vector3.one * 0.12f,
                 PositionDelegate = () => gravityControl.position,
+                Size = SmallHandle ? HandleSize.Small : HandleSize.Normal,
             }.Build();
 
             return new GravityDragHandleController(dragHandle, gravityController, character, selectionController)

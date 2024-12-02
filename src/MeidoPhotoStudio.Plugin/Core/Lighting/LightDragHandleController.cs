@@ -64,6 +64,12 @@ public class LightDragHandleController : GeneralDragHandleController
     public override DragHandleMode Delete =>
         isMainLight ? None : delete ??= new LightDeleteMode(this);
 
+    public float HandleSize
+    {
+        get => DragHandle.Size;
+        set => DragHandle.Size = value;
+    }
+
     private LightController LightController { get; }
 
     private static Transform LightControllerTransform(LightController lightController) =>

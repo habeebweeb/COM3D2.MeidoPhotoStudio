@@ -43,6 +43,12 @@ public class GravityDragHandleController : DragHandleControllerBase
     public DragHandleMode Ignore =>
         ignore ??= new IgnoreMode(this);
 
+    public float HandleSize
+    {
+        get => DragHandle.Size;
+        set => DragHandle.Size = value;
+    }
+
     protected override void OnDestroying() =>
         gravityController.EnabledChanged -= OnEnabledChanged;
 
