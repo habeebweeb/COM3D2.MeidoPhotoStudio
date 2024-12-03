@@ -15,6 +15,7 @@ public class PropDragHandleService : IEnumerable<PropDragHandleController>
     private readonly Dictionary<PropController, PropDragHandleController> propDragHandleControllers = [];
 
     private bool smallHandle;
+    private bool autoSelect;
 
     public PropDragHandleService(
         GeneralDragHandleInputHandler generalDragHandleInputService,
@@ -46,6 +47,21 @@ public class PropDragHandleService : IEnumerable<PropDragHandleController>
                 controller.HandleSize = smallHandle ? handleSize.Small : handleSize.Normal;
                 controller.GizmoSize = smallHandle ? gizmoSize.Small : gizmoSize.Normal;
             }
+        }
+    }
+
+    public bool AutoSelect
+    {
+        get => autoSelect;
+        set
+        {
+            if (autoSelect == value)
+                return;
+
+            autoSelect = value;
+
+            foreach (var controller in propDragHandleControllers.Values)
+                controller.AutoSelect = autoSelect;
         }
     }
 
@@ -97,7 +113,10 @@ public class PropDragHandleService : IEnumerable<PropDragHandleController>
                 propController,
                 propService,
                 propSelectionController,
-                tabSelectionController);
+                tabSelectionController)
+            {
+                AutoSelect = AutoSelect,
+            };
 
             return propDragHandleController;
         }

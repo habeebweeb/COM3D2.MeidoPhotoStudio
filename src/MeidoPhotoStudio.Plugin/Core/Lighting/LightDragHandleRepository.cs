@@ -15,6 +15,7 @@ public class LightDragHandleRepository
     private readonly Dictionary<LightController, LightDragHandleController> lightDragHandleControllers = [];
 
     private bool smallHandle;
+    private bool autoSelect;
 
     public LightDragHandleRepository(
         GeneralDragHandleInputHandler generalDragHandleInputService,
@@ -45,6 +46,21 @@ public class LightDragHandleRepository
         }
     }
 
+    public bool AutoSelect
+    {
+        get => autoSelect;
+        set
+        {
+            if (value == autoSelect)
+                return;
+
+            autoSelect = value;
+
+            foreach (var controller in lightDragHandleControllers.Values)
+                controller.AutoSelect = autoSelect;
+        }
+    }
+
     private void OnAddedLight(object sender, LightRepositoryEventArgs e)
     {
         var lightDragHandleController = BuildDragHandle(e.LightController);
@@ -68,7 +84,10 @@ public class LightDragHandleRepository
             }.Build();
 
             var lightDragHandleController = new LightDragHandleController(
-                    dragHandle, lightController, lightRepository, lightSelectionController, tabSelectionController);
+                    dragHandle, lightController, lightRepository, lightSelectionController, tabSelectionController)
+            {
+                AutoSelect = AutoSelect,
+            };
 
             return lightDragHandleController;
         }

@@ -78,6 +78,8 @@ public abstract class CharacterDragHandleController : DragHandleControllerBase, 
         }
     }
 
+    public bool AutoSelect { get; set; }
+
     public virtual DragHandleMode Ignore =>
         ignore ??= new IgnoreMode(this);
 
@@ -144,7 +146,9 @@ public abstract class CharacterDragHandleController : DragHandleControllerBase, 
             controller.IKController.Dirty = true;
 
             controller.BackupBoneRotations();
-            controller.SelectionController.Select(controller.CharacterController);
+
+            if (controller.AutoSelect)
+                controller.SelectionController.Select(controller.CharacterController);
         }
 
         public override void OnReleased() =>

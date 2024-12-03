@@ -34,6 +34,8 @@ public class GravityDragHandleController : DragHandleControllerBase
         CurrentMode = MoveWorldXZ;
     }
 
+    public bool AutoSelect { get; set; }
+
     public DragHandleMode MoveWorldXZ =>
         moveWorldXZ ??= new MoveWorldXZMode(this);
 
@@ -66,7 +68,8 @@ public class GravityDragHandleController : DragHandleControllerBase
         {
             controller.startingTransform = new(controller.gravityController.Transform, Space.Self);
 
-            controller.selectionController.Select(controller.characterController);
+            if (controller.AutoSelect)
+                controller.selectionController.Select(controller.characterController);
         }
 
         public override void OnCancelled() =>

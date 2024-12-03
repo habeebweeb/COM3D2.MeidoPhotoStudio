@@ -18,6 +18,7 @@ public class IKDragHandleService : INotifyPropertyChanged
 
     private bool cubeEnabled;
     private bool smallHandle;
+    private bool autoSelect;
 
     public IKDragHandleService(
         CharacterDragHandleInputService characterDragHandleInputService,
@@ -69,6 +70,21 @@ public class IKDragHandleService : INotifyPropertyChanged
                 controller.SmallHandle = smallHandle;
 
             RaisePropertyChanged(nameof(SmallHandle));
+        }
+    }
+
+    public bool AutoSelect
+    {
+        get => autoSelect;
+        set
+        {
+            if (value == autoSelect)
+                return;
+
+            autoSelect = value;
+
+            foreach (var controller in controllers.Values)
+                controller.AutoSelect = autoSelect;
         }
     }
 
@@ -178,6 +194,7 @@ public class IKDragHandleService : INotifyPropertyChanged
 
         ikDragHandleController.SmallHandle = SmallHandle;
         ikDragHandleController.CubeEnabled = CubeEnabled;
+        ikDragHandleController.AutoSelect = AutoSelect;
 
         return ikDragHandleController;
 

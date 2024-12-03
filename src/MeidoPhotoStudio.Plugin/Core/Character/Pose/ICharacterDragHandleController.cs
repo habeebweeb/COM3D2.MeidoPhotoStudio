@@ -11,4 +11,6 @@ public interface ICharacterDragHandleController : IDragHandleController
     bool BoneMode { get; set; }
 
     bool IKEnabled { get; set; }
+
+    bool AutoSelect { get; set; }
 }

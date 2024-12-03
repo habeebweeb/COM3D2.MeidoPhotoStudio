@@ -75,6 +75,8 @@ public class PropDragHandleController : GeneralDragHandleController
         set => Gizmo.offsetScale = value;
     }
 
+    public bool AutoSelect { get; set; }
+
     private class TransformMode(
         PropDragHandleController controller,
         DragHandleMode originalMode)
@@ -84,14 +86,16 @@ public class PropDragHandleController : GeneralDragHandleController
         {
             base.OnClicked();
 
-            controller.propSelectionController.Select(controller.propController);
+            if (controller.AutoSelect)
+                controller.propSelectionController.Select(controller.propController);
         }
 
         public override void OnGizmoClicked()
         {
             base.OnGizmoClicked();
 
-            controller.propSelectionController.Select(controller.propController);
+            if (controller.AutoSelect)
+                controller.propSelectionController.Select(controller.propController);
         }
     }
 

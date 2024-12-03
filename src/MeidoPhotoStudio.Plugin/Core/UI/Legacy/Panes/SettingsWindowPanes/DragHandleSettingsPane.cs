@@ -18,6 +18,7 @@ public class DragHandleSettingsPane : BasePane
     private readonly BackgroundDragHandleService backgroundDragHandleService;
     private readonly Toggle smallDragHandleToggle;
     private readonly Toggle characterTransformDragHandleToggle;
+    private readonly Toggle autoSelectToggle;
 
     public DragHandleSettingsPane(
         DragHandleConfiguration configuration,
@@ -36,6 +37,7 @@ public class DragHandleSettingsPane : BasePane
 
         this.configuration.SmallTransformCube.SettingChanged += OnSettingsChanged;
         this.configuration.CharacterTransformCube.SettingChanged += OnSettingsChanged;
+        this.configuration.AutomaticSelection.SettingChanged += OnSettingsChanged;
 
         smallDragHandleToggle = new(
             Translation.Get("dragHandleSettingsPane", "smallDragHandleToggle"),
@@ -48,18 +50,23 @@ public class DragHandleSettingsPane : BasePane
             this.configuration.CharacterTransformCube.Value);
 
         characterTransformDragHandleToggle.ControlEvent += OnCharacterTransformDragHandleToggleChanged;
+
+        autoSelectToggle = new(Translation.Get("dragHandleSettingsPane", "autoSelectObjectToggle"), this.configuration.AutomaticSelection.Value);
+        autoSelectToggle.ControlEvent += OnAutoSelectToggleChanged;
     }
 
     public override void Draw()
     {
         smallDragHandleToggle.Draw();
         characterTransformDragHandleToggle.Draw();
+        autoSelectToggle.Draw();
     }
 
     protected override void ReloadTranslation()
     {
         smallDragHandleToggle.Label = Translation.Get("dragHandleSettingsPane", "smallDragHandleToggle");
         characterTransformDragHandleToggle.Label = Translation.Get("dragHandleSettingsPane", "characterCubeDragHandleToggle");
+        autoSelectToggle.Label = Translation.Get("dragHandleSettingsPane", "autoSelectObjectToggle");
     }
 
     private void OnSmallDragHandleToggleChanged(object sender, EventArgs e)
@@ -80,9 +87,20 @@ public class DragHandleSettingsPane : BasePane
         ikDragHandleService.CubeEnabled = configuration.CharacterTransformCube.Value;
     }
 
+    private void OnAutoSelectToggleChanged(object sender, EventArgs e)
+    {
+        configuration.AutomaticSelection.Value = autoSelectToggle.Value;
+
+        propDragHandleService.AutoSelect = configuration.AutomaticSelection.Value;
+        ikDragHandleService.AutoSelect = configuration.AutomaticSelection.Value;
+        gravityDragHandleService.AutoSelect = configuration.AutomaticSelection.Value;
+        lightDragHandleRepository.AutoSelect = configuration.AutomaticSelection.Value;
+    }
+
     private void OnSettingsChanged(object sender, EventArgs e)
     {
         smallDragHandleToggle.SetEnabledWithoutNotify(configuration.SmallTransformCube.Value);
         characterTransformDragHandleToggle.SetEnabledWithoutNotify(configuration.CharacterTransformCube.Value);
+        autoSelectToggle.SetEnabledWithoutNotify(configuration.AutomaticSelection.Value);
     }
 }

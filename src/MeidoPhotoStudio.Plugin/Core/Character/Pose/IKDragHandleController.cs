@@ -10,6 +10,7 @@ public class IKDragHandleController : IEnumerable<ICharacterDragHandleController
     private bool smallHandle;
     private bool ikEnabled = true;
     private bool boneModeEnabled;
+    private bool autoSelect;
 
     public event PropertyChangedEventHandler PropertyChanged;
 
@@ -82,6 +83,21 @@ public class IKDragHandleController : IEnumerable<ICharacterDragHandleController
                 controller.BoneMode = boneModeEnabled;
 
             RaisePropertyChanged(nameof(BoneMode));
+        }
+    }
+
+    public bool AutoSelect
+    {
+        get => autoSelect;
+        set
+        {
+            if (value == autoSelect)
+                return;
+
+            autoSelect = value;
+
+            foreach (var controller in this)
+                controller.AutoSelect = autoSelect;
         }
     }
 

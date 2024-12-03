@@ -70,6 +70,8 @@ public class LightDragHandleController : GeneralDragHandleController
         set => DragHandle.Size = value;
     }
 
+    public bool AutoSelect { get; set; }
+
     private LightController LightController { get; }
 
     private static Transform LightControllerTransform(LightController lightController) =>
@@ -119,7 +121,9 @@ public class LightDragHandleController : GeneralDragHandleController
             base.OnClicked();
 
             controller.lightScaleBackup = LightScaleValueBackup.Create(controller.LightController);
-            controller.lightSelectionController.Select(controller.LightController);
+
+            if (controller.AutoSelect)
+                controller.lightSelectionController.Select(controller.LightController);
         }
 
         public override void OnCancelled()

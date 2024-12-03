@@ -708,7 +708,8 @@
   },
   "dragHandleSettingsPane": {
     "smallDragHandleToggle": "Small transform drag handles",
-    "characterCubeDragHandleToggle": "Character transform cube drag handle"
+    "characterCubeDragHandleToggle": "Character transform cube drag handle",
+    "autoSelectObjectToggle": "Automatically select object on interaction"
   },
   "autoSaveSettingsPane": {
     "enabledToggle": "Automatically save scenes",

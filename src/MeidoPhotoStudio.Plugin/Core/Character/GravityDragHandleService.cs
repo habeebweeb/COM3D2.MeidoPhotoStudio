@@ -12,6 +12,7 @@ public class GravityDragHandleService
     private readonly Dictionary<CharacterController, GravityDragHandleSet> dragHandleSets = [];
 
     private bool smallHandle;
+    private bool autoSelect;
 
     public GravityDragHandleService(
         GravityDragHandleInputService gravityDragHandleInputService,
@@ -42,6 +43,24 @@ public class GravityDragHandleService
 
                 hair.HandleSize = handleSize;
                 clothing.HandleSize = handleSize;
+            }
+        }
+    }
+
+    public bool AutoSelect
+    {
+        get => autoSelect;
+        set
+        {
+            if (value == autoSelect)
+                return;
+
+            autoSelect = value;
+
+            foreach (var (hair, clothing) in dragHandleSets.Values)
+            {
+                hair.AutoSelect = autoSelect;
+                clothing.AutoSelect = autoSelect;
             }
         }
     }
@@ -153,6 +172,7 @@ public class GravityDragHandleService
             return new GravityDragHandleController(dragHandle, gravityController, character, selectionController)
             {
                 Enabled = false,
+                AutoSelect = AutoSelect,
             };
         }
     }

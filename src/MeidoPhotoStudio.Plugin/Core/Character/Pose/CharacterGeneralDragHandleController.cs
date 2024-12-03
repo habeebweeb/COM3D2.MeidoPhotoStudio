@@ -100,6 +100,8 @@ public class CharacterGeneralDragHandleController : GeneralDragHandleController,
         }
     }
 
+    public bool AutoSelect { get; set; }
+
     public override DragHandleMode MoveWorldXZ =>
         IKEnabled ? moveWorldXZ ??= new TransformMode(this, base.MoveWorldXZ) : None;
 
@@ -147,14 +149,16 @@ public class CharacterGeneralDragHandleController : GeneralDragHandleController,
         {
             base.OnClicked();
 
-            controller.selectionController.Select(controller.character);
+            if (controller.AutoSelect)
+                controller.selectionController.Select(controller.character);
         }
 
         public override void OnGizmoClicked()
         {
             base.OnGizmoClicked();
 
-            controller.selectionController.Select(controller.character);
+            if (controller.AutoSelect)
+                controller.selectionController.Select(controller.character);
         }
     }
 
