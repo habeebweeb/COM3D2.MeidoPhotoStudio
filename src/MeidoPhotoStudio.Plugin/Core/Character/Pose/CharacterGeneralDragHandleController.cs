@@ -21,6 +21,24 @@ public class CharacterGeneralDragHandleController : GeneralDragHandleController,
 
     public CharacterGeneralDragHandleController(
         DragHandle dragHandle,
+        CustomGizmo gizmo,
+        Transform target,
+        CharacterController character,
+        SelectionController<CharacterController> selectionController,
+        TabSelectionController tabSelectionController)
+        : base(dragHandle, gizmo, target)
+    {
+        this.character = character ?? throw new ArgumentNullException(nameof(character));
+        this.selectionController = selectionController ?? throw new ArgumentNullException(nameof(selectionController));
+        this.tabSelectionController = tabSelectionController ?? throw new ArgumentNullException(nameof(tabSelectionController));
+
+        this.character.ChangedTransform += OnTransformChanged;
+
+        TransformBackup = new(Space.World, Vector3.zero, Quaternion.identity, Vector3.one);
+    }
+
+    public CharacterGeneralDragHandleController(
+        DragHandle dragHandle,
         Transform target,
         CharacterController character,
         SelectionController<CharacterController> selectionController,
@@ -118,7 +136,7 @@ public class CharacterGeneralDragHandleController : GeneralDragHandleController,
         IKEnabled ? rotateLocalY ??= new TransformMode(this, base.RotateLocalY) : None;
 
     public override DragHandleMode Scale =>
-        IKEnabled ? scale ??= new TransformMode(this, base.Scale) : None;
+        IKEnabled ? scale ??= new TransformMode(this, new ScaleMode(this)) : None;
 
     public override DragHandleMode Select =>
         select ??= new CharacterSelectMode(this);
@@ -138,6 +156,16 @@ public class CharacterGeneralDragHandleController : GeneralDragHandleController,
             return;
 
         DragHandle.Size = character.GameObject.transform.localScale.x;
+    }
+
+    private class ScaleMode(CharacterGeneralDragHandleController controller) : ScaleMode<CharacterGeneralDragHandleController>(controller)
+    {
+        public override void OnModeEnter()
+        {
+            base.OnModeEnter();
+
+            Controller.GizmoActive = false;
+        }
     }
 
     private class TransformMode(

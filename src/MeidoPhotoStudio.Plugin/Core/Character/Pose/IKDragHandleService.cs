@@ -246,7 +246,15 @@ public class IKDragHandleService : INotifyPropertyChanged
                 PositionDelegate = () => characterTransform.position,
             }.Build();
 
-            return new(dragHandle, characterTransform, character, selectionController, tabSelectionController)
+            var gizmo = new CustomGizmo.Builder()
+            {
+                Name = $"[Cube Body Gizmo ({character})]",
+                Target = characterTransform,
+                Size = 0.45f,
+                Mode = CustomGizmo.GizmoMode.World,
+            }.Build();
+
+            return new(dragHandle, gizmo, characterTransform, character, selectionController, tabSelectionController)
             {
                 Enabled = cubeEnabled,
                 IsCube = true,
