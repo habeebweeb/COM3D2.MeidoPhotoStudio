@@ -1,3 +1,5 @@
+using MeidoPhotoStudio.Plugin.Framework.Service;
+
 namespace MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 public class TransformControl : BaseControl

@@ -1,4 +1,4 @@
-namespace MeidoPhotoStudio.Plugin.Core;
+namespace MeidoPhotoStudio.Plugin.Framework.Service;
 
 public class TransformChangeEventArgs(TransformChangeEventArgs.TransformType transformType) : EventArgs
 {

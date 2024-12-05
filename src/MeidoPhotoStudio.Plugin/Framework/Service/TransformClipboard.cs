@@ -1,4 +1,4 @@
-namespace MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
+namespace MeidoPhotoStudio.Plugin.Framework.Service;
 
 public class TransformClipboard
 {

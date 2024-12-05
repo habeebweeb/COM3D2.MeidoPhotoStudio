@@ -2,6 +2,7 @@ using System.ComponentModel;
 
 using MeidoPhotoStudio.Plugin.Core.Database.Props.Menu;
 using MeidoPhotoStudio.Plugin.Framework;
+using MeidoPhotoStudio.Plugin.Framework.Service;
 
 using CostumeType = MaidExtension.MaidCostumeChangeController.CostumeType;
 using MaskMode = TBody.MaskMode;

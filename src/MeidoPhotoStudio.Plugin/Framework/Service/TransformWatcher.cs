@@ -1,11 +1,9 @@
-using MeidoPhotoStudio.Plugin.Framework;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 
-using TransformType = MeidoPhotoStudio.Plugin.Core.TransformChangeEventArgs.TransformType;
+using TransformType = MeidoPhotoStudio.Plugin.Framework.Service.TransformChangeEventArgs.TransformType;
 
-namespace MeidoPhotoStudio.Plugin.Core;
+namespace MeidoPhotoStudio.Plugin.Framework.Service;
 
-// TODO: Should this not be in the framework namespace?
 public class TransformWatcher : MonoBehaviour
 {
     private readonly Dictionary<Transform, Action<TransformType>> subscribedTransforms = [];

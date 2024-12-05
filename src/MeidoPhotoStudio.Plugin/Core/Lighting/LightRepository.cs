@@ -1,3 +1,5 @@
+using MeidoPhotoStudio.Plugin.Framework.Service;
+
 namespace MeidoPhotoStudio.Plugin.Core.Lighting;
 
 public class LightRepository(TransformWatcher transformWatcher) : IEnumerable<LightController>, IIndexableCollection<LightController>, IActivateable

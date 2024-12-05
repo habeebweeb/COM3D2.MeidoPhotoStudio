@@ -1,3 +1,5 @@
+using MeidoPhotoStudio.Plugin.Framework.Service;
+
 namespace MeidoPhotoStudio.Plugin.Core.Character;
 
 public class ClothingGravityController(CharacterController characterController, TransformWatcher transformWatcher)

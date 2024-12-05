@@ -1,5 +1,7 @@
 using System.ComponentModel;
 
+using MeidoPhotoStudio.Plugin.Framework.Service;
+
 namespace MeidoPhotoStudio.Plugin.Core.Character;
 
 public abstract class GravityController : INotifyPropertyChanged
