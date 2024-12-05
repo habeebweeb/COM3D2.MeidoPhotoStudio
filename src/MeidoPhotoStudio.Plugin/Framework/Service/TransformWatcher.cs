@@ -19,7 +19,7 @@ public class TransformWatcher : MonoBehaviour
 
         subscribedTransforms.Add(transform, callback);
         transformBackups.Add(transform, new(transform));
-        transform.hasChanged = false;
+        transform.hasChanged = true;
     }
 
     public void Unsubscribe(Transform transform)
@@ -31,17 +31,12 @@ public class TransformWatcher : MonoBehaviour
 
         subscribedTransforms.Remove(transform);
         transformBackups.Remove(transform);
-
-        if (!subscribedTransforms.Any())
-            enabled = false;
     }
 
     internal void Clear()
     {
         subscribedTransforms.Clear();
         transformBackups.Clear();
-
-        enabled = false;
     }
 
     private void LateUpdate()
