@@ -289,6 +289,14 @@
     "addShapeKeyButton": "Add Shape Key",
     "searchShapeKeyPlaceholder": "Search Shape Keys"
   },
+  "transformInputPane": {
+    "copyButton": "Copy",
+    "pasteButton": "Paste",
+    "resetButton": "Reset",
+    "positionHeader": "Position",
+    "rotationHeader": "Rotation",
+    "scaleHeader": "Scale"
+  },
   "backgroundWindow": {
     "saveLoadButton": "Save\nLoad",
     "manageScenesButton": "Manage Scenes",
