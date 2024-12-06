@@ -405,9 +405,6 @@
     "gizmoSpaceLocal": "Local",
     "gizmoSpaceWorld": "World",
     "focusPropButton": "Focus",
-    "positionControl": "Position",
-    "rotationControl": "Rotation",
-    "scaleControl": "Scale",
     "addFavouriteButton": "Add to favourites",
     "removeFavouriteButton": "Remove from favourites"
   },
@@ -732,11 +729,6 @@
     "mainWindowWidthHeader": "Main window width",
     "mainWindowWidthHint": "Width must be at least {0} units wide",
     "saveButton": "Save",
-    "resetButton": "Reset"
-  },
-  "transformControl": {
-    "copyButton": "Copy",
-    "pasteButton": "Paste",
     "resetButton": "Reset"
   }
 }

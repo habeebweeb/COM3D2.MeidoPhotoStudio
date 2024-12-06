@@ -8,28 +8,31 @@ using UnityEngine.Rendering;
 
 namespace MeidoPhotoStudio.Plugin.Core.Props;
 
-public class PropController : INotifyPropertyChanged
+public class PropController : INotifyPropertyChanged, IObservableTransform
 {
     private readonly TransformWatcher transformWatcher;
 
     public PropController(IPropModel propModel, GameObject prop, TransformWatcher transformWatcher, ShapeKeyController shapeKeyController = null)
     {
-        InitialTransform = new(prop.transform);
-        GameObject = prop ? prop : throw new ArgumentNullException(nameof(prop));
         PropModel = propModel ?? throw new ArgumentNullException(nameof(propModel));
+        GameObject = prop ? prop : throw new ArgumentNullException(nameof(prop));
         this.transformWatcher = transformWatcher ? transformWatcher : throw new ArgumentNullException(nameof(transformWatcher));
         ShapeKeyController = shapeKeyController;
+        InitialTransform = new(prop.transform);
 
         this.transformWatcher.Subscribe(GameObject.transform, RaiseTransformChanged);
     }
 
-    public event EventHandler<TransformChangeEventArgs> TransformChanged;
+    public event EventHandler<TransformChangeEventArgs> ChangedTransform;
 
     public event PropertyChangedEventHandler PropertyChanged;
 
     public TransformBackup InitialTransform { get; init; }
 
     public GameObject GameObject { get; }
+
+    public Transform Transform =>
+        GameObject ? GameObject.transform : null;
 
     public IPropModel PropModel { get; }
 
@@ -69,7 +72,7 @@ public class PropController : INotifyPropertyChanged
         if (!GameObject)
             return;
 
-        var propPosition = GameObject.transform.position;
+        var propPosition = Transform.position;
         var cameraAngle = GameMain.Instance.MainCamera.transform.eulerAngles;
         var cameraDistance = GameMain.Instance.MainCamera.GetDistance();
 
@@ -81,7 +84,7 @@ public class PropController : INotifyPropertyChanged
         if (!GameObject)
             return;
 
-        transformWatcher.Unsubscribe(GameObject.transform);
+        transformWatcher.Unsubscribe(Transform);
 
         if (PropModel is MenuFilePropModel)
         {
@@ -116,5 +119,5 @@ public class PropController : INotifyPropertyChanged
     }
 
     private void RaiseTransformChanged(TransformChangeEventArgs.TransformType type) =>
-        TransformChanged?.Invoke(this, new(type));
+        ChangedTransform?.Invoke(this, new(type));
 }
