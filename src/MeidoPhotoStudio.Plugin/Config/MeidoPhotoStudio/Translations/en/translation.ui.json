@@ -64,7 +64,8 @@
     "limitDigitsToggle": "Limit Fingers/Toes",
     "customFloorHeightHeader": "Custom Floor Height",
     "customFloorHeightEnabledToggle": "Enabled",
-    "flipPoseToggle": "Flip Pose"
+    "flipPoseToggle": "Flip Pose",
+    "preciseTransformToggle": "Precise Transform"
   },
   "poseGroupDropdown": {
     "normal": "Normal",

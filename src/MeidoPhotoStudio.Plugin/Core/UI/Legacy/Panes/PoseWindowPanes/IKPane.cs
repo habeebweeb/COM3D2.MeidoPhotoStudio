@@ -2,6 +2,7 @@ using System.ComponentModel;
 
 using MeidoPhotoStudio.Plugin.Core.Character;
 using MeidoPhotoStudio.Plugin.Core.Character.Pose;
+using MeidoPhotoStudio.Plugin.Framework.Service;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
@@ -21,16 +22,20 @@ public class IKPane : BasePane
     private readonly Button flipButton;
     private readonly RepeatButton decreaseFloorHeightButton;
     private readonly RepeatButton increaseFloorHeightButton;
+    private readonly Toggle transformInputToggle;
+    private readonly TransformInputPane transformInputPane;
     private readonly Header customFloorHeightHeader;
 
     public IKPane(
         IKDragHandleService ikDragHandleService,
         CharacterUndoRedoService characterUndoRedoService,
-        SelectionController<CharacterController> characterSelectionController)
+        SelectionController<CharacterController> characterSelectionController,
+        TransformClipboard transformClipboard)
     {
         this.ikDragHandleService = ikDragHandleService ?? throw new ArgumentNullException(nameof(ikDragHandleService));
         this.characterUndoRedoService = characterUndoRedoService ?? throw new ArgumentNullException(nameof(characterUndoRedoService));
         this.characterSelectionController = characterSelectionController ?? throw new ArgumentNullException(nameof(characterSelectionController));
+        _ = transformClipboard ?? throw new ArgumentNullException(nameof(transformClipboard));
 
         this.characterSelectionController.Selecting += OnCharacterSelectionChanging;
         this.characterSelectionController.Selected += OnCharacterSelectionChanged;
@@ -65,6 +70,15 @@ public class IKPane : BasePane
 
         flipButton = new(Translation.Get("maidPoseWindow", "flipPoseToggle"));
         flipButton.ControlEvent += OnFlipButtonPushed;
+
+        transformInputToggle = new(Translation.Get("maidPoseWindow", "preciseTransformToggle"));
+
+        transformInputPane = new(transformClipboard)
+        {
+            LinkScale = true,
+        };
+
+        Add(transformInputPane);
     }
 
     private CharacterUndoRedoController CharacterUndoRedo =>
@@ -93,6 +107,13 @@ public class IKPane : BasePane
         UIUtility.DrawBlackLine();
 
         DrawFlip(enabled);
+
+        UIUtility.DrawBlackLine();
+
+        transformInputToggle.Draw();
+
+        if (transformInputToggle.Value)
+            transformInputPane.Draw();
 
         void DrawIK(bool enabled)
         {
@@ -162,6 +183,7 @@ public class IKPane : BasePane
         customFloorHeightHeader.Text = Translation.Get("maidPoseWindow", "customFloorHeightHeader");
         customFloorHeightToggle.Label = Translation.Get("maidPoseWindow", "customFloorHeightEnabledToggle");
         flipButton.Label = Translation.Get("maidPoseWindow", "flipPoseToggle");
+        transformInputToggle.Label = Translation.Get("maidPoseWindow", "preciseTransformToggle");
     }
 
     private void OnCharacterSelectionChanging(object sender, SelectionEventArgs<CharacterController> e)
@@ -180,6 +202,8 @@ public class IKPane : BasePane
 
     private void OnCharacterSelectionChanged(object sender, SelectionEventArgs<CharacterController> e)
     {
+        transformInputPane.Target = e.Selected;
+
         if (e.Selected is null)
             return;
 

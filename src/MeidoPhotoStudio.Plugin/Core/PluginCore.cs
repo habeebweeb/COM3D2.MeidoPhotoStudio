@@ -420,6 +420,8 @@ public partial class PluginCore : MonoBehaviour
             [SettingsWindow.SettingType.Translation] = new TranslationSettingsPane(),
         };
 
+        TransformClipboard transformClipboard = new();
+
         var mainWindow = new MainWindow(tabSelectionController, customMaidSceneService, inputRemapper, settingsWindow)
         {
             WindowWidth = uiConfiguration.WindowWidth.Value,
@@ -438,7 +440,7 @@ public partial class PluginCore : MonoBehaviour
                     [CharacterPane.CharacterWindowTab.Pose] =
                     [
                         new AnimationSelectorPane(gameAnimationRepository, customAnimationRepository, characterUndoRedoService, characterSelectionController, customAnimationRepositorySorter),
-                        new IKPane(ikDragHandleService, characterUndoRedoService,  characterSelectionController),
+                        new IKPane(ikDragHandleService, characterUndoRedoService,  characterSelectionController, transformClipboard),
                         new AnimationPane(characterUndoRedoService, characterSelectionController),
                         new FreeLookPane(characterSelectionController),
                         new DressingPane(characterSelectionController),
@@ -498,7 +500,7 @@ public partial class PluginCore : MonoBehaviour
                         propService, myRoomPropRepository, iconCache),
                     [PropsPane.PropCategory.Favourite] = new FavouritePropsPane(propService, favouritePropRepository, iconCache),
                 },
-                new PropManagerPane(propService, favouritePropRepository, propDragHandleService, propSelectionController, new()),
+                new PropManagerPane(propService, favouritePropRepository, propDragHandleService, propSelectionController, transformClipboard),
                 new PropShapeKeyPane(propSelectionController),
                 new AttachPropPane(characterService, propAttachmentService, propSelectionController),
             },

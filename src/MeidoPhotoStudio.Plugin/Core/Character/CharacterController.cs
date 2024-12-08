@@ -1,11 +1,12 @@
 using MeidoPhotoStudio.Plugin.Core.Character.Pose;
 using MeidoPhotoStudio.Plugin.Core.Database.Character;
 using MeidoPhotoStudio.Plugin.Core.Patchers;
+using MeidoPhotoStudio.Plugin.Framework;
 using MeidoPhotoStudio.Plugin.Framework.Service;
 
 namespace MeidoPhotoStudio.Plugin.Core.Character;
 
-public class CharacterController(CharacterModel characterModel, TransformWatcher transformWatcher)
+public class CharacterController(CharacterModel characterModel, TransformWatcher transformWatcher) : IObservableTransform
 {
     private readonly TransformWatcher transformWatcher = transformWatcher
         ? transformWatcher
@@ -37,6 +38,8 @@ public class CharacterController(CharacterModel characterModel, TransformWatcher
     public BodyController Body { get; private set; }
 
     public int Slot { get; private set; }
+
+    public TransformBackup InitialTransform { get; } = new(Space.World, Vector3.zero, Quaternion.identity, Vector3.one);
 
     public Maid Maid =>
         CharacterModel.Maid;
