@@ -14,21 +14,21 @@ public class BlurPane : EffectPane<BlurController>
     public BlurPane(BlurController effectController)
         : base(effectController)
     {
-        blurSizeSlider = new("Blur Size", 0f, 20f, Effect.BlurSize)
+        blurSizeSlider = new(Translation.Get("effectBlur", "blurSize"), 0f, 20f, Effect.BlurSize)
         {
             HasTextField = true,
         };
 
         blurSizeSlider.ControlEvent += OnBlurSizeChanged;
 
-        blurIterationsSlider = new("Blur Iterations", 0f, 20f, Effect.BlurIterations)
+        blurIterationsSlider = new(Translation.Get("effectBlur", "blurIterations"), 0f, 20f, Effect.BlurIterations)
         {
             HasTextField = true,
         };
 
         blurIterationsSlider.ControlEvent += OnBlurIterationsChanged;
 
-        downsampleSlider = new("Downsample", 0f, 10f, Effect.Downsample)
+        downsampleSlider = new(Translation.Get("effectBlur", "downsample"), 0f, 10f, Effect.Downsample)
         {
             HasTextField = true,
         };
@@ -43,6 +43,15 @@ public class BlurPane : EffectPane<BlurController>
         blurSizeSlider.Draw();
         blurIterationsSlider.Draw();
         downsampleSlider.Draw();
+    }
+
+    protected override void ReloadTranslation()
+    {
+        base.ReloadTranslation();
+
+        blurSizeSlider.Label = Translation.Get("effectBlur", "blurSize");
+        blurIterationsSlider.Label = Translation.Get("effectBlur", "blurIterations");
+        downsampleSlider.Label = Translation.Get("effectBlur", "downsample");
     }
 
     protected override void OnEffectPropertyChanged(object sender, PropertyChangedEventArgs e)

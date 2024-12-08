@@ -497,6 +497,11 @@
     "green": "Green",
     "blue": "Blue"
   },
+  "effectBlur": {
+    "blurSize": "Blur Size",
+    "blurIterations": "Blur Iterations",
+    "downsample": "Downsample"
+  },
   "background2Window": {
     "envButton": "Environments",
     "itemLabel": "Item",
