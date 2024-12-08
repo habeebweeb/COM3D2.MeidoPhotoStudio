@@ -176,6 +176,7 @@ public class TransformInputPane : BasePane
 
         private readonly TransformClipboard clipboard;
         private readonly TransformType transformType;
+        private readonly float deltaScaling;
         private readonly Button copyButton;
         private readonly Button pasteButton;
         private readonly Button resetButton;
@@ -183,6 +184,13 @@ public class TransformInputPane : BasePane
         private readonly NumericalTextField yTextField;
         private readonly NumericalTextField zTextField;
         private readonly Label header;
+
+        private Vector3 initialValue;
+        private float clickTime;
+        private bool mouseDown;
+        private bool xFocus;
+        private bool yFocus;
+        private bool zFocus;
 
         public TransformControl(TransformClipboard clipboard, TransformType transformType)
         {
@@ -207,6 +215,14 @@ public class TransformInputPane : BasePane
             xTextField.ControlEvent += OnXTextFieldChanged;
             yTextField.ControlEvent += OnYTextFieldChanged;
             zTextField.ControlEvent += OnZTextFieldChanged;
+
+            deltaScaling = this.transformType switch
+            {
+                TransformType.Position => 0.015f,
+                TransformType.Rotation => 1.7f,
+                TransformType.Scale => 0.015f,
+                _ => 1f,
+            };
         }
 
         public Vector3 DefaultValue { get; set; }
@@ -242,15 +258,104 @@ public class TransformInputPane : BasePane
             GUILayout.BeginHorizontal();
 
             GUILayout.Label(XLabelContent, LabelStyle);
+
+            Rect xRect = default;
+
+            if (!mouseDown)
+                xRect = GUILayoutUtility.GetLastRect();
+
             xTextField.Draw(layoutOptions);
 
             GUILayout.Label(YLabelContent, LabelStyle);
+
+            Rect yRect = default;
+
+            if (!mouseDown)
+                yRect = GUILayoutUtility.GetLastRect();
+
             yTextField.Draw(layoutOptions);
 
             GUILayout.Label(ZLabelContent, LabelStyle);
+
+            Rect zRect = default;
+
+            if (!mouseDown)
+                zRect = GUILayoutUtility.GetLastRect();
+
             zTextField.Draw(layoutOptions);
 
             GUILayout.EndHorizontal();
+
+            if (!mouseDown)
+            {
+                if (Event.current is { type: EventType.MouseDown } e)
+                {
+                    xFocus = xRect.Contains(e.mousePosition);
+                    yFocus = yRect.Contains(e.mousePosition);
+                    zFocus = zRect.Contains(e.mousePosition);
+
+                    mouseDown = xFocus || yFocus || zFocus;
+
+                    if (mouseDown)
+                    {
+                        if (Time.time - clickTime <= 0.3f)
+                        {
+                            if (xFocus)
+                                xTextField.Value = DefaultValue.x;
+                            else if (yFocus)
+                                yTextField.Value = DefaultValue.y;
+                            else if (zFocus)
+                                zTextField.Value = DefaultValue.z;
+
+                            mouseDown = false;
+                        }
+
+                        clickTime = Time.time;
+                        initialValue = Value;
+                        e.Use();
+                    }
+                }
+            }
+            else
+            {
+                if (Event.current is { type: EventType.MouseDown, button: 1 } e)
+                {
+                    Value = initialValue;
+                    StopDrag();
+                    e.Use();
+                }
+                else if (UnityEngine.Input.GetMouseButtonDown(1) && Event.current.type is EventType.Repaint)
+                {
+                    Value = initialValue;
+                    StopDrag();
+                }
+                else if (!UnityEngine.Input.GetMouseButton(0))
+                {
+                    StopDrag();
+                }
+                else
+                {
+                    var delta = UnityEngine.Input.GetAxis("Mouse X") * deltaScaling;
+
+                    if (UnityEngine.Input.GetKey(KeyCode.LeftControl))
+                        delta *= 0.25f;
+
+                    if (xFocus)
+                        xTextField.Value += delta;
+                    else if (yFocus)
+                        yTextField.Value += delta;
+                    else if (zFocus)
+                        zTextField.Value += delta;
+                }
+
+                void StopDrag()
+                {
+                    mouseDown = false;
+                    xFocus = false;
+                    yFocus = false;
+                    zFocus = false;
+                }
+            }
         }
 
         public void ReloadTranslation()
