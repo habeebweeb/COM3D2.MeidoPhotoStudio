@@ -439,7 +439,8 @@
     "disable": "Off",
     "resetLabel": "Reset",
     "noLights": "No Lights",
-    "on": "On"
+    "on": "On",
+    "preciseTransformToggle": "Precise Transform"
   },
   "lightType": {
     "main": "Main",

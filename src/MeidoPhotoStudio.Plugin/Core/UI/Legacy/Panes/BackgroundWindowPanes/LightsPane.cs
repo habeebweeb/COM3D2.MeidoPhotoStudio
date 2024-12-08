@@ -2,6 +2,7 @@ using System.ComponentModel;
 
 using MeidoPhotoStudio.Plugin.Core.Lighting;
 using MeidoPhotoStudio.Plugin.Framework;
+using MeidoPhotoStudio.Plugin.Framework.Service;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
@@ -28,6 +29,8 @@ public class LightsPane : BasePane
     private readonly Slider redSlider;
     private readonly Slider greenSlider;
     private readonly Slider blueSlider;
+    private readonly Toggle transformInputToggle;
+    private readonly TransformInputPane transformInputPane;
     private readonly Button resetPositionButton;
     private readonly Button resetPropertiesButton;
     private readonly PaneHeader paneHeader;
@@ -37,10 +40,14 @@ public class LightsPane : BasePane
     private string noLights;
     private bool sliderChangedTransform;
 
-    public LightsPane(LightRepository lightRepository, SelectionController<LightController> lightSelectionController)
+    public LightsPane(
+        LightRepository lightRepository,
+        SelectionController<LightController> lightSelectionController,
+        TransformClipboard transformClipboard)
     {
         this.lightRepository = lightRepository ?? throw new ArgumentNullException(nameof(lightRepository));
         this.lightSelectionController = lightSelectionController ?? throw new ArgumentNullException(nameof(lightSelectionController));
+        _ = transformClipboard ?? throw new ArgumentNullException(nameof(transformClipboard));
 
         lightRepository.AddedLight += OnAddedLight;
         lightRepository.RemovedLight += OnRemovedLight;
@@ -150,6 +157,15 @@ public class LightsPane : BasePane
         resetPositionButton = new Button(Translation.Get("lightsPane", "resetPosition"));
         resetPositionButton.ControlEvent += OnResetPositionButtonPressed;
 
+        transformInputToggle = new(Translation.Get("lightsPane", "preciseTransformToggle"));
+
+        transformInputPane = new(transformClipboard)
+        {
+            EnableScale = false,
+        };
+
+        Add(transformInputPane);
+
         LabelledDropdownItem LightNameFormatter(LightController light, int index) =>
             new(lightNames[light]);
     }
@@ -196,6 +212,11 @@ public class LightsPane : BasePane
         UIUtility.DrawBlackLine();
 
         DrawColourControls();
+
+        transformInputToggle.Draw();
+
+        if (transformInputToggle.Value)
+            transformInputPane.Draw();
 
         DrawReset();
 
@@ -306,6 +327,7 @@ public class LightsPane : BasePane
         blueSlider.Label = Translation.Get("lights", "blue");
         resetPropertiesButton.Label = Translation.Get("lightsPane", "resetProperties");
         resetPositionButton.Label = Translation.Get("lightsPane", "resetPosition");
+        transformInputToggle.Label = Translation.Get("lightsPane", "preciseTransformToggle");
     }
 
     private void OnSelectingLight(object sender, SelectionEventArgs<LightController> e)
@@ -319,6 +341,8 @@ public class LightsPane : BasePane
 
     private void OnSelectedLight(object sender, SelectionEventArgs<LightController> e)
     {
+        transformInputPane.Target = e.Selected;
+
         if (CurrentLightController is null)
             return;
 

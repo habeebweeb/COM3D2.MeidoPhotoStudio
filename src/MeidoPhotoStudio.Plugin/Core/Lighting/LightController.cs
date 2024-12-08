@@ -6,7 +6,7 @@ using MeidoPhotoStudio.Plugin.Framework.Service;
 
 namespace MeidoPhotoStudio.Plugin.Core.Lighting;
 
-public class LightController : INotifyPropertyChanged
+public class LightController : INotifyPropertyChanged, IObservableTransform
 {
     public static readonly Vector3 DefaultPosition = new(0f, 1.9f, 0.4f);
 
@@ -24,13 +24,21 @@ public class LightController : INotifyPropertyChanged
         lightProperties[LightPropertiesIndex(LightType.Directional)] = LightProperties.FromLight(Light);
 
         Type = LightType.Directional;
+        InitialTransform = new(Light.transform);
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
 
     public event EventHandler<KeyedPropertyChangeEventArgs<LightType>> ChangedLightType;
 
+    public event EventHandler<TransformChangeEventArgs> ChangedTransform;
+
+    public TransformBackup InitialTransform { get; }
+
     public Light Light { get; }
+
+    public Transform Transform =>
+        Light ? Light.transform : null;
 
     public bool Enabled
     {
@@ -249,6 +257,8 @@ public class LightController : INotifyPropertyChanged
             RaisePropertyChanged(nameof(Rotation));
         else if (type.HasFlag(TransformChangeEventArgs.TransformType.Position))
             RaisePropertyChanged(nameof(Position));
+
+        ChangedTransform?.Invoke(this, new(type));
     }
 
     private void RaisePropertyChanged(string name)

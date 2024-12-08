@@ -469,7 +469,7 @@ public partial class PluginCore : MonoBehaviour
                 new SceneManagementPane(sceneBrowser, quickSaveService),
                 new BackgroundsPane(backgroundService, backgroundRepository, backgroundDragHandleService),
                 new CameraPane(cameraController, cameraSaveSlotController),
-                new LightsPane(lightRepository, lightSelectionController),
+                new LightsPane(lightRepository, lightSelectionController, transformClipboard),
                 new EffectsPane()
                 {
                     [EffectsPane.EffectType.Bloom] = new BloomPane(bloomController),
