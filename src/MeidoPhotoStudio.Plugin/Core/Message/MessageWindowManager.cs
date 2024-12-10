@@ -86,7 +86,7 @@ public class MessageWindowManager : INotifyPropertyChanged, IActivateable
         get => messageLabel.fontSize;
         set
         {
-            var newFontSize = Mathf.Clamp(value, FontBounds.Minimum, FontBounds.Minimum);
+            var newFontSize = Mathf.Clamp(value, FontBounds.Minimum, FontBounds.Maximum);
 
             if (newFontSize == FontSize)
                 return;
