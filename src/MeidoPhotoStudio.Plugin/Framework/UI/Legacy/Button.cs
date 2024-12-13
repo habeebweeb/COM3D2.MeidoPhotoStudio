@@ -14,7 +14,7 @@ public class Button : BaseControl
         Icon = icon;
 
     public static LazyStyle Style { get; } = new(
-        13,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.button)
         {
             wordWrap = true,

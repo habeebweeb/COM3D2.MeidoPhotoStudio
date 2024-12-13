@@ -16,14 +16,14 @@ public class SettingsWindow : BaseWindow
     private readonly Header currentSettingHeader;
     private readonly Label pluginInformationLabel;
     private readonly LazyStyle settingCategoryStyle = new(
-        15,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.button)
         {
             alignment = TextAnchor.MiddleLeft,
         });
 
     private readonly LazyStyle headerStyle = new(
-        15,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.label)
         {
             padding = new(0, 0, 2, 0),
@@ -33,7 +33,7 @@ public class SettingsWindow : BaseWindow
         });
 
     private readonly LazyStyle buildVersionStyle = new(
-        11,
+        StyleSheet.SecondaryTextSize,
         static () => new(GUI.skin.label)
         {
             alignment = TextAnchor.LowerLeft,

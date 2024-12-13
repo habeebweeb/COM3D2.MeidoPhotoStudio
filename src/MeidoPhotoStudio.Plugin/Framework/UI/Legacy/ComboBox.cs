@@ -7,7 +7,7 @@ public class ComboBox : DropdownBase<string>
     private static readonly Func<string, int, IDropdownItem> DefaultFormatter = static (string item, int index) =>
         new LabelledDropdownItem(string.IsNullOrEmpty(item) ? string.Empty : item);
 
-    private static readonly LazyStyle ButtonStyle = new(13, static () => new(GUI.skin.button));
+    private static readonly LazyStyle ButtonStyle = new(StyleSheet.TextSize, static () => new(GUI.skin.button));
 
     private readonly SearchBar<string> searchBar;
 

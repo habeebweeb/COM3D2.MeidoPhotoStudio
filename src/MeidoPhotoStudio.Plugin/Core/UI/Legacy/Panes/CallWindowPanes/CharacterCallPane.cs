@@ -8,18 +8,16 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
 public class CharacterCallPane : BasePane, IVirtualListHandler
 {
-    private const int FontSize = 13;
-
     private readonly CallController characterCallController;
     private readonly LazyStyle labelStyle = new(
-        FontSize,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.label)
         {
             alignment = TextAnchor.MiddleLeft,
         });
 
     private readonly LazyStyle selectedIndexStyle = new(
-        FontSize,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.label)
         {
             normal = { textColor = Color.black },
@@ -27,7 +25,7 @@ public class CharacterCallPane : BasePane, IVirtualListHandler
         });
 
     private readonly LazyStyle selectedLabelStyle = new(
-        FontSize,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.label)
         {
             normal = { textColor = Color.black },

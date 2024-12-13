@@ -5,7 +5,7 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 public class PaneHeader(string label, bool open = true) : BaseControl
 {
     private static readonly LazyStyle ToggleStyle = new(
-        15,
+        StyleSheet.HeadingSize,
         static () => new(GUI.skin.toggle)
         {
             padding = new(15, 0, 2, 0),

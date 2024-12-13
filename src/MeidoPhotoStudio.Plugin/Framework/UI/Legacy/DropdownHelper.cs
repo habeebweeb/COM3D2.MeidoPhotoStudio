@@ -20,7 +20,7 @@ internal static class DropdownHelper
     private static Rect dropdownScrollRect;
 
     public static LazyStyle DefaultDropdownStyle { get; } = new(
-        13,
+        StyleSheet.TextSize,
         static () =>
         {
             var whiteBackground = new Texture2D(2, 2);

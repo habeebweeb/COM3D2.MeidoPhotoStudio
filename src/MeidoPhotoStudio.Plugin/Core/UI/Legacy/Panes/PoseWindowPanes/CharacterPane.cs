@@ -14,9 +14,9 @@ public class CharacterPane : BasePane
 
     private readonly Label noCharactersLabel;
     private readonly SelectionGrid tabSelectionGrid;
-    private readonly LazyStyle tabStyle = new(13, static () => new(GUI.skin.button));
+    private readonly LazyStyle tabStyle = new(StyleSheet.TextSize, static () => new(GUI.skin.button));
     private readonly LazyStyle labelStyle = new(
-        13,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.label)
         {
             alignment = TextAnchor.MiddleCenter,

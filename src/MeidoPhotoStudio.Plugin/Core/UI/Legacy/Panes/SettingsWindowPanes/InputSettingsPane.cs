@@ -22,15 +22,15 @@ public class InputSettingsPane : BasePane
     private readonly GUIContent pushAnyKeyLabel = new("Push any key combo");
     private readonly GUIContent clearBindingLabel = new("Clear");
     private readonly GUIContent resetBindingLabel = new("Reset");
-    private readonly LazyStyle labelStyle = new(13, static () => new(GUI.skin.label));
+    private readonly LazyStyle labelStyle = new(StyleSheet.TextSize, static () => new(GUI.skin.label));
     private readonly LazyStyle inputButtonStyle = new(
-        13,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.button)
         {
             wordWrap = true,
         });
 
-    private readonly LazyStyle buttonStyle = new(13, static () => new(GUI.skin.button));
+    private readonly LazyStyle buttonStyle = new(StyleSheet.TextSize, static () => new(GUI.skin.button));
 
     private Hotkey currentHotkey;
     private Shortcut currentShortcut;

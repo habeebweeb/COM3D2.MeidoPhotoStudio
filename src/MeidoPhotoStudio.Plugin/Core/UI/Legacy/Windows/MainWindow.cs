@@ -7,7 +7,7 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 /// <summary>Main window.</summary>
 public partial class MainWindow : BaseWindow
 {
-    public const int MinimumWindowWidth = 255;
+    public const int MinimumWindowWidth = 300;
 
     private const float ResizeHandleSize = 15f;
     private const float MinimumWindowHeight = 400f;
@@ -21,13 +21,13 @@ public partial class MainWindow : BaseWindow
     private readonly SelectionGrid tabSelectionGrid;
     private readonly Button settingsButton;
     private readonly LazyStyle pluginInfoStyle = new(
-        10,
+        StyleSheet.SecondaryTextSize,
         static () => new(GUI.skin.label)
         {
             alignment = TextAnchor.LowerLeft,
         });
 
-    private readonly LazyStyle tabsStyle = new(13, static () => new(GUI.skin.button));
+    private readonly LazyStyle tabsStyle = new(StyleSheet.TextSize, static () => new(GUI.skin.button));
 
     private int windowWidth = MinimumWindowWidth;
     private Rect resizeHandleRect = new(0f, 0f, ResizeHandleSize, ResizeHandleSize);

@@ -10,7 +10,7 @@ public class TextArea : BaseControl
 
     public event EventHandler LostFocus;
 
-    public static LazyStyle Style { get; } = new(13, static () => new(GUI.skin.textArea));
+    public static LazyStyle Style { get; } = new(StyleSheet.TextSize, static () => new(GUI.skin.textArea));
 
     public string Value { get; set; } = string.Empty;
 

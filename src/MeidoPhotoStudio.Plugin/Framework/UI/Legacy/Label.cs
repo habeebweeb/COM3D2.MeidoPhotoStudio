@@ -6,7 +6,7 @@ public class Label(string text) : BaseControl
     private GUIContent content = new(text);
 
     public static LazyStyle Style { get; } = new(
-        13,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.label)
         {
             wordWrap = true,

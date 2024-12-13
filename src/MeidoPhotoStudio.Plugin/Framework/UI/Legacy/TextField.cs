@@ -33,7 +33,7 @@ public class TextField : BaseControl
     public event EventHandler ChangedValue;
 
     public static LazyStyle Style { get; } = new(
-        13,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.textField)
         {
             alignment = TextAnchor.MiddleLeft,
@@ -76,7 +76,7 @@ public class TextField : BaseControl
         clearButtonTexture ? clearButtonTexture : clearButtonTexture = LoadIconFromBase64(EncodedClearButtonImage);
 
     private static LazyStyle PlaceholderStyle { get; } = new(
-        13,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.label)
         {
             padding = new(5, 5, 0, 0),

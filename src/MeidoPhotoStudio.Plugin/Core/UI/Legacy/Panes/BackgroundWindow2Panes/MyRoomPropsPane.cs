@@ -12,7 +12,7 @@ public class MyRoomPropsPane : BasePane, IVirtualListHandler
     private readonly IconCache iconCache;
     private readonly VirtualList virtualList;
     private readonly LazyStyle buttonStyle = new(
-        13,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.button)
         {
             padding = new(0, 0, 0, 0),

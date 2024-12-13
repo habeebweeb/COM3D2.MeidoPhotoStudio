@@ -28,7 +28,7 @@ public class Slider : BaseControl
     public event EventHandler PushingResetButton;
 
     public static LazyStyle LabelStyle { get; } = new(
-        13,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.label)
         {
             alignment = TextAnchor.LowerLeft,
@@ -47,7 +47,7 @@ public class Slider : BaseControl
     public static LazyStyle SliderThumbStyle { get; } = new(0, static () => new(GUI.skin.horizontalSliderThumb));
 
     public static LazyStyle ResetButtonStyle { get; } = new(
-        10,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.button)
         {
             alignment = TextAnchor.MiddleRight,

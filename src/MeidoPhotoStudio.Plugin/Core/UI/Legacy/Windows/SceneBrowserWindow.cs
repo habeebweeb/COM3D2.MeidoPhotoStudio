@@ -13,7 +13,6 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
     private const float ThumbnailScale = 0.4f;
     private const float ResizeHandleSize = 15f;
     private const int CategoryListWidth = 200;
-    private const int FontSize = 13;
 
     private static readonly Texture2D CategorySelectedTexture = UIUtility.CreateTexture(2, 2, new(0.5f, 0.5f, 0.5f, 0.4f));
     private static readonly Vector2 ThumbnailDimensions = new(600f, 337.5f);
@@ -25,14 +24,14 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
     private readonly InputRemapper inputRemapper;
     private readonly ScreenshotService screenshotService;
     private readonly LazyStyle labelStyle = new(
-        FontSize,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.label)
         {
             alignment = TextAnchor.MiddleCenter,
         });
 
     private readonly LazyStyle categoryStyle = new(
-        FontSize,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.button)
         {
             alignment = TextAnchor.MiddleLeft,
@@ -40,7 +39,7 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
         });
 
     private readonly LazyStyle selectedCategoryStyle = new(
-        FontSize,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.button)
         {
             alignment = TextAnchor.MiddleLeft,
@@ -54,14 +53,14 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
         });
 
     private readonly LazyStyle deleteButtonStyle = new(
-        FontSize,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.button)
         {
             margin = new(0, 0, 0, 0),
         });
 
     private readonly LazyStyle thumbnailStyle = new(
-        FontSize,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.label)
         {
             alignment = TextAnchor.MiddleCenter,

@@ -3,7 +3,7 @@ namespace MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 public class Dropdown<T> : DropdownBase<T>
 {
     private static readonly LazyStyle ButtonStyle = new(
-        13,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.button)
         {
             alignment = TextAnchor.MiddleLeft,

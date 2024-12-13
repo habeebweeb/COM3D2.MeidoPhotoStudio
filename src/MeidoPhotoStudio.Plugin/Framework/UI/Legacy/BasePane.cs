@@ -12,6 +12,8 @@ public abstract class BasePane : IEnumerable<BasePane>
     protected IEnumerable<BasePane> Panes =>
         panes ?? [];
 
+    private int TextFieldHeight { get; } = Mathf.CeilToInt(StyleSheet.TextSize * 1.85f);
+
     public abstract void Draw();
 
     public void Add<T>(T pane)
@@ -91,17 +93,17 @@ public abstract class BasePane : IEnumerable<BasePane>
     protected void DrawComboBox(ComboBox comboBox) =>
         comboBox.Draw(
             GUILayout.Width(Parent.WindowRect.width - 56f),
-            GUILayout.Height(UIUtility.Scaled(22f)));
+            GUILayout.Height(Mathf.Max(23f, UIUtility.Scaled(TextFieldHeight))));
 
     protected void DrawTextFieldMaxWidth(BaseControl textField) =>
         textField.Draw(
             GUILayout.Width(Parent.WindowRect.width - 10f),
-            GUILayout.Height(UIUtility.Scaled(22f)));
+            GUILayout.Height(Mathf.Max(23f, UIUtility.Scaled(TextFieldHeight))));
 
     protected void DrawTextFieldWithScrollBarOffset(BaseControl textField) =>
         textField.Draw(
             GUILayout.Width(Parent.WindowRect.width - 35f),
-            GUILayout.Height(UIUtility.Scaled(22f)));
+            GUILayout.Height(Mathf.Max(23f, UIUtility.Scaled(TextFieldHeight))));
 
     private void OnReloadTranslation(object sender, EventArgs args) =>
         ReloadTranslation();

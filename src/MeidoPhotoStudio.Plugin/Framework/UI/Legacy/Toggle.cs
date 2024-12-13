@@ -19,7 +19,7 @@ public class Toggle : BaseControl
         value = state;
 
     public static LazyStyle Style { get; } = new(
-        13,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.toggle)
         {
             wordWrap = true,

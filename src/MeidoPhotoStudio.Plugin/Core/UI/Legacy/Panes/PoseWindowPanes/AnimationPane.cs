@@ -24,7 +24,7 @@ public class AnimationPane : BasePane
     private readonly SelectionController<CharacterController> characterSelectionController;
     private readonly CharacterUndoRedoService characterUndoRedoService;
     private readonly PaneHeader paneHeader;
-    private readonly LazyStyle playPauseButtonStyle = new(13, static () => new(GUI.skin.button));
+    private readonly LazyStyle playPauseButtonStyle = new(StyleSheet.TextSize, static () => new(GUI.skin.button));
 
     public AnimationPane(
         CharacterUndoRedoService characterUndoRedoService,

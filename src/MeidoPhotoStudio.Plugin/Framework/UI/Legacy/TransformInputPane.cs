@@ -163,13 +163,13 @@ public class TransformInputPane : BasePane
     private class TransformControl : BaseControl
     {
         private static readonly LazyStyle HeaderStyle = new(
-            14,
+            StyleSheet.SubHeadingSize,
             static () => new(GUI.skin.label)
             {
                 fontStyle = FontStyle.Bold,
             });
 
-        private static readonly LazyStyle LabelStyle = new(13, static () => new(GUI.skin.label));
+        private static readonly LazyStyle LabelStyle = new(StyleSheet.TextSize, static () => new(GUI.skin.label));
         private static readonly GUIContent XLabelContent = new("X");
         private static readonly GUIContent YLabelContent = new("Y");
         private static readonly GUIContent ZLabelContent = new("Z");

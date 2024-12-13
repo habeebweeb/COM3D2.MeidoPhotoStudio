@@ -11,7 +11,7 @@ public class SelectionGrid : BaseControl
         toggles = MakeToggles(items);
     }
 
-    public static LazyStyle Style { get; } = new(13, static () => new(GUI.skin.toggle));
+    public static LazyStyle Style { get; } = new(StyleSheet.TextSize, static () => new(GUI.skin.toggle));
 
     public bool Vertical { get; set; }
 

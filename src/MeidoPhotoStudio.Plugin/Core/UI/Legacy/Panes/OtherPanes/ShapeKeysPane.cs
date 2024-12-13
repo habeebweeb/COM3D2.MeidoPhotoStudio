@@ -19,10 +19,10 @@ public class ShapeKeysPane : BasePane
     private readonly Framework.UI.Legacy.ComboBox addShapeKeyComboBox;
     private readonly Button addShapeKeyButton;
     private readonly Label noShapeKeysLabel;
-    private readonly LazyStyle deleteShapeKeyButtonStyle = new(13, static () => new(GUI.skin.button));
-    private readonly LazyStyle shapeKeyLabelStyle = new(13, static () => new(GUI.skin.label));
+    private readonly LazyStyle deleteShapeKeyButtonStyle = new(StyleSheet.TextSize, static () => new(GUI.skin.button));
+    private readonly LazyStyle shapeKeyLabelStyle = new(StyleSheet.TextSize, static () => new(GUI.skin.label));
     private readonly LazyStyle noShapeKeysLabelStyle = new(
-        13,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.label)
         {
             alignment = TextAnchor.MiddleCenter,

@@ -11,7 +11,6 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
 public class SceneManagementModal : BaseWindow
 {
-    private const int FontSize = 13;
     private const float PaddingSize = 10f;
 
     private readonly NoneMode noneMode;
@@ -65,7 +64,7 @@ public class SceneManagementModal : BaseWindow
     private abstract class Mode(SceneManagementModal sceneManagementModal)
     {
         protected readonly LazyStyle messageStyle = new(
-            FontSize,
+            StyleSheet.TextSize,
             static () => new(GUI.skin.label)
             {
                 alignment = TextAnchor.MiddleCenter,
@@ -145,7 +144,7 @@ public class SceneManagementModal : BaseWindow
         private readonly WindowSize loadOptionsWindowSize = (800, 415);
 
         private readonly LazyStyle infoLabelStyle = new(
-            FontSize,
+            StyleSheet.TextSize,
             static () => new(GUI.skin.label)
             {
                 alignment = TextAnchor.MiddleCenter,
@@ -153,7 +152,7 @@ public class SceneManagementModal : BaseWindow
             });
 
         private readonly LazyStyle paddedToggleStyle = new(
-            FontSize,
+            StyleSheet.TextSize,
             static () => new(GUI.skin.toggle)
             {
                 margin = { left = 10 },

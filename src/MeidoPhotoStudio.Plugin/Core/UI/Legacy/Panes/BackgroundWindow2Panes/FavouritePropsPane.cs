@@ -25,9 +25,9 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
     private readonly TextField searchBar;
     private readonly Toggle editModeToggle;
     private readonly Button refreshButton;
-    private readonly LazyStyle removeFavouriteButtonStyle = new(13, static () => new(GUI.skin.button));
+    private readonly LazyStyle removeFavouriteButtonStyle = new(StyleSheet.TextSize, static () => new(GUI.skin.button));
     private readonly LazyStyle favouritePropButtonStyle = new(
-        13,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.button)
         {
             alignment = TextAnchor.MiddleLeft,
@@ -35,7 +35,7 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
         });
 
     private readonly LazyStyle noFavouritePropsLabelStyle = new(
-        13,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.label)
         {
             alignment = TextAnchor.MiddleCenter,

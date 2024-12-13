@@ -7,16 +7,15 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 public class CharacterSwitcherPane : BasePane
 {
     private const float BoxSize = 70;
-    private const int FontSize = 13;
 
     private readonly CharacterService characterService;
     private readonly SelectionController<CharacterController> characterSelectionController;
     private readonly CustomMaidSceneService customMaidSceneService;
     private readonly EditModeMaidService editModeMaidService;
-    private readonly LazyStyle buttonStyle = new(FontSize, static () => new(GUI.skin.button));
+    private readonly LazyStyle buttonStyle = new(StyleSheet.TextSize, static () => new(GUI.skin.button));
 
     private readonly LazyStyle slotStyle = new(
-        FontSize,
+        StyleSheet.TextSize,
         static () => new(GUI.skin.label)
         {
             alignment = TextAnchor.UpperRight,

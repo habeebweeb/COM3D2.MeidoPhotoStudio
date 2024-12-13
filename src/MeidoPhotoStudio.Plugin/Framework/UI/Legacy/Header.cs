@@ -6,7 +6,7 @@ public class Header(string text) : BaseControl
     private GUIContent content = new(text);
 
     public static LazyStyle Style { get; } = new(
-        13,
+        StyleSheet.SubHeadingSize,
         static () => new(GUI.skin.label)
         {
             padding = new(7, 0, 0, -5),

@@ -22,7 +22,7 @@ public class RepeatButton : BaseControl
     protected RepeatButton(float interval) =>
         Interval = interval;
 
-    public static LazyStyle Style { get; } = new(13, static () => new(GUI.skin.button));
+    public static LazyStyle Style { get; } = new(StyleSheet.TextSize, static () => new(GUI.skin.button));
 
     public string Label
     {
