@@ -134,7 +134,7 @@ public class SettingsWindow : BaseWindow
 
             GUILayout.EndHorizontal();
 
-            UIUtility.DrawWhiteLine();
+            UIUtility.DrawBlackLine();
 
             settingsScrollPosition = GUILayout.BeginScrollView(settingsScrollPosition);
 

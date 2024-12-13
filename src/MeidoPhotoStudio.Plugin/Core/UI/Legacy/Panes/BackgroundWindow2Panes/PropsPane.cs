@@ -48,7 +48,7 @@ public class PropsPane : BasePane
 
         DrawDropdown(propTypeDropdown);
 
-        UIUtility.DrawWhiteLine();
+        UIUtility.DrawBlackLine();
 
         propPanes[propTypes[propTypeDropdown.SelectedItemIndex]].Draw();
     }

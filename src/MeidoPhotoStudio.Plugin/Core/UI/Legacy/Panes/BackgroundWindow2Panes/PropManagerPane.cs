@@ -177,7 +177,7 @@ public class PropManagerPane : BasePane
             addToFavouritesButton.Draw();
 
         toggleAllHandlesHeader.Draw();
-        UIUtility.DrawWhiteLine();
+        UIUtility.DrawBlackLine();
 
         GUILayout.BeginHorizontal();
 

@@ -89,7 +89,7 @@ public class CharacterCallPane : BasePane, IVirtualListHandler
     public override void Draw()
     {
         header.Draw();
-        UIUtility.DrawWhiteLine();
+        UIUtility.DrawBlackLine();
 
         DrawTextFieldMaxWidth(searchBar);
 

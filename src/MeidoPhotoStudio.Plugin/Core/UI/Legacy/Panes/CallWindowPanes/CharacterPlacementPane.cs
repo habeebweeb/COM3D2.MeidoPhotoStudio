@@ -33,7 +33,7 @@ public class CharacterPlacementPane : BasePane
     public override void Draw()
     {
         header.Draw();
-        UIUtility.DrawWhiteLine();
+        UIUtility.DrawBlackLine();
 
         GUILayout.BeginHorizontal();
         placementDropdown.Draw(GUILayout.Width(150));

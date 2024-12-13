@@ -19,8 +19,8 @@ public static class UIUtility
         0,
         static () => new(GUI.skin.box)
         {
-            margin = new(0, 0, 0, 0),
-            normal = { background = CreateTexture(2, 2, Color.black) },
+            margin = new(0, 0, 10, 10),
+            normal = { background = CreateTexture(2, 2, new(0.25f, 0.25f, 0.25f)) },
             padding = new(0, 0, 1, 1),
             border = new(0, 0, 1, 1),
         });

@@ -65,7 +65,7 @@ public class CharacterPane : BasePane
         }
 
         tabSelectionGrid.Draw(tabStyle);
-        UIUtility.DrawWhiteLine();
+        UIUtility.DrawBlackLine();
 
         currentTab.Draw();
 

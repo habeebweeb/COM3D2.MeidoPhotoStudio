@@ -68,7 +68,7 @@ public class BackgroundPropsPane : BasePane
         DrawDropdown(propCategoryDropdown);
         DrawDropdown(propDropdown);
 
-        UIUtility.DrawWhiteLine();
+        UIUtility.DrawBlackLine();
 
         addPropButton.Draw();
     }

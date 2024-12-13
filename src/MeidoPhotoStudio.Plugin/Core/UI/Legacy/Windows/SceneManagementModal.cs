@@ -323,7 +323,7 @@ public class SceneManagementModal : BaseWindow
                 GUI.enabled = managingSceneSchema.Character is not null;
 
                 characterLoadOptionToggle.Draw();
-                UIUtility.DrawWhiteLine();
+                UIUtility.DrawBlackLine();
 
                 if (characterLoadOptionToggle.Value)
                 {
@@ -335,22 +335,22 @@ public class SceneManagementModal : BaseWindow
                 GUI.enabled = managingSceneSchema.MessageWindow is not null;
 
                 messageWindowLoadOptionToggle.Draw();
-                UIUtility.DrawWhiteLine();
+                UIUtility.DrawBlackLine();
 
                 GUI.enabled = managingSceneSchema.Camera is not null;
 
                 cameraLoadOptionToggle.Draw();
-                UIUtility.DrawWhiteLine();
+                UIUtility.DrawBlackLine();
 
                 GUI.enabled = managingSceneSchema.Lights is not null;
 
                 lightsLoadOptionToggle.Draw();
-                UIUtility.DrawWhiteLine();
+                UIUtility.DrawBlackLine();
 
                 GUI.enabled = managingSceneSchema.Effects is not null;
 
                 effectsLoadOptionToggle.Draw();
-                UIUtility.DrawWhiteLine();
+                UIUtility.DrawBlackLine();
 
                 if (effectsLoadOptionToggle.Value)
                 {
@@ -365,12 +365,12 @@ public class SceneManagementModal : BaseWindow
                 GUI.enabled = managingSceneSchema.Background is not null;
 
                 backgroundLoadOptionToggle.Draw();
-                UIUtility.DrawWhiteLine();
+                UIUtility.DrawBlackLine();
 
                 GUI.enabled = managingSceneSchema.Props is not null;
 
                 propsLoadOptionToggle.Draw();
-                UIUtility.DrawWhiteLine();
+                UIUtility.DrawBlackLine();
 
                 GUI.enabled = true;
 
