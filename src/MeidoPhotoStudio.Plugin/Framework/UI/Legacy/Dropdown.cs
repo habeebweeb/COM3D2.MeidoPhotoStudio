@@ -7,7 +7,21 @@ public class Dropdown<T> : DropdownBase<T>
         static () => new(GUI.skin.button)
         {
             alignment = TextAnchor.MiddleLeft,
+            padding = new(5, UIUtility.Scaled(25), 5, 5),
+        },
+        static style => style.padding.right = UIUtility.Scaled(25));
+
+    private static readonly LazyStyle DropdownButtonStyle = new(
+        StyleSheet.TextSize,
+        static () => new(GUI.skin.box)
+        {
+            margin = new(0, 0, 0, 0),
+            padding = new(0, 0, 7, 7),
+            alignment = TextAnchor.MiddleCenter,
+            normal = { background = Texture2D.blackTexture },
         });
+
+    private static Texture2D dropdownButtonTexture;
 
     private GUIContent label = GUIContent.none;
 
@@ -48,12 +62,32 @@ public class Dropdown<T> : DropdownBase<T>
         set => SetSelectedItemIndex(value);
     }
 
+    private static Texture2D DropdownButtonIcon
+    {
+        get
+        {
+            const string DropdownButtonBase64 =
+                """
+                iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZ0lEQVQ4y+2TMQ6AIAxF/yVs5P5H
+                YTNOMnic52AHQhDqauxE6Hs/bQjSX5IkIAM7YAHWnM315cZdZRTicnF2qxsLcHjjBFJHbpl1BqSw
+                PAoJyw97luZs0VepQ97JnXXmY08msY9/gwuQzeQ4h8hPdgAAAABJRU5ErkJggg==
+                """;
+
+            return dropdownButtonTexture ? dropdownButtonTexture : dropdownButtonTexture = UIUtility.LoadTextureFromBase64(16, 16, DropdownButtonBase64);
+        }
+    }
+
     public override void Draw(params GUILayoutOption[] layoutOptions) =>
         Draw(ButtonStyle, layoutOptions);
 
     public void Draw(GUIStyle buttonStyle, params GUILayoutOption[] layoutOptions)
     {
         var clicked = GUILayout.Button(label, buttonStyle, layoutOptions);
+
+        var buttonRect = GUILayoutUtility.GetLastRect();
+        var clearButtonRect = buttonRect with { x = buttonRect.xMax - UIUtility.Scaled(25f), width = UIUtility.Scaled(20f), };
+
+        GUI.Box(clearButtonRect, DropdownButtonIcon, DropdownButtonStyle);
 
         if (clicked && Count > 0)
         {
