@@ -68,6 +68,7 @@ public partial class PluginCore : MonoBehaviour
         Framework.CoroutineRunner.DestroyParent();
         IKController.DestroyParent();
         WfCameraMoveSupportUtility.Destroy();
+        Framework.UI.Legacy.UIUtility.Destroy();
     }
 
     private void Start()

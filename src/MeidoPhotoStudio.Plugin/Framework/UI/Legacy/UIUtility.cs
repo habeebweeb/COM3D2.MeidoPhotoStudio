@@ -2,6 +2,7 @@ namespace MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 public static class UIUtility
 {
+    private static readonly List<Texture> CreatedTextures = [];
     private static readonly GUILayoutOption[] LineHeight = [GUILayout.Height(1)];
 
     private static readonly LazyStyle WhiteLineStyle = new(
@@ -56,6 +57,8 @@ public static class UIUtility
         texture2D.SetPixels32(colors);
         texture2D.Apply();
 
+        CreatedTextures.Add(texture2D);
+
         return texture2D;
     }
 
@@ -64,4 +67,11 @@ public static class UIUtility
 
     public static void DrawBlackLine() =>
         GUILayout.Box(GUIContent.none, BlackLineStyle, LineHeight);
+
+    internal static void Destroy()
+    {
+        foreach (var texture in CreatedTextures)
+            if (texture)
+                Object.DestroyImmediate(texture);
+    }
 }
