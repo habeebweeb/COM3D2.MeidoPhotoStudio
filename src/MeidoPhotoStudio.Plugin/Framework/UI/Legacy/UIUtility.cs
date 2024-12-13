@@ -62,6 +62,22 @@ public static class UIUtility
         return texture2D;
     }
 
+    public static Texture2D LoadTextureFromBase64(int width, int height, string base64)
+    {
+        if (string.IsNullOrEmpty(base64))
+            throw new ArgumentException($"'{nameof(base64)}' cannot be null or empty.", nameof(base64));
+
+        var texture = new Texture2D(width, height, TextureFormat.RGB24, false);
+
+        texture.LoadImage(Convert.FromBase64String(base64));
+
+        texture.Apply();
+
+        CreatedTextures.Add(texture);
+
+        return texture;
+    }
+
     public static void DrawWhiteLine() =>
         GUILayout.Box(GUIContent.none, WhiteLineStyle, LineHeight);
 

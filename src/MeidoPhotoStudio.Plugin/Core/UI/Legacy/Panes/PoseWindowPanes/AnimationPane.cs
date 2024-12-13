@@ -61,10 +61,10 @@ public class AnimationPane : BasePane
     }
 
     private static Texture2D PlayIcon =>
-        playIcon ? playIcon : playIcon = LoadIconFromBase64(PlayIconBase64);
+        playIcon ? playIcon : playIcon = UIUtility.LoadTextureFromBase64(16, 16, PlayIconBase64);
 
     private static Texture2D PauseIcon =>
-        pauseIcon ? pauseIcon : pauseIcon = LoadIconFromBase64(PauseIconBase64);
+        pauseIcon ? pauseIcon : pauseIcon = UIUtility.LoadTextureFromBase64(16, 16, PauseIconBase64);
 
     private CharacterUndoRedoController CharacterUndoRedo =>
         Character is null ? null : characterUndoRedoService[Character];
@@ -150,20 +150,6 @@ public class AnimationPane : BasePane
 
     protected override void ReloadTranslation() =>
         paneHeader.Label = Translation.Get("characterAnimationPane", "header");
-
-    private static Texture2D LoadIconFromBase64(string base64)
-    {
-        var icon = new Texture2D(16, 16, TextureFormat.RGB24, false)
-        {
-            filterMode = FilterMode.Point,
-        };
-
-        icon.LoadImage(Convert.FromBase64String(base64));
-
-        icon.Apply();
-
-        return icon;
-    }
 
     private void OnCharacterSelectionChanging(object sender, SelectionEventArgs<CharacterController> e)
     {

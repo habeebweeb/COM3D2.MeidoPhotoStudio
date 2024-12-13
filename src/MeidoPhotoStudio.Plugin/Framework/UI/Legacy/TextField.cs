@@ -14,8 +14,6 @@ public class TextField : BaseControl
         egAAAABJRU5ErkJggg==
         """;
 
-    private static readonly Texture2D NoTexture = UIUtility.CreateTexture(2, 2, new(0f, 0f, 0f, 0f));
-
     private static int textFieldID = 961;
     private static Texture2D clearButtonTexture;
 
@@ -73,7 +71,7 @@ public class TextField : BaseControl
     public bool HasFocus { get; private set; }
 
     private static Texture2D ClearButtonIcon =>
-        clearButtonTexture ? clearButtonTexture : clearButtonTexture = LoadIconFromBase64(EncodedClearButtonImage);
+        clearButtonTexture ? clearButtonTexture : clearButtonTexture = UIUtility.LoadTextureFromBase64(16, 16, EncodedClearButtonImage);
 
     private static LazyStyle PlaceholderStyle { get; } = new(
         StyleSheet.TextSize,
@@ -88,13 +86,13 @@ public class TextField : BaseControl
         });
 
     private static LazyStyle ClearButtonStyle { get; } = new(
-        13,
+        0,
         static () => new(GUI.skin.box)
         {
             margin = new(0, 0, 0, 0),
             padding = new(0, 0, 5, 5),
             alignment = TextAnchor.MiddleCenter,
-            normal = { background = NoTexture },
+            normal = { background = Texture2D.blackTexture },
         });
 
     private static int ID =>
@@ -154,17 +152,6 @@ public class TextField : BaseControl
 
     public void SetValueWithoutNotify(string value) =>
         SetValue(value, false);
-
-    private static Texture2D LoadIconFromBase64(string base64)
-    {
-        var icon = new Texture2D(16, 16, TextureFormat.RGB24, false);
-
-        icon.LoadImage(Convert.FromBase64String(base64));
-
-        icon.Apply();
-
-        return icon;
-    }
 
     private void SetValue(string value, bool notify = true)
     {
