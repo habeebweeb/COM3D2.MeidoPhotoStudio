@@ -6,7 +6,43 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
 public class WindowManager : MonoBehaviour, IActivateable
 {
-    private static GUIStyle windowStyle;
+    private const string NormalBase64 = """
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAQklEQVQ4y2NkQID/DKQBRgYGBgYW
+        mGZxBrVGUnS/ZLj1n4GBgZGRHM1IhtQzMVAIRg0YNWBwGMBIQWaqh2UmirIzAAVvDp4SaVoYAAAA
+        AElFTkSuQmCC
+        """;
+
+    private const string HoverBase64 =
+        """
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAQklEQVQ4y2NkQID/DKQBRgYGBgYW
+        mGZxBrVbpOh+yXDrPwMDAyMjOZqRDFFjYqAQjBowasDgMICRgsykBstMFGVnAHhxDvcAWCRZAAAA
+        AElFTkSuQmCC
+        """;
+
+    private static readonly LazyStyle HoverWindowStyle = new(
+        0,
+        static () => new(GUI.skin.box)
+        {
+            normal = { background = BackgroundHover },
+        });
+
+    private static readonly LazyStyle NormalWindowStyle = new(
+        0,
+        static () => new(GUI.skin.box)
+        {
+            normal = { background = BackgroundNormal },
+        });
+
+    private static readonly LazyStyle DropdownWindowStyle = new(
+        0,
+        static () => new(GUI.skin.box)
+        {
+            normal = { background = BackgroundHover },
+        });
+
+    private static readonly Texture2D BackgroundNormal = UIUtility.LoadTextureFromBase64(16, 16, NormalBase64);
+
+    private static readonly Texture2D BackgroundHover = UIUtility.LoadTextureFromBase64(16, 16, HoverBase64);
 
     private readonly Dictionary<Window, BaseWindow> windows = [];
 
@@ -23,9 +59,6 @@ public class WindowManager : MonoBehaviour, IActivateable
     internal PluginCore PluginCore { get; set; }
 
     internal CharacterService CharacterService { get; set; }
-
-    private static GUIStyle WindowStyle =>
-        windowStyle ??= new(GUI.skin.box);
 
     private bool Visible
     {
@@ -105,19 +138,28 @@ public class WindowManager : MonoBehaviour, IActivateable
         if (!Visible)
             return;
 
+        var mousePosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
+
         foreach (var window in windows.Values)
         {
             if (!window.Visible)
                 continue;
 
-            window.WindowRect = GUI.Window(window.ID, window.WindowRect, window.GUIFunc, string.Empty, WindowStyle);
+            var windowStyle = GetStyleForWindow(window.WindowRect);
+
+            window.WindowRect = GUI.Window(window.ID, window.WindowRect, window.GUIFunc, string.Empty, windowStyle);
         }
 
         if (Modal.Visible)
-            Modal.Draw();
+            Modal.Draw(GetStyleForWindow(Modal.WindowRect));
 
         if (DropdownHelper.Visible)
-            DropdownHelper.DrawDropdown();
+            DropdownHelper.DrawDropdown(DropdownWindowStyle);
+
+        GUIStyle GetStyleForWindow(Rect windowRect) =>
+            windowRect.Contains(mousePosition)
+                ? HoverWindowStyle
+                : NormalWindowStyle;
     }
 
     private void Update()

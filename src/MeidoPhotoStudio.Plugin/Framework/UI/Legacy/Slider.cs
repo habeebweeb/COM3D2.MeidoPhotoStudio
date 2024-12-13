@@ -2,6 +2,13 @@ namespace MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 public class Slider : BaseControl
 {
+    private const string SliderBackgroundBase64 =
+        """
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZElEQVQ4y2NkQAX/GYgDjOiM/wwM
+        DAziDGpE6X7JcAuunwnGIlYzulpGBgaG/7YqfgzkgMN3NjEwMVAIWBgYGBgURDQHzgWjBgwGA+B5
+        IdainCSNi090ouYFqAApmlGzJbnZGQCkbRQt6+fbKAAAAABJRU5ErkJggg==
+        """;
+
     private bool hasLabel;
     private string label;
     private float value;
@@ -35,13 +42,19 @@ public class Slider : BaseControl
             normal = { textColor = Color.white },
         });
 
-    public static LazyStyle SliderStyle { get; } = new(0, static () => new(GUI.skin.horizontalSlider));
+    public static LazyStyle SliderStyle { get; } = new(
+        0,
+        static () => new(GUI.skin.horizontalSlider)
+        {
+            normal = { background = UIUtility.LoadTextureFromBase64(16, 16, SliderBackgroundBase64) },
+        });
 
     public static LazyStyle NoLabelSliderStyle { get; } = new(
         0,
         static () => new(GUI.skin.horizontalSlider)
         {
             margin = { top = 10 },
+            normal = { background = UIUtility.LoadTextureFromBase64(16, 16, SliderBackgroundBase64) },
         });
 
     public static LazyStyle SliderThumbStyle { get; } = new(0, static () => new(GUI.skin.horizontalSliderThumb));

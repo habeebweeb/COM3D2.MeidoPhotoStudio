@@ -10,6 +10,9 @@ public static class Modal
     internal static int ID =>
         Visible ? currentModal.ID : -1;
 
+    internal static Rect WindowRect =>
+        Visible ? currentModal.WindowRect : Rect.zero;
+
     private static GUIStyle WindowStyle =>
         windowStyle ??= new(GUI.skin.box);
 
@@ -40,13 +43,16 @@ public static class Modal
             UnityEngine.Input.ResetInputAxes();
     }
 
-    internal static void Draw()
+    internal static void Draw() =>
+        Draw(WindowStyle);
+
+    internal static void Draw(GUIStyle style)
     {
         if (!Visible)
             return;
 
         currentModal.WindowRect =
-            GUI.Window(currentModal.ID, currentModal.WindowRect, currentModal.GUIFunc, string.Empty, WindowStyle);
+            GUI.Window(currentModal.ID, currentModal.WindowRect, currentModal.GUIFunc, string.Empty, style);
 
         GUI.BringWindowToFront(currentModal.ID);
     }

@@ -105,12 +105,15 @@ internal static class DropdownHelper
     public static void CloseDropdown() =>
         CloseDropdown(false);
 
-    internal static void DrawDropdown()
+    internal static void DrawDropdown() =>
+        DrawDropdown(WindowStyle);
+
+    internal static void DrawDropdown(GUIStyle windowStyle)
     {
         if (!Visible)
             return;
 
-        dropdownWindow = GUI.Window(765, dropdownWindow, DropdownWindow, string.Empty, WindowStyle);
+        dropdownWindow = GUI.Window(765, dropdownWindow, DropdownWindow, string.Empty, windowStyle);
 
         if (Visible && UInput.mouseScrollDelta.y is not 0f && dropdownWindow.Contains(Event.current.mousePosition))
             UInput.ResetInputAxes();
