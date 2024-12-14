@@ -12,7 +12,6 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 public class AttachedAccessoryPane : BasePane
 {
     private const int NoAccessoryIndex = 0;
-    private const string NoAccessoryTranslationKey = "noAccessory";
 
     private static readonly MPN KousokuUpper = SafeMpn.GetValue(nameof(MPN.kousoku_upper));
     private static readonly MPN KousokuLower = SafeMpn.GetValue(nameof(MPN.kousoku_lower));
@@ -27,7 +26,9 @@ public class AttachedAccessoryPane : BasePane
     private readonly SelectionGrid accessoryCategoryGrid;
     private readonly Button detachAllAccessoriesButton;
     private readonly Label initializingLabel;
+    private readonly Label noAccessoriesLabel;
 
+    private bool hasAccessories;
     private bool menuDatabaseBusy;
 
     public AttachedAccessoryPane(
@@ -46,7 +47,7 @@ public class AttachedAccessoryPane : BasePane
 
         accessoryDropdown = new((model, _) =>
             new LabelledDropdownItem(model is null
-                ? Translation.Get("attachMpnPropPane", NoAccessoryTranslationKey)
+                ? Translation.Get("attachMpnPropPane", "noAccessory")
                 : Translation.Get("mpnAttachPropNames", model.Filename)));
 
         accessoryDropdown.SelectionChanged += OnAccessoryChanged;
@@ -55,6 +56,7 @@ public class AttachedAccessoryPane : BasePane
         detachAllAccessoriesButton.ControlEvent += OnDetachAllButtonPressed;
 
         initializingLabel = new(Translation.Get("systemMessage", "initializing"));
+        noAccessoriesLabel = new(Translation.Get("attachMpnPropPane", "noAccessories"));
 
         if (menuPropRepository.Busy)
         {
@@ -100,17 +102,21 @@ public class AttachedAccessoryPane : BasePane
         if (menuDatabaseBusy)
         {
             initializingLabel.Draw();
-        }
-        else
-        {
-            accessoryCategoryGrid.Draw();
-            UIUtility.DrawBlackLine();
 
+            return;
+        }
+
+        accessoryCategoryGrid.Draw();
+        UIUtility.DrawBlackLine();
+
+        if (hasAccessories)
             DrawDropdown(accessoryDropdown);
-            UIUtility.DrawBlackLine();
+        else
+            noAccessoriesLabel.Draw();
 
-            detachAllAccessoriesButton.Draw();
-        }
+        UIUtility.DrawBlackLine();
+
+        detachAllAccessoriesButton.Draw();
     }
 
     protected override void ReloadTranslation()
@@ -118,6 +124,7 @@ public class AttachedAccessoryPane : BasePane
         paneHeader.Label = Translation.Get("attachMpnPropPane", "header");
         accessoryCategoryGrid.SetItemsWithoutNotify(Translation.GetArray("attachMpnPropPane", AccessoryCategoryTranslationKeys));
         detachAllAccessoriesButton.Label = Translation.Get("attachMpnPropPane", "detachAllButton");
+        noAccessoriesLabel.Text = Translation.Get("attachMpnPropPane", "noAccessories");
 
         accessoryDropdown.Reformat();
         initializingLabel.Text = Translation.Get("systemMessage", "initializing");
@@ -235,9 +242,17 @@ public class AttachedAccessoryPane : BasePane
         accessoryDropdown.SetSelectedIndexWithoutNotify(accessoryIndex + 1);
     }
 
-    private IEnumerable<MenuFilePropModel> AccessoryList() =>
-        menuPropRepository.Busy
-            ? []
-            : new MenuFilePropModel[] { null }
-                .Concat(menuPropRepository[AccessoryCategory[accessoryCategoryGrid.SelectedItemIndex]]);
+    private IEnumerable<MenuFilePropModel> AccessoryList()
+    {
+        var category = AccessoryCategory[accessoryCategoryGrid.SelectedItemIndex];
+
+        var accessories = !menuPropRepository.Busy && menuPropRepository.ContainsCategory(category)
+            ? new MenuFilePropModel[] { null }
+                .Concat(menuPropRepository[category])
+            : [];
+
+        hasAccessories = accessories.Any();
+
+        return accessories;
+    }
 }

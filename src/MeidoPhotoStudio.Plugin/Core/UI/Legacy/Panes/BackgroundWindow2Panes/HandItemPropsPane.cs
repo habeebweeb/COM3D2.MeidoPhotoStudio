@@ -12,20 +12,21 @@ public class HandItemPropsPane : BasePane
     private static readonly MPN HandItem = SafeMpn.GetValue(nameof(MPN.handitem));
 
     private readonly PropService propService;
-    private readonly MenuPropRepository menuPropRepository;
     private readonly Dropdown<MenuFilePropModel> propDropdown;
     private readonly Button addPropButton;
     private readonly Label initializingLabel;
+    private readonly Label noHandItemsLabel;
     private readonly SearchBar<MenuFilePropModel> searchBar;
 
     private bool menuDatabaseBusy = false;
+    private bool hasHandItems;
 
     public HandItemPropsPane(
         PropService propService,
         MenuPropRepository menuPropRepository)
     {
         this.propService = propService ?? throw new ArgumentNullException(nameof(propService));
-        this.menuPropRepository = menuPropRepository ?? throw new ArgumentNullException(nameof(menuPropRepository));
+        _ = menuPropRepository ?? throw new ArgumentNullException(nameof(menuPropRepository));
 
         searchBar = new(SearchSelector, PropFormatter)
         {
@@ -40,6 +41,7 @@ public class HandItemPropsPane : BasePane
         addPropButton.ControlEvent += OnAddPropButtonPressed;
 
         initializingLabel = new(Translation.Get("systemMessage", "initializing"));
+        noHandItemsLabel = new(Translation.Get("handItemPropsPane", "noHandItems"));
 
         if (menuPropRepository.Busy)
         {
@@ -48,7 +50,7 @@ public class HandItemPropsPane : BasePane
         }
         else
         {
-            propDropdown.SetItems(menuPropRepository[HandItem]);
+            Initialize();
         }
 
         static LabelledDropdownItem PropFormatter(MenuFilePropModel prop, int index) =>
@@ -56,14 +58,25 @@ public class HandItemPropsPane : BasePane
 
         void OnMenuDatabaseIndexed(object sender, EventArgs e)
         {
-            propDropdown.SetItems(menuPropRepository[HandItem]);
-
             menuDatabaseBusy = false;
             menuPropRepository.InitializedProps -= OnMenuDatabaseIndexed;
+
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            var handItems = menuPropRepository.ContainsCategory(HandItem)
+                ? menuPropRepository[HandItem]
+                : [];
+
+            propDropdown.SetItems(handItems);
+
+            hasHandItems = handItems.Any();
         }
 
         IEnumerable<MenuFilePropModel> SearchSelector(string query) =>
-            menuPropRepository.Busy
+            menuPropRepository.Busy || !menuPropRepository.ContainsCategory(HandItem)
                 ? []
                 : menuPropRepository[HandItem].Where(model =>
                     model.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
@@ -75,6 +88,13 @@ public class HandItemPropsPane : BasePane
         if (menuDatabaseBusy)
         {
             initializingLabel.Draw();
+
+            return;
+        }
+
+        if (!hasHandItems)
+        {
+            noHandItemsLabel.Draw();
 
             return;
         }
@@ -91,6 +111,7 @@ public class HandItemPropsPane : BasePane
     protected override void ReloadTranslation()
     {
         initializingLabel.Text = Translation.Get("systemMessage", "initializing");
+        noHandItemsLabel.Text = Translation.Get("handItemPropsPane", "noHandItems");
         propDropdown.Reformat();
 
         addPropButton.Label = Translation.Get("propsPane", "addProp");

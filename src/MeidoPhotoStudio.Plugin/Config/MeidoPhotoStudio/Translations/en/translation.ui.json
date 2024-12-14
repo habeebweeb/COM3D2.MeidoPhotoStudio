@@ -122,6 +122,7 @@
     "upperAccessoryTab": "Upper",
     "lowerAccessoryTab": "Lower",
     "noAccessory": "No Accessory",
+    "noAccessories": "No Accessories",
     "header": "Attached Accessories"
   },
   "dressingPane": {
@@ -360,7 +361,8 @@
     "searchBarPlaceholder": "Search game props"
   },
   "handItemPropsPane": {
-    "searchBarPlaceholder": "Search hand item props"
+    "searchBarPlaceholder": "Search hand item props",
+    "noHandItems": "No hand items"
   },
   "menuFilePropsPane": {
     "modsToggle": "Mods",
