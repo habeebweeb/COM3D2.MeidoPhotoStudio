@@ -12,9 +12,25 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference
+      Include="../MeidoPhotoStudio.Plugin.Analyzer/MeidoPhotoStudio.Plugin.Analyzer.csproj"
+      ReferenceOutputAssembly="false"
+      OutputItemType="Analyzer"
+      SetTargetFramework="TargetFramework=netstandard2.0"
+      />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="Config\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="Config/MeidoPhotoStudio/Translations/en/translation.ui.json" />
+    <AdditionalFiles Include="Config/MeidoPhotoStudio/Translations/en/translation.props.json" />
+    <AdditionalFiles Include="Config/MeidoPhotoStudio/Translations/en/translation.bg.json" />
+    <AdditionalFiles Include="Config/MeidoPhotoStudio/Translations/en/translation.face.json" />
   </ItemGroup>
 
 </Project>
