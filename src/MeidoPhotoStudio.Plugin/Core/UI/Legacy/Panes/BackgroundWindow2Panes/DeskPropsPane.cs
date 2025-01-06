@@ -42,7 +42,7 @@ public class DeskPropsPane : BasePane
         noPropsLabel = new(Translation.Get("propsPane", "noProps"));
 
         static LabelledDropdownItem CategoryFormatter(int id, int index) =>
-            new(Translation.Get("deskpropCategories", id.ToString()));
+            new(Translation.Get("deskPropCategories", id.ToString()));
 
         static LabelledDropdownItem PropFormatter(DeskPropModel prop, int index) =>
             new(prop.Name);
