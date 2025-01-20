@@ -2,46 +2,46 @@ namespace MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 public class RepeatButton : BaseControl
 {
-    private string label;
-    private Texture icon;
-    private GUIContent buttonContent;
+    private GUIContent content;
     private float startClickTime;
     private float holdTime;
     private bool clicked;
-    private float scaledInterval;
     private float interval;
 
+    public RepeatButton(GUIContent content, float interval)
+    {
+        this.content = content ?? new();
+        Interval = interval;
+    }
+
     public RepeatButton(string label, float interval = 0f)
-        : this(interval) =>
-        Label = label;
+        : this(new GUIContent(label ?? string.Empty), interval)
+    {
+    }
 
     public RepeatButton(Texture icon, float interval = 0f)
-        : this(interval) =>
-        Icon = icon;
-
-    protected RepeatButton(float interval) =>
-        Interval = interval;
+        : this(new GUIContent(icon), interval)
+    {
+    }
 
     public static LazyStyle Style { get; } = new(StyleSheet.TextSize, static () => new(GUI.skin.button));
 
     public string Label
     {
-        get => label;
-        set
-        {
-            label = value;
-            buttonContent = new(label);
-        }
+        get => content.text;
+        set => content.text = value ?? string.Empty;
     }
 
     public Texture Icon
     {
-        get => icon;
-        set
-        {
-            icon = value;
-            buttonContent = new(icon);
-        }
+        get => content.image;
+        set => content.image = value;
+    }
+
+    public GUIContent Content
+    {
+        get => content;
+        set => content = value ?? new();
     }
 
     public float Interval
@@ -49,8 +49,10 @@ public class RepeatButton : BaseControl
         get => interval;
         set
         {
+            if (interval < 0f)
+                interval = 0f;
+
             interval = value;
-            scaledInterval = value * 0.01f;
         }
     }
 
@@ -59,7 +61,7 @@ public class RepeatButton : BaseControl
 
     public void Draw(GUIStyle buttonStyle, params GUILayoutOption[] layoutOptions)
     {
-        if (GUILayout.RepeatButton(buttonContent, buttonStyle, layoutOptions))
+        if (GUILayout.RepeatButton(content, buttonStyle, layoutOptions))
         {
             if (!clicked)
             {
@@ -72,7 +74,7 @@ public class RepeatButton : BaseControl
             {
                 if (Time.time - startClickTime >= 1f)
                 {
-                    if (Time.time - holdTime >= scaledInterval)
+                    if (Time.time - holdTime >= interval * 0.01f)
                     {
                         holdTime = Time.time;
                         OnControlEvent(EventArgs.Empty);

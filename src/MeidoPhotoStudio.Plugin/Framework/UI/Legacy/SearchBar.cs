@@ -33,6 +33,12 @@ public class SearchBar<T> : DropdownBase<T>
         set => textField.Placeholder = value;
     }
 
+    public GUIContent PlaceholderContent
+    {
+        get => textField.PlaceholderContent;
+        set => textField.PlaceholderContent = value;
+    }
+
     public string Query
     {
         get => textField.Value;

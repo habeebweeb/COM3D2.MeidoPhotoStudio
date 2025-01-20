@@ -19,10 +19,21 @@ public class TextField : BaseControl
 
     private readonly string controlName = $"textField{ID}";
 
-    private GUIContent placeholderContent = GUIContent.none;
-    private bool hasPlacholder = false;
-    private string placeholder = string.Empty;
+    private GUIContent placeholderContent;
+    private bool hasPlaceholder = false;
     private string value = string.Empty;
+
+    public TextField()
+    {
+    }
+
+    public TextField(string placeholder)
+        : this(new GUIContent(placeholder ?? string.Empty))
+    {
+    }
+
+    public TextField(GUIContent placeholderContent) =>
+        this.placeholderContent = placeholderContent;
 
     public event EventHandler GainedFocus;
 
@@ -47,24 +58,28 @@ public class TextField : BaseControl
 
     public string Placeholder
     {
-        get => placeholder;
+        get => placeholderContent?.text;
         set
         {
-            if (string.Equals(placeholder, value, StringComparison.Ordinal))
-                return;
+            if (value is null)
+            {
+                PlaceholderContent = null;
 
-            if (string.IsNullOrEmpty(value))
-            {
-                hasPlacholder = false;
-                placeholder = string.Empty;
-                placeholderContent = GUIContent.none;
+                return;
             }
-            else
-            {
-                hasPlacholder = true;
-                placeholder = value;
-                placeholderContent = new(placeholder);
-            }
+
+            PlaceholderContent ??= new();
+            PlaceholderContent.text = value;
+        }
+    }
+
+    public GUIContent PlaceholderContent
+    {
+        get => placeholderContent;
+        set
+        {
+            placeholderContent = value;
+            hasPlaceholder = placeholderContent is not null;
         }
     }
 
@@ -113,7 +128,7 @@ public class TextField : BaseControl
         if (!string.Equals(value, Value, StringComparison.Ordinal))
             SetValue(value);
 
-        if (hasPlacholder && value.Length is 0)
+        if (hasPlaceholder && value.Length is 0)
         {
             var textFieldRect = GUILayoutUtility.GetLastRect();
 

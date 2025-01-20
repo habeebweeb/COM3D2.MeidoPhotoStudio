@@ -2,7 +2,7 @@ using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
-public class PaneHeader(string label, bool open = true) : BaseControl
+public class PaneHeader(GUIContent content, bool open = true) : BaseControl
 {
     private const string ClosedArrowBase64 =
         """
@@ -42,17 +42,23 @@ public class PaneHeader(string label, bool open = true) : BaseControl
             wordWrap = true,
         });
 
-    private string label = label;
-    private GUIContent content = new(label ?? throw new ArgumentNullException(nameof(label)));
+    private GUIContent content = content;
+
+    public PaneHeader(string label, bool open = true)
+        : this(new GUIContent(label ?? string.Empty), open)
+    {
+    }
 
     public string Label
     {
-        get => label;
-        set
-        {
-            label = string.IsNullOrEmpty(value) ? string.Empty : value;
-            content = new(label);
-        }
+        get => Content.text;
+        set => Content.text = value ?? string.Empty;
+    }
+
+    public GUIContent Content
+    {
+        get => content;
+        set => content = value ?? new();
     }
 
     public bool Enabled { get; set; } = open;

@@ -1,17 +1,19 @@
 namespace MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
-public class Button : BaseControl
+public class Button(GUIContent content) : BaseControl
 {
-    private string label;
-    private Texture icon;
+    private float clickTime;
+    private GUIContent content = content;
 
-    private GUIContent buttonContent;
+    public Button(string label)
+        : this(new GUIContent(label ?? string.Empty))
+    {
+    }
 
-    public Button(string label) =>
-        Label = label;
-
-    public Button(Texture icon) =>
-        Icon = icon;
+    public Button(Texture icon)
+        : this(new GUIContent(icon))
+    {
+    }
 
     public static LazyStyle Style { get; } = new(
         StyleSheet.TextSize,
@@ -22,22 +24,20 @@ public class Button : BaseControl
 
     public string Label
     {
-        get => label;
-        set
-        {
-            label = value;
-            buttonContent = new(label);
-        }
+        get => Content.text;
+        set => Content.text = value ?? string.Empty;
     }
 
     public Texture Icon
     {
-        get => icon;
-        set
-        {
-            icon = value;
-            buttonContent = new(icon);
-        }
+        get => Content.image;
+        set => Content.image = value;
+    }
+
+    public GUIContent Content
+    {
+        get => content;
+        set => content = value ?? new();
     }
 
     public override void Draw(params GUILayoutOption[] layoutOptions) =>
@@ -45,7 +45,18 @@ public class Button : BaseControl
 
     public void Draw(GUIStyle buttonStyle, params GUILayoutOption[] layoutOptions)
     {
-        if (GUILayout.Button(buttonContent, buttonStyle, layoutOptions))
-            OnControlEvent(EventArgs.Empty);
+        if (GUILayout.Button(content, buttonStyle, layoutOptions))
+        {
+            if (Time.time - clickTime <= 0.3f)
+            {
+                Plugin.Logger.LogDebug("Double click");
+                DoubleClicked?.Invoke(this, EventArgs.Empty);
+            }
+            else
+            {
+                clickTime = Time.time;
+                OnControlEvent(EventArgs.Empty);
+            }
+        }
     }
 }

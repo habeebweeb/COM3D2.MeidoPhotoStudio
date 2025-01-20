@@ -1,22 +1,19 @@
 namespace MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
-public class Toggle : BaseControl
+public class Toggle(GUIContent content, bool state = false) : BaseControl
 {
-    private string label;
-    private Texture icon;
-    private GUIContent toggleContent;
-    private bool value;
+    private bool value = state;
+    private GUIContent content = content ?? new();
 
     public Toggle(string label, bool state = false)
-        : this(state) =>
-        Label = label;
+        : this(new GUIContent(label ?? string.Empty), state)
+    {
+    }
 
     public Toggle(Texture icon, bool state = false)
-        : this(state) =>
-        Icon = icon;
-
-    private Toggle(bool state = false) =>
-        value = state;
+        : this(new GUIContent(icon), state)
+    {
+    }
 
     public static LazyStyle Style { get; } = new(
         StyleSheet.TextSize,
@@ -27,22 +24,20 @@ public class Toggle : BaseControl
 
     public string Label
     {
-        get => toggleContent.text;
-        set
-        {
-            label = value;
-            toggleContent = new(label);
-        }
+        get => Content.text;
+        set => Content.text = value ?? string.Empty;
     }
 
     public Texture Icon
     {
-        get => toggleContent.image;
-        set
-        {
-            icon = value;
-            toggleContent = new(icon);
-        }
+        get => Content.image;
+        set => Content.image = value;
+    }
+
+    public GUIContent Content
+    {
+        get => content;
+        set => content = value ?? new();
     }
 
     public bool Value
@@ -56,7 +51,7 @@ public class Toggle : BaseControl
 
     public void Draw(GUIStyle toggleStyle, params GUILayoutOption[] layoutOptions)
     {
-        var value = GUILayout.Toggle(Value, toggleContent, toggleStyle, layoutOptions);
+        var value = GUILayout.Toggle(Value, content, toggleStyle, layoutOptions);
 
         if (value != Value)
             Value = value;

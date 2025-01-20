@@ -57,6 +57,12 @@ public class ComboBox : DropdownBase<string>
         set => searchBar.Placeholder = value;
     }
 
+    public GUIContent PlaceholderContent
+    {
+        get => searchBar.PlaceholderContent;
+        set => searchBar.PlaceholderContent = value;
+    }
+
     public override void Draw(params GUILayoutOption[] layoutOptions) =>
         Draw(TextField.Style, ButtonStyle, layoutOptions);
 

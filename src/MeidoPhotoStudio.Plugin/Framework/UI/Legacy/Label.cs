@@ -1,9 +1,13 @@
 namespace MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
-public class Label(string text) : BaseControl
+public class Label(GUIContent content) : BaseControl
 {
-    private string text = text;
-    private GUIContent content = new(text);
+    private GUIContent content = content;
+
+    public Label(string text)
+        : this(new GUIContent(text ?? string.Empty))
+    {
+    }
 
     public static LazyStyle Style { get; } = new(
         StyleSheet.TextSize,
@@ -14,12 +18,14 @@ public class Label(string text) : BaseControl
 
     public string Text
     {
-        get => text;
-        set
-        {
-            text = value ?? string.Empty;
-            content = new GUIContent(value);
-        }
+        get => Content.text;
+        set => Content.text = value ?? string.Empty;
+    }
+
+    public GUIContent Content
+    {
+        get => content;
+        set => content = value ?? new();
     }
 
     public override void Draw(params GUILayoutOption[] layoutOptions) =>

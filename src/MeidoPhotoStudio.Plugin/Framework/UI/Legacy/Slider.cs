@@ -9,8 +9,7 @@ public class Slider : BaseControl
         IdainCSNi090ouYFqAApmlGzJbnZGQCkbRQt6+fbKAAAAABJRU5ErkJggg==
         """;
 
-    private bool hasLabel;
-    private string label;
+    private bool hasContent;
     private float value;
     private float left;
     private float right;
@@ -18,14 +17,26 @@ public class Slider : BaseControl
     private bool hasTextField;
     private float temporaryValue;
     private NumericalTextField textField;
+    private GUIContent content;
 
-    public Slider(string label, float left, float right, float value = 0, float defaultValue = 0)
+    public Slider(float left, float right, float value = 0, float defaultValue = 0)
     {
-        Label = label;
         this.left = left;
         this.right = right;
         SetValue(value, false);
         DefaultValue = defaultValue;
+    }
+
+    public Slider(string label, float left, float right, float value = 0, float defaultValue = 0)
+        : this(new GUIContent(label ?? string.Empty), left, right, value, defaultValue)
+    {
+    }
+
+    public Slider(GUIContent content, float left, float right, float value = 0, float defaultValue = 0)
+        : this(left, right, value, defaultValue)
+    {
+        Content = content ?? new();
+        hasContent = true;
     }
 
     public event EventHandler StartedInteraction;
@@ -70,11 +81,28 @@ public class Slider : BaseControl
 
     public string Label
     {
-        get => label;
+        get => content?.text;
         set
         {
-            label = value;
-            hasLabel = !string.IsNullOrEmpty(label);
+            if (value is null)
+            {
+                Content = null;
+
+                return;
+            }
+
+            Content ??= new();
+            Content.text = value;
+        }
+    }
+
+    public GUIContent Content
+    {
+        get => content;
+        set
+        {
+            content = value;
+            hasContent = content is not null;
         }
     }
 
@@ -128,16 +156,16 @@ public class Slider : BaseControl
 
     public override void Draw(params GUILayoutOption[] layoutOptions)
     {
-        var hasUpper = hasLabel || HasTextField || HasReset;
+        var hasUpper = hasContent || HasTextField || HasReset;
 
         if (hasUpper)
         {
             GUILayout.BeginVertical(GUILayout.ExpandWidth(false));
             GUILayout.BeginHorizontal();
 
-            if (hasLabel)
+            if (hasContent)
             {
-                GUILayout.Label(Label, LabelStyle, GUILayout.ExpandWidth(false));
+                GUILayout.Label(content, LabelStyle, GUILayout.ExpandWidth(false));
                 GUILayout.FlexibleSpace();
             }
 
