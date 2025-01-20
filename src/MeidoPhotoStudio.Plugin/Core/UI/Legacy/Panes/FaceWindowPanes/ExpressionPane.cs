@@ -2,6 +2,7 @@ using System.ComponentModel;
 
 using MeidoPhotoStudio.Plugin.Core.Character;
 using MeidoPhotoStudio.Plugin.Core.Configuration;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
@@ -39,10 +40,12 @@ public class ExpressionPane : BasePane
     private readonly ShapeKeysPane shapeKeysPane;
 
     public ExpressionPane(
+        Translation translation,
         SelectionController<CharacterController> characterSelectionController,
         FaceShapeKeyConfiguration faceShapeKeyConfiguration,
         ShapeKeyRangeConfiguration shapeKeyRangeConfiguration)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.characterSelectionController = characterSelectionController ?? throw new ArgumentNullException(nameof(characterSelectionController));
         _ = faceShapeKeyConfiguration ?? throw new ArgumentNullException(nameof(faceShapeKeyConfiguration));
         this.shapeKeyRangeConfiguration = shapeKeyRangeConfiguration ?? throw new ArgumentNullException(nameof(shapeKeyRangeConfiguration));
@@ -51,40 +54,40 @@ public class ExpressionPane : BasePane
         this.characterSelectionController.Selecting += OnCharacterSelectionChanging;
         this.characterSelectionController.Selected += OnCharacterSelectionChanged;
 
-        paneHeader = new(Translation.Get("expressionPane", "header"), true);
+        paneHeader = new(new LocalizableGUIContent(translation, "expressionPane", "header"), true);
 
-        blinkToggle = new(Translation.Get("expressionPane", "blinkToggle"), true);
+        blinkToggle = new(new LocalizableGUIContent(translation, "expressionPane", "blinkToggle"), true);
         blinkToggle.ControlEvent += OnBlinkToggleChanged;
 
-        refreshRangeButton = new(Translation.Get("expressionPane", "refreshShapeKeyRangeButton"));
+        refreshRangeButton = new(new LocalizableGUIContent(translation, "expressionPane", "refreshShapeKeyRangeButton"));
         refreshRangeButton.ControlEvent += OnRefreshRangeButtonPushed;
 
-        baseGameShapeKeyHeader = new(Translation.Get("expressionPane", "baseGameExpressionKeys"));
+        baseGameShapeKeyHeader = new(new LocalizableGUIContent(translation, "expressionPane", "baseGameExpressionKeys"));
 
         foreach (var hashKey in EyeHashes.Concat(MouthHashes))
         {
             if (!shapeKeyRangeConfiguration.TryGetRange(hashKey, out var range))
                 range = new(0f, 1f);
 
-            var slider = new Slider(Translation.Get("faceBlendValues", hashKey, false), range.Lower, range.Upper);
+            var slider = new Slider(new LocalizableGUIContent(translation, "faceBlendValues", hashKey), range.Lower, range.Upper);
 
             slider.ControlEvent += OnControlChanged(hashKey);
 
             controls.Add(hashKey, slider);
         }
 
-        customShapeKeyHeader = new(Translation.Get("expressionPane", "customExpressionKeys"));
+        customShapeKeyHeader = new(new LocalizableGUIContent(translation, "expressionPane", "customExpressionKeys"));
 
         foreach (var hashKey in FaceHashes)
         {
-            var toggle = new Toggle(Translation.Get("faceBlendValues", hashKey));
+            var toggle = new Toggle(new LocalizableGUIContent(translation, "faceBlendValues", hashKey));
 
             toggle.ControlEvent += OnControlChanged(hashKey);
 
             controls.Add(hashKey, toggle);
         }
 
-        shapeKeysPane = new(faceShapeKeyConfiguration, shapeKeyRangeConfiguration);
+        shapeKeysPane = new(translation, faceShapeKeyConfiguration, shapeKeyRangeConfiguration);
         Add(shapeKeysPane);
 
         EventHandler OnControlChanged(string hashKey) =>
@@ -190,25 +193,6 @@ public class ExpressionPane : BasePane
                 GUILayout.EndHorizontal();
             }
         }
-    }
-
-    protected override void ReloadTranslation()
-    {
-        foreach (var (hashKey, control) in EyeHashes.Concat(MouthHashes).Concat(FaceHashes).Select(hashKey => (hashKey, controls[hashKey])))
-        {
-            var translation = Translation.Get("faceBlendValues", hashKey);
-
-            if (control is Slider slider)
-                slider.Label = translation;
-            else if (control is Toggle toggle)
-                toggle.Label = translation;
-        }
-
-        blinkToggle.Label = Translation.Get("expressionPane", "blinkToggle");
-        paneHeader.Label = Translation.Get("expressionPane", "header");
-        refreshRangeButton.Label = Translation.Get("expressionPane", "refreshShapeKeyRangeButton");
-        baseGameShapeKeyHeader.Label = Translation.Get("expressionPane", "baseGameExpressionKeys");
-        customShapeKeyHeader.Label = Translation.Get("expressionPane", "customExpressionKeys");
     }
 
     private void OnRefreshRangeButtonPushed(object sender, EventArgs e) =>

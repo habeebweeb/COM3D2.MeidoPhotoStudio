@@ -1,6 +1,7 @@
 using System.ComponentModel;
 
 using MeidoPhotoStudio.Plugin.Core.Effects;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
@@ -11,14 +12,15 @@ public class EffectPane<T> : BasePane
     protected readonly Toggle effectActiveToggle;
     protected readonly Button resetEffectButton;
 
-    public EffectPane(T effectController)
+    public EffectPane(Translation translation, T effectController)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         Effect = effectController ?? throw new ArgumentNullException(nameof(effectController));
 
-        effectActiveToggle = new(Translation.Get("effectsPane", "onToggle"));
+        effectActiveToggle = new(new LocalizableGUIContent(translation, "effectsPane", "onToggle"));
         effectActiveToggle.ControlEvent += OnEffectActiveToggleChanged;
 
-        resetEffectButton = new(Translation.Get("effectsPane", "reset"));
+        resetEffectButton = new(new LocalizableGUIContent(translation, "effectsPane", "reset"));
         resetEffectButton.ControlEvent += OnResetEffectButtonPushed;
 
         Effect.PropertyChanged += OnEffectPropertyChanged;
@@ -47,12 +49,6 @@ public class EffectPane<T> : BasePane
     {
         if (e.PropertyName is nameof(EffectControllerBase.Active))
             effectActiveToggle.SetEnabledWithoutNotify(((EffectControllerBase)sender).Active);
-    }
-
-    protected override void ReloadTranslation()
-    {
-        effectActiveToggle.Label = Translation.Get("effectsPane", "onToggle");
-        resetEffectButton.Label = Translation.Get("effectsPane", "reset");
     }
 
     private void OnEffectActiveToggleChanged(object sender, EventArgs e) =>

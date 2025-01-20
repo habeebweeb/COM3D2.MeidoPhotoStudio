@@ -1,13 +1,19 @@
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 
 namespace MeidoPhotoStudio.Plugin.Core.Database.Character;
 
 public class GameBlendSetRepository : IEnumerable<GameBlendSetModel>
 {
+    private readonly Translation translation;
+
     private Dictionary<string, IList<GameBlendSetModel>> blendSets;
 
-    public GameBlendSetRepository() =>
-        Translation.ReloadTranslationEvent += OnReloadedTranslation;
+    public GameBlendSetRepository(Translation translation)
+    {
+        this.translation = translation ?? throw new ArgumentNullException(nameof(translation));
+        this.translation.Initialized += OnReloadedTranslation;
+    }
 
     public IEnumerable<string> Categories =>
         BlendSets.Keys;
@@ -30,7 +36,7 @@ public class GameBlendSetRepository : IEnumerable<GameBlendSetModel>
     public GameBlendSetModel GetByID(long id) =>
         this.FirstOrDefault(model => model.ID == id);
 
-    private static Dictionary<string, IList<GameBlendSetModel>> Initialize()
+    private Dictionary<string, IList<GameBlendSetModel>> Initialize()
     {
         PhotoFaceData.Create();
 
@@ -42,7 +48,7 @@ public class GameBlendSetRepository : IEnumerable<GameBlendSetModel>
                 blendSets[category] = [];
 
             foreach (var faceData in faceDataList)
-                blendSets[category].Add(new(faceData, Translation.Get("faceBlendPresetsDropdown", faceData.name)));
+                blendSets[category].Add(new(faceData, translation["faceBlendPresetsDropdown", faceData.name]));
         }
 
         return blendSets.ToDictionary(
@@ -53,6 +59,6 @@ public class GameBlendSetRepository : IEnumerable<GameBlendSetModel>
     private void OnReloadedTranslation(object sender, EventArgs e)
     {
         foreach (var blendSet in this)
-            blendSet.Name = Translation.Get("faceBlendPresetsDropdown", blendSet.BlendSetName);
+            blendSet.Name = translation["faceBlendPresetsDropdown", blendSet.BlendSetName];
     }
 }

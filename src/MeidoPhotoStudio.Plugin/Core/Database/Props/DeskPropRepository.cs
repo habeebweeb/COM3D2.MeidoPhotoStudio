@@ -1,11 +1,18 @@
+using MeidoPhotoStudio.Plugin.Core.Localization;
+
 namespace MeidoPhotoStudio.Plugin.Core.Database.Props;
 
 public class DeskPropRepository : IEnumerable<DeskPropModel>
 {
+    private readonly Translation translation;
+
     private Dictionary<int, IList<DeskPropModel>> props;
 
-    public DeskPropRepository() =>
-        Translation.ReloadTranslationEvent += OnTranslationReloaded;
+    public DeskPropRepository(Translation translation)
+    {
+        this.translation = translation ?? throw new ArgumentNullException(nameof(translation));
+        this.translation.Initialized += OnTranslationReloaded;
+    }
 
     public IEnumerable<int> CategoryIDs =>
         Props.Keys;
@@ -31,14 +38,14 @@ public class DeskPropRepository : IEnumerable<DeskPropModel>
     public DeskPropModel GetByID(int id) =>
         this.FirstOrDefault(model => model.ID == id);
 
-    private static Dictionary<int, IList<DeskPropModel>> Initialize()
+    private Dictionary<int, IList<DeskPropModel>> Initialize()
     {
         var models = new Dictionary<int, List<DeskPropModel>>();
 
         foreach (var data in DeskManager.item_detail_data_dic.Values)
         {
             var assetName = string.IsNullOrEmpty(data.asset_name) ? data.prefab_name : data.asset_name;
-            var model = new DeskPropModel(data, Translation.Get("propNames", assetName));
+            var model = new DeskPropModel(data, translation["propNames", assetName]);
 
             if (!models.ContainsKey(data.category_id))
                 models[data.category_id] = [];
@@ -56,7 +63,7 @@ public class DeskPropRepository : IEnumerable<DeskPropModel>
             var data = DeskManager.item_detail_data_dic[prop.ID];
             var assetName = string.IsNullOrEmpty(data.asset_name) ? data.prefab_name : data.asset_name;
 
-            prop.Name = Translation.Get("propNames", assetName);
+            prop.Name = translation["propNames", assetName];
         }
     }
 }

@@ -1,3 +1,4 @@
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.Service;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
@@ -11,14 +12,14 @@ public partial class MainWindow : BaseWindow
 
     private const float ResizeHandleSize = 15f;
     private const float MinimumWindowHeight = 400f;
-
+    private readonly Translation translation;
     private readonly TabSelectionController tabSelectionController;
     private readonly CustomMaidSceneService customMaidSceneService;
     private readonly SettingsWindow settingsWindow;
     private readonly InputRemapper inputRemapper;
-    private readonly List<Tab> tabs = [];
+    private readonly Dictionary<Tab, Toggle> tabs = [];
     private readonly Dictionary<Tab, BasePane> windowPanes = [];
-    private readonly SelectionGrid tabSelectionGrid;
+    private readonly Toggle.Group tabGroup;
     private readonly Button settingsButton;
     private readonly LazyStyle pluginInfoStyle = new(
         StyleSheet.SecondaryTextSize,
@@ -35,13 +36,14 @@ public partial class MainWindow : BaseWindow
     private BasePane currentPane;
     private Tab selectedTab;
 
-    // TODO: Global GUI enabled
     public MainWindow(
+        Translation translation,
         TabSelectionController tabSelectionController,
         CustomMaidSceneService customMaidSceneService,
         InputRemapper inputRemapper,
         SettingsWindow settingsWindow)
     {
+        this.translation = translation ?? throw new ArgumentNullException(nameof(translation));
         this.tabSelectionController = tabSelectionController ?? throw new ArgumentNullException(nameof(tabSelectionController));
         this.customMaidSceneService = customMaidSceneService ?? throw new ArgumentNullException(nameof(customMaidSceneService));
         this.inputRemapper = inputRemapper ? inputRemapper : throw new ArgumentNullException(nameof(inputRemapper));
@@ -49,10 +51,9 @@ public partial class MainWindow : BaseWindow
 
         this.tabSelectionController.TabSelected += OnTabSelectionChanged;
 
-        tabSelectionGrid = new([]);
-        tabSelectionGrid.ControlEvent += OnTabChanged;
+        tabGroup = [];
 
-        settingsButton = new(Translation.Get("mainWindow", "settingsButton"));
+        settingsButton = new(new LocalizableGUIContent(this.translation, "mainWindow", "settingsButton"));
         settingsButton.ControlEvent += OnSettingsButtonPushed;
 
         WindowRect = new(
@@ -124,7 +125,13 @@ public partial class MainWindow : BaseWindow
 
     public override void Draw()
     {
-        tabSelectionGrid.Draw(tabsStyle);
+        GUILayout.BeginHorizontal();
+
+        foreach (var tab in tabGroup)
+            tab.Draw(tabsStyle);
+
+        GUILayout.EndHorizontal();
+
         UIUtility.DrawBlackLine();
 
         currentPane.Draw();
@@ -227,12 +234,6 @@ public partial class MainWindow : BaseWindow
             pane.Activate();
     }
 
-    protected override void ReloadTranslation()
-    {
-        settingsButton.Label = Translation.Get("mainWindow", "settingsButton");
-        tabSelectionGrid.SetItemsWithoutNotify(Translation.GetArray("mainWindowTabs", tabs.Select(static tab => tab.ToLower())));
-    }
-
     private void OnTabSelectionChanged(object sender, TabSelectionEventArgs e)
     {
         var newTab = e.Tab switch
@@ -246,9 +247,6 @@ public partial class MainWindow : BaseWindow
         Visible = true;
     }
 
-    private void OnTabChanged(object sender, EventArgs e) =>
-        SetTab(tabs[tabSelectionGrid.SelectedItemIndex]);
-
     private void OnSettingsButtonPushed(object sender, EventArgs e) =>
         settingsWindow.Visible = !settingsWindow.Visible;
 
@@ -259,9 +257,19 @@ public partial class MainWindow : BaseWindow
 
         windowPanes[tab] = window;
         windowPanes[tab].SetParent(this);
-        tabs.Add(tab);
 
-        tabSelectionGrid.SetItems(Translation.GetArray("mainWindowTabs", tabs.Select(static tab => tab.ToLower())), 0);
+        var toggle = new Toggle(new LocalizableGUIContent(translation, "mainWindowTabs", tab.ToLower()));
+
+        toggle.ControlEvent += (sender, _) =>
+        {
+            if (sender is not Toggle { Value: true })
+                return;
+
+            SetTab(tab);
+        };
+
+        tabs[tab] = toggle;
+        tabGroup.Add(toggle);
     }
 
     private void SetTab(Tab tab)
@@ -272,7 +280,7 @@ public partial class MainWindow : BaseWindow
             _ => tab,
         };
 
-        tabSelectionGrid.SetValueWithoutNotify(tabs.IndexOf(selectedTab));
+        tabs[tab].SetEnabledWithoutNotify(true);
 
         currentPane = windowPanes[selectedTab];
     }

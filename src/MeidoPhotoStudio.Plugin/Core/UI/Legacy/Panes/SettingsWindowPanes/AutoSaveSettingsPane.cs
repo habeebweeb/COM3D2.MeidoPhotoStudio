@@ -1,4 +1,5 @@
 using MeidoPhotoStudio.Plugin.Core.Configuration;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Core.Scenes;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
@@ -24,40 +25,53 @@ public class AutoSaveSettingsPane : BasePane
     private bool validFrequencyValue = true;
     private bool validSlotsValue = true;
 
-    public AutoSaveSettingsPane(AutoSaveConfiguration configuration, AutoSaveService autoSaveService)
+    public AutoSaveSettingsPane(
+        Translation translation, AutoSaveConfiguration configuration, AutoSaveService autoSaveService)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         this.autoSaveService = autoSaveService ?? throw new ArgumentNullException(nameof(autoSaveService));
 
-        enabledToggle = new(Translation.Get("autoSaveSettingsPane", "enabledToggle"), this.configuration.Enabled.Value);
+        enabledToggle = new(
+            new LocalizableGUIContent(translation, "autoSaveSettingsPane", "enabledToggle"),
+            this.configuration.Enabled.Value);
+
         enabledToggle.ControlEvent += OnEnabledToggleChanged;
 
-        saveFrequencyHeader = new(Translation.Get("autoSaveSettingsPane", "saveFrequencyHeader"));
-        saveFrequencyHintLabel = new(string.Format(
-            Translation.Get("autoSaveSettingsPane", "saveFrequencyHint"),
-            this.configuration.Frequency.MinimumValue()));
+        saveFrequencyHeader = new(
+            new LocalizableGUIContent(translation, "autoSaveSettingsPane", "saveFrequencyHeader"));
+
+        saveFrequencyHintLabel = new(
+            new LocalizableGUIContent(
+                translation,
+                "autoSaveSettingsPane",
+                "saveFrequencyHint",
+                translation => string.Format(translation, this.configuration.Frequency.MinimumValue())));
 
         frequencyField = new(this.configuration.Frequency.Value);
         frequencyField.ControlEvent += OnFrequencyFieldChanged;
 
-        saveFrequencyButton = new(Translation.Get("autoSaveSettingsPane", "saveButton"));
+        saveFrequencyButton = new(new LocalizableGUIContent(translation, "autoSaveSettingsPane", "saveButton"));
         saveFrequencyButton.ControlEvent += OnSaveFrequencyButtonPushed;
 
-        resetFrequencyButton = new(Translation.Get("autoSaveSettingsPane", "resetButton"));
+        resetFrequencyButton = new(new LocalizableGUIContent(translation, "autoSaveSettingsPane", "resetButton"));
         resetFrequencyButton.ControlEvent += OnResetFrequencyButtonPushed;
 
-        slotsHeader = new(Translation.Get("autoSaveSettingsPane", "slotsHeader"));
-        slotsHintLabel = new(string.Format(
-            Translation.Get("autoSaveSettingsPane", "slotsHint"),
-            this.configuration.Slots.MinimumValue()));
+        slotsHeader = new(new LocalizableGUIContent(translation, "autoSaveSettingsPane", "slotsHeader"));
+
+        slotsHintLabel = new(new LocalizableGUIContent(
+            translation,
+            "autoSaveSettingsPane",
+            "slotsHint",
+            translation => string.Format(translation, this.configuration.Slots.MinimumValue())));
 
         slotsField = new(this.configuration.Slots.Value);
         slotsField.ControlEvent += OnSlotsFieldChanged;
 
-        saveSlotsButton = new(Translation.Get("autoSaveSettingsPane", "saveButton"));
+        saveSlotsButton = new(new LocalizableGUIContent(translation, "autoSaveSettingsPane", "saveButton"));
         saveSlotsButton.ControlEvent += OnSaveSlotsButtonPushed;
 
-        resetSlotsButton = new(Translation.Get("autoSaveSettingsPane", "resetButton"));
+        resetSlotsButton = new(new LocalizableGUIContent(translation, "autoSaveSettingsPane", "resetButton"));
         resetSlotsButton.ControlEvent += OnResetSlotsButtonPushed;
 
         this.configuration.Enabled.SettingChanged += OnEnabledSettingChanged;
@@ -117,26 +131,6 @@ public class AutoSaveSettingsPane : BasePane
         resetSlotsButton.Draw(noExpandWidth);
 
         GUILayout.EndHorizontal();
-    }
-
-    protected override void ReloadTranslation()
-    {
-        enabledToggle.Label = Translation.Get("autoSaveSettingsPane", "enabledToggle");
-        saveFrequencyHeader.Text = Translation.Get("autoSaveSettingsPane", "saveFrequencyHeader");
-        saveFrequencyHintLabel.Text = string.Format(
-            Translation.Get("autoSaveSettingsPane", "saveFrequencyHint"),
-            configuration.Frequency.MinimumValue());
-
-        saveFrequencyButton.Label = Translation.Get("autoSaveSettingsPane", "saveButton");
-        resetFrequencyButton.Label = Translation.Get("autoSaveSettingsPane", "resetButton");
-
-        slotsHeader.Text = Translation.Get("autoSaveSettingsPane", "slotsHeader");
-        slotsHintLabel.Text = string.Format(
-            Translation.Get("autoSaveSettingsPane", "slotsHint"),
-            configuration.Slots.MinimumValue());
-
-        saveSlotsButton.Label = Translation.Get("autoSaveSettingsPane", "saveButton");
-        resetSlotsButton.Label = Translation.Get("autoSaveSettingsPane", "resetButton");
     }
 
     private void OnEnabledSettingChanged(object sender, EventArgs e)

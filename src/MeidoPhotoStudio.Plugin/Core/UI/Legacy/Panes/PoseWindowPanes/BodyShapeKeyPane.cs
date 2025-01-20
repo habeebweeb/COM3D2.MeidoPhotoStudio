@@ -1,4 +1,5 @@
 using MeidoPhotoStudio.Plugin.Core.Configuration;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
@@ -10,10 +11,12 @@ public class BodyShapeKeyPane : BasePane
     private readonly PaneHeader paneHeader;
 
     public BodyShapeKeyPane(
+        Translation translation,
         SelectionController<CharacterController> characterSelectionController,
         BodyShapeKeyConfiguration bodyShapeKeyConfiguration,
         ShapeKeyRangeConfiguration shapeKeyRangeConfiguration)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.characterSelectionController = characterSelectionController ?? throw new ArgumentNullException(nameof(characterSelectionController));
 
         _ = bodyShapeKeyConfiguration ?? throw new ArgumentNullException(nameof(bodyShapeKeyConfiguration));
@@ -21,9 +24,9 @@ public class BodyShapeKeyPane : BasePane
 
         this.characterSelectionController.Selected += OnCharacterSelectionChanged;
 
-        paneHeader = new(Translation.Get("bodyShapeKeyPane", "header"));
+        paneHeader = new(new LocalizableGUIContent(translation, "bodyShapeKeyPane", "header"));
 
-        shapeKeysPane = new(bodyShapeKeyConfiguration, shapeKeyRangeConfiguration)
+        shapeKeysPane = new(translation, bodyShapeKeyConfiguration, shapeKeyRangeConfiguration)
         {
             DrawRefreshRangeButton = true,
         };
@@ -44,9 +47,6 @@ public class BodyShapeKeyPane : BasePane
 
         shapeKeysPane.Draw();
     }
-
-    protected override void ReloadTranslation() =>
-        paneHeader.Label = Translation.Get("bodyShapeKeyPane", "header");
 
     private void OnCharacterSelectionChanged(object sender, SelectionEventArgs<CharacterController> e) =>
         shapeKeysPane.ShapeKeyController = e.Selected?.Body;

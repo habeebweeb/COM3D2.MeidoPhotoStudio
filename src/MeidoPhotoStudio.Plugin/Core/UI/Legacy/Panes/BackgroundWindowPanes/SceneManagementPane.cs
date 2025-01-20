@@ -1,3 +1,4 @@
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Core.Scenes;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
@@ -12,20 +13,22 @@ public class SceneManagementPane : BasePane
     private readonly Button quickLoadButton;
     private readonly PaneHeader paneHeader;
 
-    public SceneManagementPane(SceneBrowserWindow sceneWindow, QuickSaveService quickSaveService)
+    public SceneManagementPane(
+        Translation translation, SceneBrowserWindow sceneWindow, QuickSaveService quickSaveService)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.sceneWindow = sceneWindow ?? throw new ArgumentNullException(nameof(sceneWindow));
         this.quickSaveService = quickSaveService ?? throw new ArgumentNullException(nameof(quickSaveService));
 
-        paneHeader = new(Translation.Get("sceneManagementPane", "sceneManagementHeader"));
+        paneHeader = new(new LocalizableGUIContent(translation, "sceneManagementPane", "sceneManagementHeader"));
 
-        manageScenesButton = new(Translation.Get("sceneManagementPane", "manageScenesButton"));
+        manageScenesButton = new(new LocalizableGUIContent(translation, "sceneManagementPane", "manageScenesButton"));
         manageScenesButton.ControlEvent += OnManageScenesButtonPushed;
 
-        quickSaveButton = new(Translation.Get("sceneManagementPane", "quickSaveButton"));
+        quickSaveButton = new(new LocalizableGUIContent(translation, "sceneManagementPane", "quickSaveButton"));
         quickSaveButton.ControlEvent += OnQuickSaveButtonPushed;
 
-        quickLoadButton = new(Translation.Get("sceneManagementPane", "quickLoadButton"));
+        quickLoadButton = new(new LocalizableGUIContent(translation, "sceneManagementPane", "quickLoadButton"));
         quickLoadButton.ControlEvent += OnQuickLoadButtonPushed;
     }
 
@@ -45,14 +48,6 @@ public class SceneManagementPane : BasePane
         quickLoadButton.Draw();
 
         GUILayout.EndHorizontal();
-    }
-
-    protected override void ReloadTranslation()
-    {
-        paneHeader.Label = Translation.Get("sceneManagementPane", "sceneManagementHeader");
-        manageScenesButton.Label = Translation.Get("backgroundWindow", "manageScenesButton");
-        quickSaveButton.Label = Translation.Get("sceneManagementPane", "quickSaveButton");
-        quickLoadButton.Label = Translation.Get("sceneManagementPane", "quickLoadButton");
     }
 
     private void OnManageScenesButtonPushed(object sender, EventArgs e) =>

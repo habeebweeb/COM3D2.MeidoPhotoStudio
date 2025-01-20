@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MyRoomCustom;
 
 namespace MeidoPhotoStudio.Plugin.Core.Database.Background;
@@ -9,10 +10,16 @@ public class BackgroundRepository : IEnumerable<BackgroundModel>, IActivateable
     private static ReadOnlyCollection<BackgroundModel> com3d2BackgroundsCache;
     private static ReadOnlyCollection<BackgroundModel> cm3d2BackgroundsCache;
 
+    private readonly Translation translation;
+
     private Dictionary<BackgroundCategory, IList<BackgroundModel>> backgrounds;
 
-    public BackgroundRepository() =>
-        Translation.ReloadTranslationEvent += OnReloadedTranslation;
+    // TODO: I don't think any of the repositories should be doing any translation stuff.
+    public BackgroundRepository(Translation translation)
+    {
+        this.translation = translation ?? throw new ArgumentNullException(nameof(translation));
+        this.translation.Initialized += OnTranslationInitialized;
+    }
 
     public IEnumerable<BackgroundCategory> Categories =>
         Backgrounds.Keys;
@@ -79,7 +86,7 @@ public class BackgroundRepository : IEnumerable<BackgroundModel>, IActivateable
         return null;
     }
 
-    private static Dictionary<BackgroundCategory, IList<BackgroundModel>> InitializeBackgrounds()
+    private Dictionary<BackgroundCategory, IList<BackgroundModel>> InitializeBackgrounds()
     {
         var backgrounds = new Dictionary<BackgroundCategory, IList<BackgroundModel>>
         {
@@ -98,7 +105,7 @@ public class BackgroundRepository : IEnumerable<BackgroundModel>, IActivateable
 
         return backgrounds;
 
-        static ReadOnlyCollection<BackgroundModel> GetCOM3D2Backgrounds()
+        ReadOnlyCollection<BackgroundModel> GetCOM3D2Backgrounds()
         {
             if (com3d2BackgroundsCache is not null)
                 return com3d2BackgroundsCache;
@@ -107,17 +114,17 @@ public class BackgroundRepository : IEnumerable<BackgroundModel>, IActivateable
 
             com3d2BackgroundsCache ??= PhotoBGData.data
                 .Where(static bgData => !string.IsNullOrEmpty(bgData.create_prefab_name))
-                .Select(static bgData => new BackgroundModel(
+                .Select(bgData => new BackgroundModel(
                     BackgroundCategory.COM3D2,
                     bgData.create_prefab_name,
-                    Translation.Get("bgNames", bgData.create_prefab_name)))
+                    translation["bgNames", bgData.create_prefab_name]))
                 .ToList()
                 .AsReadOnly();
 
             return com3d2BackgroundsCache;
         }
 
-        static ReadOnlyCollection<BackgroundModel> GetCM3D2Backgrounds()
+        ReadOnlyCollection<BackgroundModel> GetCM3D2Backgrounds()
         {
             if (cm3d2BackgroundsCache is not null)
                 return cm3d2BackgroundsCache;
@@ -137,7 +144,7 @@ public class BackgroundRepository : IEnumerable<BackgroundModel>, IActivateable
                 var assetName = csvParser.GetCellAsString(3, cellY);
 
                 cm3d2Backgrounds.Add(
-                    new(BackgroundCategory.CM3D2, assetName, Translation.Get("bgNames", assetName)));
+                    new(BackgroundCategory.CM3D2, assetName, translation["bgNames", assetName]));
             }
 
             return cm3d2BackgroundsCache = cm3d2Backgrounds.AsReadOnly();
@@ -156,9 +163,9 @@ public class BackgroundRepository : IEnumerable<BackgroundModel>, IActivateable
         }
     }
 
-    private void OnReloadedTranslation(object sender, EventArgs e)
+    private void OnTranslationInitialized(object sender, EventArgs e)
     {
         foreach (var background in this.Where(static background => background.Category is not BackgroundCategory.MyRoomCustom))
-            background.Name = Translation.Get("bgNames", background.AssetName);
+            background.Name = translation["bgNames", background.AssetName];
     }
 }

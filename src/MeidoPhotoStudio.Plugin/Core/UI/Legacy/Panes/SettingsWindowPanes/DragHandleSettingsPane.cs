@@ -3,6 +3,7 @@ using MeidoPhotoStudio.Plugin.Core.Character;
 using MeidoPhotoStudio.Plugin.Core.Character.Pose;
 using MeidoPhotoStudio.Plugin.Core.Configuration;
 using MeidoPhotoStudio.Plugin.Core.Lighting;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Core.Props;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
@@ -21,6 +22,7 @@ public class DragHandleSettingsPane : BasePane
     private readonly Toggle autoSelectToggle;
 
     public DragHandleSettingsPane(
+        Translation translation,
         DragHandleConfiguration configuration,
         IKDragHandleService ikDragHandleService,
         PropDragHandleService propDragHandleService,
@@ -28,6 +30,7 @@ public class DragHandleSettingsPane : BasePane
         LightDragHandleRepository lightDragHandleRepository,
         BackgroundDragHandleService backgroundDragHandleService)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         this.ikDragHandleService = ikDragHandleService ?? throw new ArgumentNullException(nameof(ikDragHandleService));
         this.propDragHandleService = propDragHandleService ?? throw new ArgumentNullException(nameof(propDragHandleService));
@@ -40,18 +43,21 @@ public class DragHandleSettingsPane : BasePane
         this.configuration.AutomaticSelection.SettingChanged += OnSettingsChanged;
 
         smallDragHandleToggle = new(
-            Translation.Get("dragHandleSettingsPane", "smallDragHandleToggle"),
+            new LocalizableGUIContent(translation, "dragHandleSettingsPane", "smallDragHandleToggle"),
             this.configuration.SmallTransformCube.Value);
 
         smallDragHandleToggle.ControlEvent += OnSmallDragHandleToggleChanged;
 
         characterTransformDragHandleToggle = new(
-            Translation.Get("dragHandleSettingsPane", "characterCubeDragHandleToggle"),
+            new LocalizableGUIContent(translation, "dragHandleSettingsPane", "characterCubeDragHandleToggle"),
             this.configuration.CharacterTransformCube.Value);
 
         characterTransformDragHandleToggle.ControlEvent += OnCharacterTransformDragHandleToggleChanged;
 
-        autoSelectToggle = new(Translation.Get("dragHandleSettingsPane", "autoSelectObjectToggle"), this.configuration.AutomaticSelection.Value);
+        autoSelectToggle = new(
+            new LocalizableGUIContent(translation, "dragHandleSettingsPane", "autoSelectObjectToggle"),
+            this.configuration.AutomaticSelection.Value);
+
         autoSelectToggle.ControlEvent += OnAutoSelectToggleChanged;
     }
 
@@ -60,13 +66,6 @@ public class DragHandleSettingsPane : BasePane
         smallDragHandleToggle.Draw();
         characterTransformDragHandleToggle.Draw();
         autoSelectToggle.Draw();
-    }
-
-    protected override void ReloadTranslation()
-    {
-        smallDragHandleToggle.Label = Translation.Get("dragHandleSettingsPane", "smallDragHandleToggle");
-        characterTransformDragHandleToggle.Label = Translation.Get("dragHandleSettingsPane", "characterCubeDragHandleToggle");
-        autoSelectToggle.Label = Translation.Get("dragHandleSettingsPane", "autoSelectObjectToggle");
     }
 
     private void OnSmallDragHandleToggleChanged(object sender, EventArgs e)

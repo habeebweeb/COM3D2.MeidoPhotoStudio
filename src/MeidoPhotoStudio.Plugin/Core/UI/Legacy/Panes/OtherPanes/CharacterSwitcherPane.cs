@@ -1,4 +1,5 @@
 using MeidoPhotoStudio.Plugin.Core.Character;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework.Service;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
@@ -31,11 +32,13 @@ public class CharacterSwitcherPane : BasePane
     private CharacterController preCallCharacter;
 
     public CharacterSwitcherPane(
+        Translation translation,
         CharacterService characterService,
         SelectionController<CharacterController> characterSelectionController,
         CustomMaidSceneService customMaidSceneService,
         EditModeMaidService editModeMaidService)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.characterService = characterService ?? throw new ArgumentNullException(nameof(characterService));
         this.characterSelectionController = characterSelectionController ?? throw new ArgumentNullException(nameof(characterSelectionController));
         this.customMaidSceneService = customMaidSceneService ?? throw new ArgumentNullException(nameof(customMaidSceneService));
@@ -48,13 +51,13 @@ public class CharacterSwitcherPane : BasePane
         characterDropdown = new([], formatter: CharacterFormatter);
         characterDropdown.SelectionChanged += OnSelectionChanged;
 
-        editToggle = new(Translation.Get("characterSwitcher", "editToggle"));
+        editToggle = new(new LocalizableGUIContent(translation, "characterSwitcher", "editToggle"));
         editToggle.ControlEvent += OnEditToggleChanged;
 
-        focusBodyButton = new(Translation.Get("characterSwitcher", "focusBodyButton"));
+        focusBodyButton = new(new LocalizableGUIContent(translation, "characterSwitcher", "focusBodyButton"));
         focusBodyButton.ControlEvent += OnFocusBodyButtonPushed;
 
-        focusFaceButton = new(Translation.Get("characterSwitcher", "focusFaceButton"));
+        focusFaceButton = new(new LocalizableGUIContent(translation, "characterSwitcher", "focusFaceButton"));
         focusFaceButton.ControlEvent += OnFocusFaceButtonPushed;
 
         static CharacterDropdownItem CharacterFormatter(CharacterController character, int index) =>
@@ -131,13 +134,6 @@ public class CharacterSwitcherPane : BasePane
         GUILayout.EndHorizontal();
 
         UIUtility.DrawBlackLine();
-    }
-
-    protected override void ReloadTranslation()
-    {
-        editToggle.Label = Translation.Get("characterSwitcher", "editToggle");
-        focusBodyButton.Label = Translation.Get("characterSwitcher", "focusBodyButton");
-        focusFaceButton.Label = Translation.Get("characterSwitcher", "focusFaceButton");
     }
 
     private void OnEditToggleChanged(object sender, EventArgs e)

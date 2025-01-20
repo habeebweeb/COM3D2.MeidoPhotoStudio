@@ -1,6 +1,7 @@
 using MeidoPhotoStudio.Plugin.Core.Character;
 using MeidoPhotoStudio.Plugin.Core.Character.Pose;
 using MeidoPhotoStudio.Plugin.Core.Database.Character;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
@@ -34,10 +35,12 @@ public class HandPresetSelectorPane : BasePane
     private float saveTime;
 
     public HandPresetSelectorPane(
+        Translation translation,
         HandPresetRepository handPresetRepository,
         CharacterUndoRedoService characterUndoRedoService,
         SelectionController<CharacterController> characterSelectionController)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.handPresetRepository = handPresetRepository ?? throw new ArgumentNullException(nameof(handPresetRepository));
         this.characterUndoRedoService = characterUndoRedoService ?? throw new ArgumentNullException(nameof(characterUndoRedoService));
         this.characterSelectionController = characterSelectionController ?? throw new ArgumentNullException(nameof(characterSelectionController));
@@ -45,11 +48,13 @@ public class HandPresetSelectorPane : BasePane
         this.handPresetRepository.AddedHandPreset += OnHandPresetAdded;
         this.handPresetRepository.Refreshed += OnHandPresetRepositoryRefreshed;
 
-        paneHeader = new(Translation.Get("handPane", "header"), true);
+        translation.Initialized += OnTranslationInitialized;
+
+        paneHeader = new(new LocalizableGUIContent(translation, "handPane", "header"), true);
 
         searchBar = new(SearchSelector, Formatter)
         {
-            Placeholder = Translation.Get("handPane", "searchBarPlaceholder"),
+            PlaceholderContent = new LocalizableGUIContent(translation, "handPane", "searchBarPlaceholder"),
         };
 
         searchBar.SelectedValue += OnSearchSelected;
@@ -59,46 +64,49 @@ public class HandPresetSelectorPane : BasePane
 
         presetDropdown = new(PresetList(), formatter: Formatter);
 
-        applyLeftHandButton = new(Translation.Get("handPane", "leftHand"));
+        applyLeftHandButton = new(new LocalizableGUIContent(translation, "handPane", "leftHand"));
         applyLeftHandButton.ControlEvent += OnApplyLeftButtonPushed;
 
-        applyRightHandButton = new(Translation.Get("handPane", "rightHand"));
+        applyRightHandButton = new(new LocalizableGUIContent(translation, "handPane", "rightHand"));
         applyRightHandButton.ControlEvent += OnApplyRightButtonPushed;
 
-        swapHandsButton = new(Translation.Get("handPane", "swapHands"));
+        swapHandsButton = new(new LocalizableGUIContent(translation, "handPane", "swapHands"));
         swapHandsButton.ControlEvent += OnSwapButtonPushed;
 
-        savePresetToggle = new(Translation.Get("handPane", "saveToggle"));
+        savePresetToggle = new(new LocalizableGUIContent(translation, "handPane", "saveToggle"));
         handPresetCategoryComboBox = new(this.handPresetRepository.Categories)
         {
-            Placeholder = Translation.Get("handPane", "categorySearchBarPlaceholder"),
+            PlaceholderContent = new LocalizableGUIContent(translation, "handPane", "categorySearchBarPlaceholder"),
         };
 
         handPresetNameTextField = new()
         {
-            Placeholder = Translation.Get("handPane", "nameTextFieldPlaceholder"),
+            PlaceholderContent = new LocalizableGUIContent(translation, "handPane", "nameTextFieldPlaceholder"),
         };
 
-        saveLeftPresetButton = new(Translation.Get("handPane", "saveLeftButton"));
+        saveLeftPresetButton = new(new LocalizableGUIContent(translation, "handPane", "saveLeftButton"));
         saveLeftPresetButton.ControlEvent += OnSaveLeftPresetButtonPushed;
 
-        saveRightPresetButton = new(Translation.Get("handPane", "saveRightButton"));
+        saveRightPresetButton = new(new LocalizableGUIContent(translation, "handPane", "saveRightButton"));
         saveRightPresetButton.ControlEvent += OnSaveRightPresetButtonPushed;
 
-        refreshButton = new(Translation.Get("handPane", "refreshButton"));
+        refreshButton = new(new LocalizableGUIContent(translation, "handPane", "refreshButton"));
         refreshButton.ControlEvent += OnRefreshButtonPushed;
 
-        handPresetDirectoryHeader = new(Translation.Get("handPane", "categoryHeader"));
-        handPresetFilenameHeader = new(Translation.Get("handPane", "nameHeader"));
+        handPresetDirectoryHeader = new(new LocalizableGUIContent(translation, "handPane", "categoryHeader"));
+        handPresetFilenameHeader = new(new LocalizableGUIContent(translation, "handPane", "nameHeader"));
 
-        noPresetsLabel = new(Translation.Get("handPane", "noPresetsMessage"));
-        savedHandPresetLabel = new(Translation.Get("handPane", "savedHandPresetLabel"));
+        noPresetsLabel = new(new LocalizableGUIContent(translation, "handPane", "noPresetsMessage"));
+        savedHandPresetLabel = new(new LocalizableGUIContent(translation, "handPane", "savedHandPresetLabel"));
 
         IDropdownItem Formatter(HandPresetModel preset, int index) =>
             new LabelledDropdownItem($"{index + 1}: {preset.Name}");
 
         IEnumerable<HandPresetModel> SearchSelector(string query) =>
             handPresetRepository.Where(model => model.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
+
+        void OnTranslationInitialized(object sender, EventArgs e) =>
+            searchBar.Reformat();
     }
 
     private CharacterController Character =>
@@ -198,26 +206,6 @@ public class HandPresetSelectorPane : BasePane
 
             savedHandPresetLabel.Draw();
         }
-    }
-
-    protected override void ReloadTranslation()
-    {
-        paneHeader.Label = Translation.Get("handPane", "header");
-        applyLeftHandButton.Label = Translation.Get("handPane", "leftHand");
-        applyRightHandButton.Label = Translation.Get("handPane", "rightHand");
-        swapHandsButton.Label = Translation.Get("handPane", "swapHands");
-        savePresetToggle.Label = Translation.Get("handPane", "saveToggle");
-        saveLeftPresetButton.Label = Translation.Get("handPane", "saveLeftButton");
-        saveRightPresetButton.Label = Translation.Get("handPane", "saveRightButton");
-        refreshButton.Label = Translation.Get("handPane", "refreshButton");
-        handPresetDirectoryHeader.Text = Translation.Get("handPane", "categoryHeader");
-        handPresetFilenameHeader.Text = Translation.Get("handPane", "nameHeader");
-        handPresetCategoryComboBox.Placeholder = Translation.Get("handPane", "categorySearchBarPlaceholder");
-        handPresetNameTextField.Placeholder = Translation.Get("handPane", "nameTextFieldPlaceholder");
-        noPresetsLabel.Text = Translation.Get("handPane", "noPresetsMessage");
-        savedHandPresetLabel.Text = Translation.Get("handPane", "savedHandPresetLabel");
-        searchBar.Placeholder = Translation.Get("handPane", "searchBarPlaceholder");
-        searchBar.Reformat();
     }
 
     private void OnSearchSelected(object sender, SearchBarSelectionEventArgs<HandPresetModel> e)

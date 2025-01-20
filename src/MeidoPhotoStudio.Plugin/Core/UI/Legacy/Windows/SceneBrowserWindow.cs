@@ -1,5 +1,6 @@
 using MeidoPhotoStudio.Plugin.Core.Configuration;
 using MeidoPhotoStudio.Plugin.Core.Database.Scenes;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Core.Serialization;
 using MeidoPhotoStudio.Plugin.Framework;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
@@ -72,6 +73,9 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
     private readonly Button refreshScenesButton;
     private readonly Button addCategoryButton;
     private readonly Button saveSceneButton;
+    private readonly Label sortLabel;
+    private readonly Label noScenesLabel;
+    private readonly Label noCategoriesLabel;
     private readonly Button closeButton;
     private readonly Dropdown<SortingMode> sortingModesDropdown;
     private readonly Toggle descendingToggle;
@@ -87,11 +91,9 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
     private Vector2 categoryScrollPosition;
     private bool hasCategories;
     private bool hasScenes;
-    private string sortLabel = string.Empty;
-    private string noScenesLabel = string.Empty;
-    private string noCategoriesLabel = string.Empty;
 
     public SceneBrowserWindow(
+        Translation translation,
         SceneRepository sceneRepository,
         SceneManagementModal sceneManagementModal,
         SceneSchemaBuilder sceneSchemaBuilder,
@@ -99,6 +101,7 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
         SceneBrowserConfiguration configuration,
         InputRemapper inputRemapper)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.sceneRepository = sceneRepository ?? throw new ArgumentNullException(nameof(sceneRepository));
         this.sceneManagementModal = sceneManagementModal ?? throw new ArgumentNullException(nameof(sceneManagementModal));
         this.sceneSchemaBuilder = sceneSchemaBuilder ?? throw new ArgumentNullException(nameof(sceneSchemaBuilder));
@@ -122,18 +125,18 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
         sceneNameTextfield = new();
         sceneNameTextfield.ControlEvent += OnSaveSceneButtonPushed;
 
-        refreshScenesButton = new(Translation.Get("sceneManager", "refreshButton"));
+        refreshScenesButton = new(new LocalizableGUIContent(translation, "sceneManager", "refreshButton"));
         refreshScenesButton.ControlEvent += OnRefreshScenesButtonPushed;
 
-        addCategoryButton = new(Translation.Get("sceneManager", "createDirectoryButton"));
+        addCategoryButton = new(new LocalizableGUIContent(translation, "sceneManager", "createDirectoryButton"));
         addCategoryButton.ControlEvent += OnAddCategoryButtonPushed;
 
-        saveSceneButton = new(Translation.Get("sceneManager", "saveSceneButton"));
+        saveSceneButton = new(new LocalizableGUIContent(translation, "sceneManager", "saveSceneButton"));
         saveSceneButton.ControlEvent += OnSaveSceneButtonPushed;
 
-        sortLabel = Translation.Get("sceneManager", "sortLabel");
-        noScenesLabel = Translation.Get("sceneManager", "noScenesLabel");
-        noCategoriesLabel = Translation.Get("sceneManager", "noDirectoriesLabel");
+        sortLabel = new(new LocalizableGUIContent(translation, "sceneManager", "sortLabel"));
+        noScenesLabel = new(new LocalizableGUIContent(translation, "sceneManager", "noScenesLabel"));
+        noCategoriesLabel = new(new LocalizableGUIContent(translation, "sceneManager", "noDirectoriesLabel"));
 
         var sortingModeTranslationkeys = new Dictionary<SortingMode, string>()
         {
@@ -147,11 +150,12 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
         sortingModesDropdown = new(
             sortingModes,
             Array.IndexOf(sortingModes, this.configuration.SortingMode),
-            formatter: (sortingMode, _) => new LabelledDropdownItem(Translation.Get("sceneManager", sortingModeTranslationkeys[sortingMode])));
+            formatter: SortingModeFormatter);
 
         sortingModesDropdown.SelectionChanged += OnSortOptionChanged;
+        translation.Initialized += OnTranslationInitialized;
 
-        descendingToggle = new(Translation.Get("sceneManager", "descendingToggle"), this.configuration.SortDescending);
+        descendingToggle = new(new LocalizableGUIContent(translation, "sceneManager", "descendingToggle"), this.configuration.SortDescending);
         descendingToggle.ControlEvent += OnDescendingToggleChanged;
 
         closeButton = new("X");
@@ -182,6 +186,12 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
             hasCategories = this.sceneRepository.Categories.Any();
             hasScenes = currentCategoryScenes.Any();
         }
+
+        void OnTranslationInitialized(object sender, EventArgs e) =>
+            sortingModesDropdown.Reformat();
+
+        LabelledDropdownItem SortingModeFormatter(SortingMode sortingMode, int index) =>
+            new(translation["sceneManager", sortingModeTranslationkeys[sortingMode]]);
     }
 
     public enum SortingMode
@@ -236,7 +246,7 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
 
             GUILayout.EndHorizontal();
 
-            GUILayout.Label(sortLabel, labelStyle);
+            sortLabel.Draw(labelStyle);
 
             sortingModesDropdown.Draw();
 
@@ -253,7 +263,7 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
         {
             if (!hasCategories)
             {
-                GUILayout.Label(noCategoriesLabel, labelStyle);
+                noCategoriesLabel.Draw(labelStyle);
 
                 return;
             }
@@ -285,7 +295,7 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
         {
             if (!hasScenes)
             {
-                GUILayout.Label(noScenesLabel, labelStyle, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+                noScenesLabel.Draw(labelStyle, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
 
                 return;
             }
@@ -399,18 +409,6 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
         }
     }
 
-    protected override void ReloadTranslation()
-    {
-        refreshScenesButton.Label = Translation.Get("sceneManager", "refreshButton");
-        addCategoryButton.Label = Translation.Get("sceneManager", "createDirectoryButton");
-        saveSceneButton.Label = Translation.Get("sceneManager", "saveSceneButton");
-        sortLabel = Translation.Get("sceneManager", "sortLabel");
-        noScenesLabel = Translation.Get("sceneManager", "noScenesLabel");
-        noCategoriesLabel = Translation.Get("sceneManager", "noDirectoriesLabel");
-        descendingToggle.Label = Translation.Get("sceneManager", "descendingToggle");
-        sortingModesDropdown.Reformat();
-    }
-
     private static IEnumerable<SceneModel> SortScenes(IEnumerable<SceneModel> scenes, SortingMode sortingMode, bool descending) =>
         sortingMode switch
         {
@@ -471,16 +469,14 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
     {
         configuration.SortingMode = sortingModesDropdown.SelectedItem;
 
-        currentCategoryScenes = SortScenes(
-            currentCategoryScenes, sortingModesDropdown.SelectedItem, Descending).ToArray();
+        currentCategoryScenes = [.. SortScenes(currentCategoryScenes, sortingModesDropdown.SelectedItem, Descending)];
     }
 
     private void OnDescendingToggleChanged(object sender, EventArgs e)
     {
         configuration.SortDescending = Descending;
 
-        currentCategoryScenes = SortScenes(
-            currentCategoryScenes, sortingModesDropdown.SelectedItem, Descending).ToArray();
+        currentCategoryScenes = [.. SortScenes(currentCategoryScenes, sortingModesDropdown.SelectedItem, Descending)];
     }
 
     private void ChangeCategory(string category)
@@ -527,7 +523,7 @@ public class SceneBrowserWindow : BaseWindow, IVirtualListHandler
     private SceneModel[] GetScenes(string category) =>
         string.IsNullOrEmpty(category) || !sceneRepository.ContainsCategory(category)
             ? []
-            : SortScenes(sceneRepository[category], sortingModesDropdown.SelectedItem, Descending).ToArray();
+            : [.. SortScenes(sceneRepository[category], sortingModesDropdown.SelectedItem, Descending)];
 
     private string[] GetCategories() =>
         [.. sceneRepository.Categories

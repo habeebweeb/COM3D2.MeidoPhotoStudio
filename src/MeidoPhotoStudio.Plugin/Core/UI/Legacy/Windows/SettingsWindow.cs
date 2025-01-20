@@ -1,3 +1,4 @@
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
@@ -7,13 +8,12 @@ public class SettingsWindow : BaseWindow
 {
     private const int CategoryListWidth = 200;
     private const float ResizeHandleSize = 15f;
-
+    private readonly Translation translation;
     private readonly InputRemapper inputRemapper;
     private readonly List<SettingType> settingCategories = [];
     private readonly Dictionary<SettingType, BasePane> settingPanes = [];
-    private readonly SelectionGrid settingCategorySelectionGrid;
+    private readonly Toggle.Group settingsGroup;
     private readonly Button closeButton;
-    private readonly Header currentSettingHeader;
     private readonly Label pluginInformationLabel;
     private readonly LazyStyle settingCategoryStyle = new(
         StyleSheet.TextSize,
@@ -43,22 +43,17 @@ public class SettingsWindow : BaseWindow
     private Rect resizeHandlRect = new(0f, 0f, ResizeHandleSize, ResizeHandleSize);
     private Vector2 settingsCategoryScrollPosition;
     private Vector2 settingsScrollPosition;
+    private BasePane currentPane;
 
-    public SettingsWindow(InputRemapper inputRemapper)
+    public SettingsWindow(Translation translation, InputRemapper inputRemapper)
     {
+        this.translation = translation ?? throw new ArgumentNullException(nameof(translation));
         this.inputRemapper = inputRemapper ? inputRemapper : throw new ArgumentNullException(nameof(inputRemapper));
+
+        settingsGroup = new();
 
         closeButton = new("X");
         closeButton.ControlEvent += OnCloseButtonPushed;
-
-        currentSettingHeader = new(string.Empty);
-
-        settingCategorySelectionGrid = new([])
-        {
-            Vertical = true,
-        };
-
-        settingCategorySelectionGrid.ControlEvent += OnSettingCategoryChanged;
 
         pluginInformationLabel = new(Plugin.BuildVersion);
 
@@ -70,7 +65,6 @@ public class SettingsWindow : BaseWindow
             Screen.height * 0.5f - Screen.height * 0.6f / 2f,
             minimumWidth,
             Screen.height * 0.6f);
-        this.inputRemapper = inputRemapper;
     }
 
     public enum SettingType
@@ -95,6 +89,20 @@ public class SettingsWindow : BaseWindow
     {
         GUILayout.BeginArea(new(10f, 10f, WindowRect.width - 20f, WindowRect.height - 20f));
 
+        GUILayout.BeginVertical();
+
+        GUILayout.BeginHorizontal();
+
+        pluginInformationLabel.Draw(buildVersionStyle);
+
+        GUILayout.FlexibleSpace();
+
+        closeButton.Draw(GUILayout.ExpandWidth(false));
+
+        GUILayout.EndHorizontal();
+
+        UIUtility.DrawBlackLine();
+
         GUILayout.BeginHorizontal();
 
         DrawSettingsCategories();
@@ -103,7 +111,7 @@ public class SettingsWindow : BaseWindow
 
         GUILayout.EndHorizontal();
 
-        pluginInformationLabel.Draw(buildVersionStyle);
+        GUILayout.EndVertical();
 
         GUILayout.EndArea();
 
@@ -115,7 +123,8 @@ public class SettingsWindow : BaseWindow
 
             settingsCategoryScrollPosition = GUILayout.BeginScrollView(settingsCategoryScrollPosition);
 
-            settingCategorySelectionGrid.Draw(settingCategoryStyle);
+            foreach (var toggle in settingsGroup)
+                toggle.Draw(settingCategoryStyle);
 
             GUILayout.EndScrollView();
 
@@ -126,19 +135,9 @@ public class SettingsWindow : BaseWindow
         {
             GUILayout.BeginVertical();
 
-            GUILayout.BeginHorizontal();
-
-            currentSettingHeader.Draw(headerStyle);
-
-            closeButton.Draw(GUILayout.ExpandWidth(false));
-
-            GUILayout.EndHorizontal();
-
-            UIUtility.DrawBlackLine();
-
             settingsScrollPosition = GUILayout.BeginScrollView(settingsScrollPosition);
 
-            settingPanes[settingCategories[settingCategorySelectionGrid.SelectedItemIndex]].Draw();
+            currentPane.Draw();
 
             GUILayout.EndScrollView();
 
@@ -205,12 +204,6 @@ public class SettingsWindow : BaseWindow
         };
     }
 
-    protected override void ReloadTranslation()
-    {
-        settingCategorySelectionGrid.SetItemsWithoutNotify(Translation.GetArray("settingTypes", settingCategories.Select(static category => category.ToLower())));
-        currentSettingHeader.Text = Translation.Get("settingTypes", settingCategories[settingCategorySelectionGrid.SelectedItemIndex].ToLower());
-    }
-
     private void AddPane(SettingType settingType, BasePane pane)
     {
         _ = pane ?? throw new ArgumentNullException(nameof(pane));
@@ -223,12 +216,22 @@ public class SettingsWindow : BaseWindow
         settingPanes.Add(settingType, pane);
         pane.SetParent(this);
 
-        settingCategorySelectionGrid.SetItems(Translation.GetArray("settingTypes", settingCategories.Select(static setting => setting.ToLower())), 0);
+        var toggle = new Toggle(
+            new LocalizableGUIContent(translation, "settingTypes", settingType.ToLower()),
+            currentPane is null);
+
+        toggle.ControlEvent += (sender, _) =>
+        {
+            if (sender is not Toggle { Value: true })
+                return;
+
+            currentPane = pane;
+        };
+
+        currentPane ??= pane;
+        settingsGroup.Add(toggle);
     }
 
     private void OnCloseButtonPushed(object sender, EventArgs e) =>
         Visible = !Visible;
-
-    private void OnSettingCategoryChanged(object sender, EventArgs e) =>
-        currentSettingHeader.Text = Translation.Get("settingTypes", settingCategories[settingCategorySelectionGrid.SelectedItemIndex].ToLower());
 }

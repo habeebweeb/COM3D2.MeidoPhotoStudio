@@ -1,3 +1,4 @@
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
@@ -6,14 +7,15 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
 public class CharacterPane : BasePane
 {
+    private readonly Translation translation;
     private readonly TabSelectionController tabSelectionController;
     private readonly SelectionController<CharacterController> characterSelectionController;
-    private readonly List<CharacterWindowTab> tabs = [];
+    private readonly Dictionary<CharacterWindowTab, Toggle> tabs = [];
     private readonly Dictionary<CharacterWindowTab, CharacterWindowTabPane> windowPanes =
         new(EnumEqualityComparer<CharacterWindowTab>.Instance);
 
+    private readonly Toggle.Group tabGroup;
     private readonly Label noCharactersLabel;
-    private readonly SelectionGrid tabSelectionGrid;
     private readonly LazyStyle tabStyle = new(StyleSheet.TextSize, static () => new(GUI.skin.button));
     private readonly LazyStyle labelStyle = new(
         StyleSheet.TextSize,
@@ -25,19 +27,19 @@ public class CharacterPane : BasePane
     private CharacterWindowTabPane currentTab;
 
     public CharacterPane(
+        Translation translation,
         TabSelectionController tabSelectionController,
         SelectionController<CharacterController> characterSelectionController)
     {
+        this.translation = translation ?? throw new ArgumentNullException(nameof(translation));
         this.tabSelectionController = tabSelectionController
             ?? throw new ArgumentNullException(nameof(tabSelectionController));
         this.characterSelectionController = characterSelectionController ?? throw new ArgumentNullException(nameof(characterSelectionController));
 
         this.tabSelectionController.TabSelected += OnTabSelected;
 
-        tabSelectionGrid = new SelectionGrid([]);
-        tabSelectionGrid.ControlEvent += OnTabChanged;
-
-        noCharactersLabel = new(Translation.Get("characterPane", "noCharactersLabel"));
+        tabGroup = new();
+        noCharactersLabel = new(new LocalizableGUIContent(translation, "characterPane", "noCharactersLabel"));
     }
 
     public enum CharacterWindowTab
@@ -64,7 +66,13 @@ public class CharacterPane : BasePane
             return;
         }
 
-        tabSelectionGrid.Draw(tabStyle);
+        GUILayout.BeginHorizontal();
+
+        foreach (var tab in tabGroup)
+            tab.Draw(tabStyle);
+
+        GUILayout.EndHorizontal();
+
         UIUtility.DrawBlackLine();
 
         currentTab.Draw();
@@ -76,13 +84,7 @@ public class CharacterPane : BasePane
     {
         base.Activate();
 
-        tabSelectionGrid.SelectedItemIndex = 0;
-    }
-
-    protected override void ReloadTranslation()
-    {
-        tabSelectionGrid.SetItemsWithoutNotify(Translation.GetArray("characterPaneTabs", tabs.Select(static tab => tab.ToLower())));
-        noCharactersLabel.Text = Translation.Get("characterPane", "noCharactersLabel");
+        SelectTab(CharacterWindowTab.Pose);
     }
 
     private void AddTab(CharacterWindowTab tab, CharacterWindowTabPane pane)
@@ -91,9 +93,19 @@ public class CharacterPane : BasePane
 
         windowPanes[tab] = pane;
         Add(pane);
-        tabs.Add(tab);
 
-        tabSelectionGrid.SetItems(Translation.GetArray("characterPaneTabs", tabs.Select(static tab => tab.ToLower())), 0);
+        var toggle = new Toggle(new LocalizableGUIContent(translation, "characterPaneTabs", tab.ToLower()));
+
+        toggle.ControlEvent += (sender, _) =>
+        {
+            if (sender is not Toggle { Value: true })
+                return;
+
+            currentTab = pane;
+        };
+
+        tabs[tab] = toggle;
+        tabGroup.Add(toggle);
     }
 
     private void OnTabSelected(object sender, TabSelectionEventArgs e)
@@ -101,24 +113,17 @@ public class CharacterPane : BasePane
         if (e.Tab is not (MainWindow.Tab.CharacterPose or MainWindow.Tab.CharacterFace))
             return;
 
-        tabSelectionGrid.SelectedItemIndex = e.Tab switch
+        SelectTab(e.Tab switch
         {
-            MainWindow.Tab.CharacterPose => 0,
-            MainWindow.Tab.CharacterFace => 1,
-            _ => 0,
-        };
+            MainWindow.Tab.CharacterPose => CharacterWindowTab.Pose,
+            MainWindow.Tab.CharacterFace => CharacterWindowTab.Face,
+            _ => CharacterWindowTab.Pose,
+        });
     }
 
-    private void OnTabChanged(object sender, EventArgs e)
+    private void SelectTab(CharacterWindowTab tab)
     {
-        var tab = tabSelectionGrid.SelectedItemIndex switch
-        {
-            0 => CharacterWindowTab.Pose,
-            1 => CharacterWindowTab.Face,
-            2 => CharacterWindowTab.Body,
-            _ => CharacterWindowTab.Pose,
-        };
-
+        tabs[tab].SetEnabledWithoutNotify(true);
         currentTab = windowPanes[tab];
     }
 }

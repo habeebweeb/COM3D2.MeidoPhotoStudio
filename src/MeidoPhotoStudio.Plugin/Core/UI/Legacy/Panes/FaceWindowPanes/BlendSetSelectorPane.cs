@@ -2,6 +2,7 @@ using System.ComponentModel;
 
 using MeidoPhotoStudio.Plugin.Core.Character;
 using MeidoPhotoStudio.Plugin.Core.Database.Character;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
@@ -10,17 +11,14 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
 public class BlendSetSelectorPane : BasePane
 {
-    private const int GameBlendSet = 0;
-    private const int CustomBlendSet = 1;
-
-    private static readonly string[] BlendSetSourceTranslationKeys = ["baseTab", "customTab"];
-
+    private readonly Translation translation;
     private readonly GameBlendSetRepository gameBlendSetRepository;
     private readonly CustomBlendSetRepository customBlendSetRepository;
     private readonly FacialExpressionBuilder facialExpressionBuilder;
     private readonly SelectionController<CharacterController> characterSelectionController;
     private readonly PaneHeader paneHeader;
-    private readonly SelectionGrid blendSetSourceGrid;
+    private readonly Toggle.Group blendSetSourceGroup;
+    private readonly Dictionary<BlendSetSource, Toggle> blendSetSourceToggles;
     private readonly Dropdown<string> blendSetCategoryDropdown;
     private readonly Dropdown<IBlendSetModel> blendSetDropdown;
     private readonly Toggle saveBlendSetToggle;
@@ -34,15 +32,18 @@ public class BlendSetSelectorPane : BasePane
     private readonly Label savedBlendSetLabel;
     private readonly SearchBar<IBlendSetModel> searchBar;
 
+    private BlendSetSource currentBlendSetSource = BlendSetSource.Game;
     private bool showSaveBlendSetLabel;
     private float saveTime;
 
     public BlendSetSelectorPane(
+        Translation translation,
         GameBlendSetRepository gameBlendSetRepository,
         CustomBlendSetRepository customBlendSetRepository,
         FacialExpressionBuilder facialExpressionBuilder,
         SelectionController<CharacterController> characterSelectionController)
     {
+        this.translation = translation ?? throw new ArgumentNullException(nameof(translation));
         this.gameBlendSetRepository = gameBlendSetRepository ?? throw new ArgumentNullException(nameof(gameBlendSetRepository));
         this.customBlendSetRepository = customBlendSetRepository ?? throw new ArgumentNullException(nameof(customBlendSetRepository));
         this.facialExpressionBuilder = facialExpressionBuilder ?? throw new ArgumentNullException(nameof(facialExpressionBuilder));
@@ -53,64 +54,99 @@ public class BlendSetSelectorPane : BasePane
         this.characterSelectionController.Selecting += OnCharacterSelectionChanging;
         this.characterSelectionController.Selected += OnCharacterSelectionChanged;
 
-        var sourceIndex = GameBlendSet;
+        this.translation.Initialized += OnTranslationInitialized;
 
-        blendSetSourceGrid = new(Translation.GetArray("maidFaceWindow", BlendSetSourceTranslationKeys), sourceIndex);
-        blendSetSourceGrid.ControlEvent += OnBlendSetSourceChanged;
+        var gameToggle = new Toggle(new LocalizableGUIContent(translation, "maidFaceWindow", "baseTab"), true);
 
-        searchBar = new(SearchSelector, PropFormatter)
+        gameToggle.ControlEvent += OnBlendSetSourceToggleChanged(BlendSetSource.Game);
+
+        var customToggle = new Toggle(new LocalizableGUIContent(translation, "maidFaceWindow", "customTab"));
+
+        customToggle.ControlEvent += OnBlendSetSourceToggleChanged(BlendSetSource.Custom);
+
+        blendSetSourceToggles = new()
         {
-            Placeholder = Translation.Get("maidFaceWindow", "searchBarPlaceholder"),
+            [BlendSetSource.Game] = gameToggle,
+            [BlendSetSource.Custom] = customToggle,
+        };
+
+        blendSetSourceGroup = [gameToggle, customToggle];
+
+        searchBar = new(SearchSelector, BlendSetFormatter)
+        {
+            PlaceholderContent = new LocalizableGUIContent(translation, "maidFaceWindow", "searchBarPlaceholder"),
         };
 
         searchBar.SelectedValue += OnSearchSelected;
 
         blendSetCategoryDropdown = new(
-            BlendSetCategoryList(sourceIndex is CustomBlendSet),
-            formatter: GetBlendSetCategoryFormatter(sourceIndex is CustomBlendSet));
+            BlendSetCategoryList(currentBlendSetSource),
+            formatter: GetBlendSetCategoryFormatter(currentBlendSetSource));
 
         blendSetCategoryDropdown.SelectionChanged += OnBlendSetCategoryChanged;
 
-        blendSetDropdown = new(BlendSetList(sourceIndex is CustomBlendSet), formatter: PropFormatter);
+        blendSetDropdown = new(BlendSetList(currentBlendSetSource), formatter: BlendSetFormatter);
 
         blendSetDropdown.SelectionChanged += OnBlendSetChanged;
 
-        paneHeader = new(Translation.Get("maidFaceWindow", "header"), true);
+        paneHeader = new(new LocalizableGUIContent(translation, "maidFaceWindow", "header"), true);
 
-        saveBlendSetToggle = new(Translation.Get("maidFaceWindow", "savePaneToggle"), false);
+        saveBlendSetToggle = new(new LocalizableGUIContent(translation, "maidFaceWindow", "savePaneToggle"), false);
+
         blendSetCategoryComboBox = new(this.customBlendSetRepository.Categories)
         {
-            Placeholder = Translation.Get("maidFaceWindow", "categorySearchBarPlaceholder"),
+            PlaceholderContent = new LocalizableGUIContent(translation, "maidFaceWindow", "categorySearchBarPlaceholder"),
         };
 
         blendSetNameTextField = new()
         {
-            Placeholder = Translation.Get("maidFaceWindow", "nameTextFieldPlaceholder"),
+            PlaceholderContent = new LocalizableGUIContent(translation, "maidFaceWindow", "nameTextFieldPlaceholder"),
         };
 
-        saveBlendSetButton = new(Translation.Get("maidFaceWindow", "saveButton"));
+        saveBlendSetButton = new(new LocalizableGUIContent(translation, "maidFaceWindow", "saveButton"));
         saveBlendSetButton.ControlEvent += OnSaveBlendSetButtonPushed;
 
-        refreshButton = new(Translation.Get("maidFaceWindow", "refreshButton"));
+        refreshButton = new(new LocalizableGUIContent(translation, "maidFaceWindow", "refreshButton"));
         refreshButton.ControlEvent += OnRefreshButtonPushed;
 
-        noBlendSetsLabel = new(Translation.Get("maidFaceWindow", "noBlendSets"));
-        blendSetDirectoryHeader = new(Translation.Get("maidFaceWindow", "directoryHeader"));
-        blendSetFilenameHeader = new(Translation.Get("maidFaceWindow", "filenameHeader"));
+        noBlendSetsLabel = new(new LocalizableGUIContent(translation, "maidFaceWindow", "noBlendSets"));
+        blendSetDirectoryHeader = new(new LocalizableGUIContent(translation, "maidFaceWindow", "directoryHeader"));
+        blendSetFilenameHeader = new(new LocalizableGUIContent(translation, "maidFaceWindow", "filenameHeader"));
 
-        savedBlendSetLabel = new(Translation.Get("maidFaceWindow", "savedBlendSetLabel"));
+        savedBlendSetLabel = new(new LocalizableGUIContent(translation, "maidFaceWindow", "savedBlendSetLabel"));
 
         IEnumerable<IBlendSetModel> SearchSelector(string query)
         {
-            var repository = blendSetSourceGrid.SelectedItemIndex is GameBlendSet
+            var repository = currentBlendSetSource is BlendSetSource.Game
                 ? gameBlendSetRepository.Cast<IBlendSetModel>()
                 : customBlendSetRepository.Cast<IBlendSetModel>();
 
             return repository.Where(model => model.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
         }
 
-        IDropdownItem PropFormatter(IBlendSetModel blendSet, int index) =>
+        IDropdownItem BlendSetFormatter(IBlendSetModel blendSet, int index) =>
             new LabelledDropdownItem($"{index + 1}: {blendSet.Name}");
+
+        EventHandler OnBlendSetSourceToggleChanged(BlendSetSource source) =>
+            (sender, _) =>
+            {
+                if (sender is not Toggle { Value: true })
+                    return;
+
+                ChangeBlendSetSource(source);
+            };
+
+        void OnTranslationInitialized(object sender, EventArgs e)
+        {
+            if (currentBlendSetSource is BlendSetSource.Game)
+                blendSetCategoryDropdown.Reformat();
+        }
+    }
+
+    private enum BlendSetSource
+    {
+        Game,
+        Custom,
     }
 
     private FaceController CurrentFace =>
@@ -127,7 +163,13 @@ public class BlendSetSelectorPane : BasePane
         if (!paneHeader.Enabled)
             return;
 
-        blendSetSourceGrid.Draw();
+        GUILayout.BeginHorizontal();
+
+        foreach (var sourceToggle in blendSetSourceGroup)
+            sourceToggle.Draw();
+
+        GUILayout.EndHorizontal();
+
         UIUtility.DrawBlackLine();
 
         GUI.enabled = enabled;
@@ -157,7 +199,7 @@ public class BlendSetSelectorPane : BasePane
 
         saveBlendSetToggle.Draw();
 
-        if (blendSetSourceGrid.SelectedItemIndex is CustomBlendSet)
+        if (currentBlendSetSource is BlendSetSource.Custom)
         {
             GUILayout.FlexibleSpace();
 
@@ -195,34 +237,15 @@ public class BlendSetSelectorPane : BasePane
         }
     }
 
-    protected override void ReloadTranslation()
+    private Func<string, int, IDropdownItem> GetBlendSetCategoryFormatter(BlendSetSource source)
     {
-        blendSetSourceGrid.SetItemsWithoutNotify(Translation.GetArray("maidFaceWindow", BlendSetSourceTranslationKeys));
-        if (blendSetSourceGrid.SelectedItemIndex is GameBlendSet)
-            blendSetCategoryDropdown.Reformat();
-
-        paneHeader.Label = Translation.Get("maidFaceWindow", "header");
-        saveBlendSetToggle.Label = Translation.Get("maidFaceWindow", "savePaneToggle");
-        saveBlendSetButton.Label = Translation.Get("maidFaceWindow", "saveButton");
-        refreshButton.Label = Translation.Get("maidFaceWindow", "refreshButton");
-        noBlendSetsLabel.Text = Translation.Get("maidFaceWindow", "noBlendSets");
-        blendSetCategoryComboBox.Placeholder = Translation.Get("maidFaceWindow", "categorySearchBarPlaceholder");
-        blendSetNameTextField.Placeholder = Translation.Get("maidFaceWindow", "nameTextFieldPlaceholder");
-        blendSetDirectoryHeader.Text = Translation.Get("maidFaceWindow", "directoryHeader");
-        blendSetFilenameHeader.Text = Translation.Get("maidFaceWindow", "filenameHeader");
-        savedBlendSetLabel.Text = Translation.Get("maidFaceWindow", "savedBlendSetLabel");
-        searchBar.Placeholder = Translation.Get("maidFaceWindow", "searchBarPlaceholder");
-    }
-
-    private static Func<string, int, IDropdownItem> GetBlendSetCategoryFormatter(bool custom)
-    {
-        return custom ? CustomBlendSetCategoryFormatter : GameBlendSetCategoryFormatter;
+        return source is BlendSetSource.Custom ? CustomBlendSetCategoryFormatter : GameBlendSetCategoryFormatter;
 
         static LabelledDropdownItem CustomBlendSetCategoryFormatter(string category, int index) =>
             new(category);
 
-        static LabelledDropdownItem GameBlendSetCategoryFormatter(string category, int index) =>
-            new(Translation.Get("faceBlendCategory", category));
+        LabelledDropdownItem GameBlendSetCategoryFormatter(string category, int index) =>
+            new(translation["faceBlendCategory", category]);
     }
 
     private void OnBlendSetAdded(object sender, AddedBlendSetEventArgs e)
@@ -230,14 +253,14 @@ public class BlendSetSelectorPane : BasePane
         if (characterSelectionController.Current is null)
             return;
 
-        if (blendSetSourceGrid.SelectedItemIndex is not CustomBlendSet)
+        if (currentBlendSetSource is not BlendSetSource.Custom)
             return;
 
         var currentCategory = blendSetCategoryDropdown.SelectedItem;
 
         if (!blendSetCategoryDropdown.Contains(e.BlendSet.Category))
         {
-            blendSetCategoryDropdown.SetItemsWithoutNotify(BlendSetCategoryList(e.BlendSet.Custom));
+            blendSetCategoryDropdown.SetItemsWithoutNotify(BlendSetCategoryList(BlendSetSource.Custom));
             blendSetCategoryComboBox.SetItems(customBlendSetRepository.Categories);
         }
 
@@ -250,7 +273,7 @@ public class BlendSetSelectorPane : BasePane
 
         var currentBlendSet = blendSetDropdown.SelectedItem;
 
-        blendSetDropdown.SetItemsWithoutNotify(BlendSetList(e.BlendSet.Custom));
+        blendSetDropdown.SetItemsWithoutNotify(BlendSetList(BlendSetSource.Custom));
 
         var currentBlendSetIndex = blendSetDropdown.IndexOf(currentBlendSet);
 
@@ -259,11 +282,11 @@ public class BlendSetSelectorPane : BasePane
 
     private void OnCustomBlendSetRepositoryRefreshed(object sender, EventArgs e)
     {
-        var newCategories = BlendSetCategoryList(custom: true).ToArray();
+        var newCategories = BlendSetCategoryList(BlendSetSource.Custom).ToArray();
 
         blendSetCategoryComboBox.SetItems(newCategories);
 
-        if (blendSetSourceGrid.SelectedItemIndex is not CustomBlendSet)
+        if (currentBlendSetSource is not BlendSetSource.Custom)
             return;
 
         if (CurrentFace?.BlendSet is not CustomBlendSetModel blendSet)
@@ -277,14 +300,14 @@ public class BlendSetSelectorPane : BasePane
             if (categoryIndex < 0)
             {
                 blendSetCategoryDropdown.SetItemsWithoutNotify(newCategories, 0);
-                blendSetDropdown.SetItemsWithoutNotify(BlendSetList(custom: true), 0);
+                blendSetDropdown.SetItemsWithoutNotify(BlendSetList(BlendSetSource.Custom), 0);
 
                 return;
             }
 
             blendSetCategoryDropdown.SetItemsWithoutNotify(newCategories, categoryIndex);
 
-            var newblendSets = BlendSetList(custom: true).Cast<CustomBlendSetModel>().ToArray();
+            var newblendSets = BlendSetList(BlendSetSource.Custom).Cast<CustomBlendSetModel>().ToArray();
             var blendSetIndex = newblendSets.FindIndex(newBlendSet => blendSet.ID == newBlendSet.ID);
 
             if (blendSetIndex < 0)
@@ -295,18 +318,17 @@ public class BlendSetSelectorPane : BasePane
         else
         {
             blendSetCategoryDropdown.SetItemsWithoutNotify(newCategories, 0);
-            blendSetDropdown.SetItemsWithoutNotify(BlendSetList(custom: true), 0);
+            blendSetDropdown.SetItemsWithoutNotify(BlendSetList(BlendSetSource.Custom), 0);
         }
     }
 
-    private void OnBlendSetSourceChanged(object sender, EventArgs e)
+    private void ChangeBlendSetSource(BlendSetSource source)
     {
-        var custom = blendSetSourceGrid.SelectedItemIndex is CustomBlendSet;
+        currentBlendSetSource = source;
+        blendSetCategoryDropdown.SetItemsWithoutNotify(BlendSetCategoryList(currentBlendSetSource), 0);
+        blendSetCategoryDropdown.Formatter = GetBlendSetCategoryFormatter(currentBlendSetSource);
 
-        blendSetCategoryDropdown.SetItemsWithoutNotify(BlendSetCategoryList(custom), 0);
-        blendSetCategoryDropdown.Formatter = GetBlendSetCategoryFormatter(custom);
-
-        blendSetDropdown.SetItemsWithoutNotify(BlendSetList(custom), 0);
+        blendSetDropdown.SetItemsWithoutNotify(BlendSetList(currentBlendSetSource), 0);
 
         if (blendSetDropdown.SelectedItem is not null)
             CurrentFace?.ApplyBlendSet(blendSetDropdown.SelectedItem);
@@ -319,7 +341,7 @@ public class BlendSetSelectorPane : BasePane
         if (e.PreviousSelectedItemIndex == e.SelectedItemIndex)
             blendSetDropdown.SelectedItemIndex = 0;
         else
-            blendSetDropdown.SetItems(BlendSetList(blendSetSourceGrid.SelectedItemIndex is CustomBlendSet), 0);
+            blendSetDropdown.SetItems(BlendSetList(currentBlendSetSource), 0);
     }
 
     private void OnCharacterSelectionChanging(object sender, SelectionEventArgs<CharacterController> e)
@@ -367,20 +389,21 @@ public class BlendSetSelectorPane : BasePane
 
     private void UpdatePanel(IBlendSetModel blendSet)
     {
-        var blendSetSource = blendSet.Custom ? CustomBlendSet : GameBlendSet;
+        var blendSetSource = blendSet.Custom ? BlendSetSource.Custom : BlendSetSource.Game;
 
-        if (blendSetSource != blendSetSourceGrid.SelectedItemIndex)
+        if (blendSetSource != currentBlendSetSource)
         {
-            blendSetSourceGrid.SetValueWithoutNotify(blendSetSource);
+            currentBlendSetSource = blendSetSource;
+            blendSetSourceToggles[blendSetSource].SetEnabledWithoutNotify(true);
 
-            blendSetCategoryDropdown.SetItemsWithoutNotify(BlendSetCategoryList(blendSet.Custom));
-            blendSetCategoryDropdown.Formatter = GetBlendSetCategoryFormatter(blendSet.Custom);
+            blendSetCategoryDropdown.SetItemsWithoutNotify(BlendSetCategoryList(blendSetSource));
+            blendSetCategoryDropdown.Formatter = GetBlendSetCategoryFormatter(blendSetSource);
 
             var categoryIndex = GetCategoryIndex(blendSet);
 
             blendSetCategoryDropdown.SetSelectedIndexWithoutNotify(categoryIndex);
 
-            var newBlendSets = BlendSetList(blendSet.Custom);
+            var newBlendSets = BlendSetList(blendSetSource);
             var blendSetIndex = GetBlendSetIndex(newBlendSets, blendSet);
 
             blendSetDropdown.SetItemsWithoutNotify(newBlendSets, blendSetIndex);
@@ -393,7 +416,7 @@ public class BlendSetSelectorPane : BasePane
             blendSetCategoryDropdown.SetSelectedIndexWithoutNotify(categoryIndex);
 
             if (categoryIndex != oldCategoryIndex)
-                blendSetDropdown.SetItemsWithoutNotify(BlendSetList(blendSet.Custom));
+                blendSetDropdown.SetItemsWithoutNotify(BlendSetList(blendSetSource));
 
             var blendSetIndex = GetBlendSetIndex(blendSetDropdown, blendSet);
 
@@ -449,15 +472,19 @@ public class BlendSetSelectorPane : BasePane
         UpdatePanel(controller.BlendSet);
     }
 
-    private IEnumerable<string> BlendSetCategoryList(bool custom) =>
-        custom ? customBlendSetRepository.Categories
-            .OrderBy(category => !string.Equals(category, customBlendSetRepository.RootCategoryName, StringComparison.Ordinal))
-            .ThenBy(category => category, new WindowsLogicalStringComparer()) :
-        gameBlendSetRepository.Categories;
+    private IEnumerable<string> BlendSetCategoryList(BlendSetSource source) =>
+        source switch
+        {
+            BlendSetSource.Game => gameBlendSetRepository.Categories,
+            BlendSetSource.Custom => customBlendSetRepository.Categories
+                .OrderBy(category => !string.Equals(category, customBlendSetRepository.RootCategoryName, StringComparison.Ordinal))
+                .ThenBy(category => category, new WindowsLogicalStringComparer()),
+            _ => throw new ArgumentOutOfRangeException(nameof(source)),
+        };
 
-    private IEnumerable<IBlendSetModel> BlendSetList(bool custom)
+    private IEnumerable<IBlendSetModel> BlendSetList(BlendSetSource source)
     {
-        return custom ? GetCustomBlendSets() : GetGameBlendSets();
+        return source is BlendSetSource.Custom ? GetCustomBlendSets() : GetGameBlendSets();
 
         IEnumerable<IBlendSetModel> GetGameBlendSets() =>
             blendSetCategoryDropdown.Any()

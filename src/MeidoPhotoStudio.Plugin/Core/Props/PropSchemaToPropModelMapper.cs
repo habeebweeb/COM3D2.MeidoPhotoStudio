@@ -1,11 +1,13 @@
 using MeidoPhotoStudio.Plugin.Core.Database.Props;
 using MeidoPhotoStudio.Plugin.Core.Database.Props.Menu;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Core.Schema.Props;
 using MeidoPhotoStudio.Plugin.Framework;
 
 namespace MeidoPhotoStudio.Plugin.Core.Props;
 
 public class PropSchemaToPropModelMapper(
+    Translation translation,
     BackgroundPropRepository backgroundPropRepository,
     DeskPropRepository deskPropRepository,
     MyRoomPropRepository myRoomPropRepository,
@@ -13,6 +15,9 @@ public class PropSchemaToPropModelMapper(
     MenuPropRepository menuPropRepository,
     OtherPropRepository otherPropRepository)
 {
+    private readonly Translation translation = translation
+        ?? throw new ArgumentNullException(nameof(translation));
+
     private readonly BackgroundPropRepository backgroundPropRepository = backgroundPropRepository
         ?? throw new ArgumentNullException(nameof(backgroundPropRepository));
 
@@ -66,7 +71,7 @@ public class PropSchemaToPropModelMapper(
                     .ParseMenuFile(sanitizedFilename, false);
 
                 if (menuFile.CategoryMpn == SafeMpn.GetValue(nameof(MPN.handitem)))
-                    menuFile.Name = Translation.Get("propNames", menuFile.Filename);
+                    menuFile.Name = translation["propNames", menuFile.Filename];
 
                 return menuFile;
             }

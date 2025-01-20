@@ -1,5 +1,6 @@
 using MeidoPhotoStudio.Plugin.Core.Database.Props;
 using MeidoPhotoStudio.Plugin.Core.Database.Props.Menu;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Core.Props;
 using MeidoPhotoStudio.Plugin.Framework;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
@@ -45,8 +46,10 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
     private Comparison<FavouritePropModel> currentComparer = CompareName;
     private Vector2 scrollPosition;
 
-    public FavouritePropsPane(PropService propService, FavouritePropRepository favouritePropRepository, IconCache iconCache)
+    public FavouritePropsPane(
+        Translation translation, PropService propService, FavouritePropRepository favouritePropRepository, IconCache iconCache)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.propService = propService ?? throw new ArgumentNullException(nameof(propService));
         this.favouritePropRepository = favouritePropRepository ?? throw new ArgumentNullException(nameof(favouritePropRepository));
         this.iconCache = iconCache ?? throw new ArgumentNullException(nameof(iconCache));
@@ -55,28 +58,30 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
         this.favouritePropRepository.RemovedFavouriteProp += OnFavouritePropAddedOrRemoved;
         this.favouritePropRepository.Refreshed += OnFavouritePropsRefreshed;
 
-        noFavouritePropsLabel = new(Translation.Get("favouritePropsPane", "noFavouritePropsLabel"));
+        translation.Initialized += OnTranslationInitialized;
+
+        noFavouritePropsLabel = new(new LocalizableGUIContent(translation, "favouritePropsPane", "noFavouritePropsLabel"));
 
         sortTypeDropdown = new(
             (SortType[])Enum.GetValues(typeof(SortType)),
-            formatter: static (sortType, _) => new LabelledDropdownItem(Translation.Get("favouritePropsSortTypes", sortType.ToLower())));
+            formatter: (sortType, _) => new LabelledDropdownItem(translation["favouritePropsSortTypes", sortType.ToLower()]));
 
         sortTypeDropdown.SelectionChanged += OnSortTypeChanged;
 
-        descendingToggle = new(Translation.Get("favouritePropsPane", "descendingToggle"));
+        descendingToggle = new(new LocalizableGUIContent(translation, "favouritePropsPane", "descendingToggle"));
         descendingToggle.ControlEvent += OnDescendingToggleChanged;
 
         searchBar = new()
         {
-            Placeholder = Translation.Get("favouritePropsPane", "searchBarPlaceholder"),
+            PlaceholderContent = new LocalizableGUIContent(translation, "favouritePropsPane", "searchBarPlaceholder"),
         };
 
         searchBar.ChangedValue += OnSearchChanged;
 
-        refreshButton = new(Translation.Get("favouritePropsPane", "refreshButton"));
+        refreshButton = new(new LocalizableGUIContent(translation, "favouritePropsPane", "refreshButton"));
         refreshButton.ControlEvent += OnRefreshButtonPushed;
 
-        editModeToggle = new(Translation.Get("favouritePropsPane", "editModeToggle"));
+        editModeToggle = new(new LocalizableGUIContent(translation, "favouritePropsPane", "editModeToggle"));
         editModeToggle.ControlEvent += OnEditModeToggleChanged;
 
         virtualList = new()
@@ -85,11 +90,14 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
             Spacing = new(0f, 2f),
         };
 
-        renameModal = new(this, this.iconCache);
+        renameModal = new(translation, this, this.iconCache);
 
         favouriteProps.AddRange(favouritePropRepository);
 
         OnPropListUpdated();
+
+        void OnTranslationInitialized(object sender, EventArgs e) =>
+            sortTypeDropdown.Reformat();
     }
 
     private enum SortType
@@ -189,16 +197,6 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
 
         virtualList.Invalidate();
         itemSizes.Clear();
-    }
-
-    protected override void ReloadTranslation()
-    {
-        sortTypeDropdown.Reformat();
-        noFavouritePropsLabel.Text = Translation.Get("favouritePropsPane", "noFavouritePropsLabel");
-        descendingToggle.Label = Translation.Get("favouritePropsPane", "descendingToggle");
-        searchBar.Placeholder = Translation.Get("favouritePropsPane", "searchBarPlaceholder");
-        refreshButton.Label = Translation.Get("favouritePropsPane", "refreshButton");
-        editModeToggle.Label = Translation.Get("favouritePropsPane", "editModeToggle");
     }
 
     private static int CompareName(FavouritePropModel a, FavouritePropModel b) =>
@@ -341,6 +339,7 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
 
     private class RenameModal : BaseWindow
     {
+        private readonly Translation translation;
         private readonly FavouritePropsPane favouritePropsPane;
         private readonly IconCache iconCache;
         private readonly Header renamingHeader;
@@ -351,22 +350,23 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
         private Texture icon;
         private FavouritePropModel renamingModel;
 
-        public RenameModal(FavouritePropsPane favouritePropsPane, IconCache iconCache)
+        public RenameModal(Translation translation, FavouritePropsPane favouritePropsPane, IconCache iconCache)
         {
+            this.translation = translation ?? throw new ArgumentNullException(nameof(translation));
             this.favouritePropsPane = favouritePropsPane ?? throw new ArgumentNullException(nameof(favouritePropsPane));
             this.iconCache = iconCache ?? throw new ArgumentNullException(nameof(iconCache));
 
-            renamingHeader = new(Translation.Get("renameFavouritePropModal", "renameHeader"));
+            renamingHeader = new(string.Empty);
 
             renamingTextField = new()
             {
-                Placeholder = Translation.Get("renameFavouritePropModal", "renameTextFieldPlaceholder"),
+                PlaceholderContent = new LocalizableGUIContent(translation, "renameFavouritePropModal", "renameTextFieldPlaceholder"),
             };
 
-            renameButton = new(Translation.Get("renameFavouritePropModal", "renameButton"));
+            renameButton = new(new LocalizableGUIContent(translation, "renameFavouritePropModal", "renameButton"));
             renameButton.ControlEvent += OnRenameButtonClicked;
 
-            cancelButton = new(Translation.Get("renameFavouritePropModal", "cancelButton"));
+            cancelButton = new(new LocalizableGUIContent(translation, "renameFavouritePropModal", "cancelButton"));
             cancelButton.ControlEvent += OnCancelButtonClicked;
         }
 
@@ -382,7 +382,7 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
             };
 
             renamingHeader.Text = string.Format(
-                Translation.Get("renameFavouritePropModal", "renameHeader"), renamingModel.PropModel.Name);
+                translation["renameFavouritePropModal", "renameHeader"], renamingModel.PropModel.Name);
 
             renamingTextField.Value = renamingModel.Name;
 
@@ -446,13 +446,6 @@ public class FavouritePropsPane : BasePane, IVirtualListHandler
             GUILayout.EndHorizontal();
 
             GUILayout.EndArea();
-        }
-
-        protected override void ReloadTranslation()
-        {
-            renamingTextField.Placeholder = Translation.Get("renameFavouritePropModal", "renameTextFieldPlaceholder");
-            renameButton.Label = Translation.Get("renameFavouritePropModal", "renameButton");
-            cancelButton.Label = Translation.Get("renameFavouritePropModal", "cancelButton");
         }
 
         private void OnCancelButtonClicked(object sender, EventArgs e)

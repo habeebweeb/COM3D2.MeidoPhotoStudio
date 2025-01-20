@@ -1,6 +1,7 @@
 using System.ComponentModel;
 
 using MeidoPhotoStudio.Plugin.Core.Effects;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
@@ -12,11 +13,16 @@ public class VignettePane : EffectPane<VignetteController>
     private readonly Slider blurSpreadSlider;
     private readonly Slider chromaticAberrationSlider;
 
-    public VignettePane(VignetteController effectController)
-        : base(effectController)
+    public VignettePane(Translation translation, VignetteController effectController)
+        : base(translation, effectController)
     {
-        intensitySlider = new Slider(
-            Translation.Get("effectVignette", "intensity"), -40f, 70f, Effect.Intensity, Effect.Intensity)
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
+        intensitySlider = new(
+            new LocalizableGUIContent(translation, "effectVignette", "intensity"),
+            -40f,
+            70f,
+            Effect.Intensity,
+            Effect.Intensity)
         {
             HasTextField = true,
             HasReset = true,
@@ -24,7 +30,8 @@ public class VignettePane : EffectPane<VignetteController>
 
         intensitySlider.ControlEvent += OnItensitySliderChanged;
 
-        blurSlider = new Slider(Translation.Get("effectVignette", "blur"), 0f, 5f, Effect.Blur, Effect.Blur)
+        blurSlider = new(
+            new LocalizableGUIContent(translation, "effectVignette", "blur"), 0f, 5f, Effect.Blur, Effect.Blur)
         {
             HasTextField = true,
             HasReset = true,
@@ -32,8 +39,12 @@ public class VignettePane : EffectPane<VignetteController>
 
         blurSlider.ControlEvent += OnBlurSliderChanged;
 
-        blurSpreadSlider = new Slider(
-            Translation.Get("effectVignette", "blurSpread"), 0, 40f, Effect.BlurSpread, Effect.BlurSpread)
+        blurSpreadSlider = new(
+            new LocalizableGUIContent(translation, "effectVignette", "blurSpread"),
+            0,
+            40f,
+            Effect.BlurSpread,
+            Effect.BlurSpread)
         {
             HasTextField = true,
             HasReset = true,
@@ -41,8 +52,8 @@ public class VignettePane : EffectPane<VignetteController>
 
         blurSpreadSlider.ControlEvent += OnBlurSpreadSliderChanged;
 
-        chromaticAberrationSlider = new Slider(
-            Translation.Get("effectVignette", "chromaticAberration"),
+        chromaticAberrationSlider = new(
+            new LocalizableGUIContent(translation, "effectVignette", "chromaticAberration"),
             -50f,
             50f,
             Effect.ChromaticAberration,
@@ -63,16 +74,6 @@ public class VignettePane : EffectPane<VignetteController>
         blurSlider.Draw();
         blurSpreadSlider.Draw();
         chromaticAberrationSlider.Draw();
-    }
-
-    protected override void ReloadTranslation()
-    {
-        base.ReloadTranslation();
-
-        intensitySlider.Label = Translation.Get("effectVignette", "intensity");
-        blurSlider.Label = Translation.Get("effectVignette", "blur");
-        blurSpreadSlider.Label = Translation.Get("effectVignette", "blurSpread");
-        chromaticAberrationSlider.Label = Translation.Get("effectVignette", "chromaticAberration");
     }
 
     protected override void OnEffectPropertyChanged(object sender, PropertyChangedEventArgs e)

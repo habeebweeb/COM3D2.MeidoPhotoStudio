@@ -1,6 +1,7 @@
 using System.ComponentModel;
 
 using MeidoPhotoStudio.Plugin.Core.Character;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
@@ -12,8 +13,6 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
 public class DressingPane : BasePane
 {
-    private static readonly string[] DressingModeTranslationKeys = ["all", "underwear", "nude"];
-
     private static readonly HashSet<SlotID> ClothingSlots =
     [
         SlotID.wear, SlotID.mizugi, SlotID.onepiece, SlotID.skirt, SlotID.bra, SlotID.panz, SlotID.headset,
@@ -65,13 +64,16 @@ public class DressingPane : BasePane
     private readonly Dictionary<SlotID, Toggle> clothingToggles;
     private readonly Dictionary<SlotID, bool> loadedSlots;
     private readonly Toggle detailedClothingToggle;
-    private readonly SelectionGrid dressingGrid;
+    private readonly Dictionary<MaskMode, Toggle> dressingToggles;
+    private readonly Toggle.Group dressingGroup;
     private readonly Toggle curlingFrontToggle;
     private readonly Toggle curlingBackToggle;
     private readonly Toggle underwearShiftToggle;
     private readonly PaneHeader paneHeader;
+    private readonly LocalizableGUIContent headsetContent;
+    private readonly LocalizableGUIContent headwearContent;
 
-    public DressingPane(SelectionController<CharacterController> characterSelectionController)
+    public DressingPane(Translation translation, SelectionController<CharacterController> characterSelectionController)
     {
         this.characterSelectionController = characterSelectionController
             ?? throw new ArgumentNullException(nameof(characterSelectionController));
@@ -79,11 +81,15 @@ public class DressingPane : BasePane
         this.characterSelectionController.Selecting += OnCharacterSelectionChanging;
         this.characterSelectionController.Selected += OnCharacterSelectionChanged;
 
-        detailedClothingToggle = new(Translation.Get("dressingPane", "detailedClothing"));
+        detailedClothingToggle = new(new LocalizableGUIContent(translation, "dressingPane", "detailedClothing"));
         detailedClothingToggle.ControlEvent += OnDetailedClothingChanged;
 
-        dressingGrid = new(Translation.GetArray("dressingPane", DressingModeTranslationKeys));
-        dressingGrid.ControlEvent += OnDressingChanged;
+        dressingToggles = DressingModes.ToDictionary(mode => mode, CreateDressingModeToggle, EnumEqualityComparer<MaskMode>.Instance);
+
+        dressingGroup = [.. dressingToggles.Values];
+
+        headsetContent = new LocalizableGUIContent(translation, "clothing", SlotID.headset.ToLower());
+        headwearContent = new LocalizableGUIContent(translation, "clothing", "headwear");
 
         clothingToggles = ClothingSlots
             .ToDictionary(slot => slot, CreateSlotToggle, EnumEqualityComparer<SlotID>.Instance);
@@ -91,23 +97,50 @@ public class DressingPane : BasePane
         loadedSlots = ClothingSlots
             .ToDictionary(slot => slot, _ => false, EnumEqualityComparer<SlotID>.Instance);
 
-        curlingFrontToggle = new(Translation.Get("dressingPane", "curlingFront"));
+        curlingFrontToggle = new(new LocalizableGUIContent(translation, "dressingPane", "curlingFront"));
         curlingFrontToggle.ControlEvent += OnCurlingFrontChanged;
 
-        curlingBackToggle = new(Translation.Get("dressingPane", "curlingBack"));
+        curlingBackToggle = new(new LocalizableGUIContent(translation, "dressingPane", "curlingBack"));
         curlingBackToggle.ControlEvent += OnCurlingBackChanged;
 
-        underwearShiftToggle = new(Translation.Get("dressingPane", "shiftPanties"));
+        underwearShiftToggle = new(new LocalizableGUIContent(translation, "dressingPane", "shiftPanties"));
         underwearShiftToggle.ControlEvent += OnUnderwearShiftChanged;
 
-        paneHeader = new(Translation.Get("dressingPane", "header"), true);
+        paneHeader = new(new LocalizableGUIContent(translation, "dressingPane", "header"), true);
 
         Toggle CreateSlotToggle(SlotID slot)
         {
-            var toggle = new Toggle(Translation.Get("clothing", slot.ToLower()));
+            var content = slot is SlotID.headset
+                ? headsetContent
+                : new LocalizableGUIContent(translation, "clothing", slot.ToLower());
+
+            var toggle = new Toggle(content);
 
             toggle.ControlEvent += (_, _) =>
                 OnSlotToggleChanged(slot, toggle.Value);
+
+            return toggle;
+        }
+
+        Toggle CreateDressingModeToggle(MaskMode mode)
+        {
+            var key = mode switch
+            {
+                MaskMode.None => "all",
+                MaskMode.Underwear => "underwear",
+                MaskMode.Nude => "nude",
+                _ => throw new ArgumentOutOfRangeException(nameof(mode)),
+            };
+
+            var toggle = new Toggle(new LocalizableGUIContent(translation, "dressingPane", key));
+
+            toggle.ControlEvent += (sender, _) =>
+            {
+                if (sender is not Toggle { Value: true } || CurrentClothing is not ClothingController controller)
+                    return;
+
+                controller.DressingMode = mode;
+            };
 
             return toggle;
         }
@@ -131,7 +164,12 @@ public class DressingPane : BasePane
 
         UIUtility.DrawBlackLine();
 
-        dressingGrid.Draw();
+        GUILayout.BeginHorizontal();
+
+        foreach (var dressingToggle in dressingGroup)
+            dressingToggle.Draw();
+
+        GUILayout.EndHorizontal();
 
         UIUtility.DrawBlackLine();
 
@@ -194,24 +232,6 @@ public class DressingPane : BasePane
         }
     }
 
-    protected override void ReloadTranslation()
-    {
-        paneHeader.Label = Translation.Get("dressingPane", "header");
-        detailedClothingToggle.Label = Translation.Get("dressingPane", "detailedClothing");
-        dressingGrid.SetItemsWithoutNotify(Translation.GetArray("dressingPane", DressingModeTranslationKeys));
-
-        foreach (var (slot, clothingToggle) in clothingToggles)
-            clothingToggle.Label = Translation.Get("clothing", slot.ToLower());
-
-        clothingToggles[SlotID.headset].Label = detailedClothingToggle.Value
-            ? Translation.Get("clothing", "headset")
-            : Translation.Get("clothing", "headwear");
-
-        curlingFrontToggle.Label = Translation.Get("dressingPane", "curlingFront");
-        curlingBackToggle.Label = Translation.Get("dressingPane", "curlingBack");
-        underwearShiftToggle.Label = Translation.Get("dressingPane", "shiftPanties");
-    }
-
     private void UpdateControls()
     {
         UpdateDressingGrid();
@@ -234,9 +254,7 @@ public class DressingPane : BasePane
                 _ => CurrentClothing[slot],
             });
 
-        clothingToggles[SlotID.headset].Label = detailedClothingToggle.Value
-            ? Translation.Get("clothing", "headset")
-            : Translation.Get("clothing", "headwear");
+        clothingToggles[SlotID.headset].Content = detailedClothingToggle.Value ? headsetContent : headwearContent;
     }
 
     private void UpdateCurlingToggles()
@@ -254,9 +272,7 @@ public class DressingPane : BasePane
         if (CurrentClothing is null)
             return;
 
-        var dressingIndex = Array.IndexOf(DressingModes, CurrentClothing.DressingMode);
-
-        dressingGrid.SetValueWithoutNotify(dressingIndex);
+        dressingToggles[CurrentClothing.DressingMode].SetEnabledWithoutNotify(true);
     }
 
     private void UpdateLoadedSlots()
@@ -353,16 +369,6 @@ public class DressingPane : BasePane
             curlingBackToggle.SetEnabledWithoutNotify(clothing[e.Key]);
         else if (e.Key is Curling.Shift)
             underwearShiftToggle.SetEnabledWithoutNotify(clothing[e.Key]);
-    }
-
-    private void OnDressingChanged(object sender, EventArgs e)
-    {
-        if (CurrentClothing is null)
-            return;
-
-        CurrentClothing.DressingMode = DressingModes[dressingGrid.SelectedItemIndex];
-
-        UpdateClothingToggles();
     }
 
     private void OnDetailedClothingChanged(object sender, EventArgs e)

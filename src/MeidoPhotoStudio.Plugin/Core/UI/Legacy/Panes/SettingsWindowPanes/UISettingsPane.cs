@@ -1,4 +1,5 @@
 using MeidoPhotoStudio.Plugin.Core.Configuration;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
@@ -16,24 +17,28 @@ public class UISettingsPane : BasePane
 
     private bool validMainWindowWidth;
 
-    public UISettingsPane(UIConfiguration configuration, MainWindow mainWindow)
+    public UISettingsPane(Translation translation, UIConfiguration configuration, MainWindow mainWindow)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         this.mainWindow = mainWindow ?? throw new ArgumentNullException(nameof(mainWindow));
 
-        mainWindowWidthHeader = new(Translation.Get("uiSettingsPane", "mainWindowWidthHeader"));
+        mainWindowWidthHeader = new(new LocalizableGUIContent(translation, "uiSettingsPane", "mainWindowWidthHeader"));
         mainWindowWidthHintLabel = new(
-            string.Format(
-                Translation.Get("uiSettingsPane", "mainWindowWidthHint"),
-                MainWindow.MinimumWindowWidth));
+            new LocalizableGUIContent(
+                translation,
+                "uiSettingsPane",
+                "mainWindowWidthHint",
+                static translation =>
+                    string.Format(translation, MainWindow.MinimumWindowWidth)));
 
         mainWindowWidthField = new(configuration.WindowWidth.Value);
         mainWindowWidthField.ControlEvent += OnMainWindowWidthFieldChanged;
 
-        saveMainWindowWidthButton = new(Translation.Get("uiSettingsPane", "saveButton"));
+        saveMainWindowWidthButton = new(new LocalizableGUIContent(translation, "uiSettingsPane", "saveButton"));
         saveMainWindowWidthButton.ControlEvent += OnSaveMainWindowWidthButtonPushed;
 
-        resetMainWindowWidthButton = new(Translation.Get("uiSettingsPane", "resetButton"));
+        resetMainWindowWidthButton = new(new LocalizableGUIContent(translation, "uiSettingsPane", "resetButton"));
         resetMainWindowWidthButton.ControlEvent += OnResetMainWindowWidthButtonButtonPushed;
 
         this.configuration.WindowWidth.SettingChanged += OnMinimumWindowWidthSettingChanged;
@@ -61,17 +66,6 @@ public class UISettingsPane : BasePane
         resetMainWindowWidthButton.Draw(noExpandWidth);
 
         GUILayout.EndHorizontal();
-    }
-
-    protected override void ReloadTranslation()
-    {
-        mainWindowWidthHeader.Text = Translation.Get("uiSettingsPane", "mainWindowWidthHeader");
-        mainWindowWidthHintLabel.Text = string.Format(
-            Translation.Get("uiSettingsPane", "mainWindowWidthHint"),
-            MainWindow.MinimumWindowWidth);
-
-        saveMainWindowWidthButton.Label = Translation.Get("uiSettingsPane", "saveButton");
-        resetMainWindowWidthButton.Label = Translation.Get("uiSettingsPane", "resetButton");
     }
 
     private void OnMinimumWindowWidthSettingChanged(object sender, EventArgs e)

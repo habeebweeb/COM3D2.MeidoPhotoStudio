@@ -1,5 +1,6 @@
 using MeidoPhotoStudio.Plugin.Core.Character;
 using MeidoPhotoStudio.Plugin.Core.Configuration;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
@@ -33,8 +34,9 @@ public class ShapeKeysPane : BasePane
     private string[] shapeKeys;
     private bool hasShapeKeys;
 
-    public ShapeKeysPane(ShapeKeyConfiguration shapeKeyConfiguration, ShapeKeyRangeConfiguration shapeKeyRangeConfiguration)
+    public ShapeKeysPane(Translation translation, ShapeKeyConfiguration shapeKeyConfiguration, ShapeKeyRangeConfiguration shapeKeyRangeConfiguration)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.shapeKeyConfiguration = shapeKeyConfiguration ?? throw new ArgumentNullException(nameof(shapeKeyConfiguration));
         this.shapeKeyRangeConfiguration = shapeKeyRangeConfiguration ?? throw new ArgumentNullException(nameof(shapeKeyRangeConfiguration));
 
@@ -45,25 +47,25 @@ public class ShapeKeysPane : BasePane
 
         shapeKeys = [.. this.shapeKeyConfiguration.ShapeKeys];
 
-        deleteShapeKeysToggle = new(Translation.Get("shapeKeysPane", "deleteShapeKeysToggle"));
+        deleteShapeKeysToggle = new(new LocalizableGUIContent(translation, "shapeKeysPane", "deleteShapeKeysToggle"));
 
-        modifyShapeKeysToggle = new(Translation.Get("shapeKeysPane", "modifyShapeKeysToggle"));
+        modifyShapeKeysToggle = new(new LocalizableGUIContent(translation, "shapeKeysPane", "modifyShapeKeysToggle"));
         modifyShapeKeysToggle.ControlEvent += OnModifyShapeKeysToggleChanged;
 
         addShapeKeyComboBox = new(shapeKeys)
         {
-            Placeholder = Translation.Get("shapeKeysPane", "searchShapeKeyPlaceholder"),
+            PlaceholderContent = new LocalizableGUIContent(translation, "shapeKeysPane", "searchShapeKeyPlaceholder"),
         };
 
         addShapeKeyComboBox.ChangedValue += OnAddShapeKeyComboBoxValueChanged;
 
-        addShapeKeyButton = new(Translation.Get("shapeKeysPane", "addShapeKeyButton"));
+        addShapeKeyButton = new(new LocalizableGUIContent(translation, "shapeKeysPane", "addShapeKeyButton"));
         addShapeKeyButton.ControlEvent += OnAddShapeKeyButtonPushed;
 
-        refreshRangeButton = new(Translation.Get("shapeKeysPane", "refreshShapeKeyRangeButton"));
+        refreshRangeButton = new(new LocalizableGUIContent(translation, "shapeKeysPane", "refreshShapeKeyRangeButton"));
         refreshRangeButton.ControlEvent += OnRefreshRangeButtonPushed;
 
-        noShapeKeysLabel = new(Translation.Get("shapeKeysPane", "noShapeKeysLabel"));
+        noShapeKeysLabel = new(new LocalizableGUIContent(translation, "shapeKeysPane", "noShapeKeysLabel"));
 
         foreach (var hashKey in shapeKeys)
             _ = AddSlider(hashKey);
@@ -190,16 +192,6 @@ public class ShapeKeysPane : BasePane
                 GUILayout.EndHorizontal();
             }
         }
-    }
-
-    protected override void ReloadTranslation()
-    {
-        modifyShapeKeysToggle.Label = Translation.Get("shapeKeysPane", "modifyShapeKeysToggle");
-        deleteShapeKeysToggle.Label = Translation.Get("shapeKeysPane", "deleteShapeKeysToggle");
-        refreshRangeButton.Label = Translation.Get("shapeKeysPane", "refreshShapeKeyRangeButton");
-        addShapeKeyComboBox.Placeholder = Translation.Get("shapeKeysPane", "searchShapeKeyPlaceholder");
-        addShapeKeyButton.Label = Translation.Get("shapeKeysPane", "addShapeKeyButton");
-        noShapeKeysLabel.Text = Translation.Get("shapeKeysPane", "noShapeKeysLabel");
     }
 
     private void OnRefreshRangeButtonPushed(object sender, EventArgs e) =>

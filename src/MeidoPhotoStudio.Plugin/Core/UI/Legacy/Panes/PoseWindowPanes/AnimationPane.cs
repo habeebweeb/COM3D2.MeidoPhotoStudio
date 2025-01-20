@@ -1,6 +1,7 @@
 using System.ComponentModel;
 
 using MeidoPhotoStudio.Plugin.Core.Character;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
@@ -27,16 +28,18 @@ public class AnimationPane : BasePane
     private readonly LazyStyle playPauseButtonStyle = new(StyleSheet.TextSize, static () => new(GUI.skin.button));
 
     public AnimationPane(
+        Translation translation,
         CharacterUndoRedoService characterUndoRedoService,
         SelectionController<CharacterController> characterSelectionController)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.characterSelectionController = characterSelectionController ?? throw new ArgumentNullException(nameof(characterSelectionController));
         this.characterUndoRedoService = characterUndoRedoService ?? throw new ArgumentNullException(nameof(characterUndoRedoService));
 
         this.characterSelectionController.Selecting += OnCharacterSelectionChanging;
         this.characterSelectionController.Selected += OnCharacterSelectionChanged;
 
-        animationSlider = new Slider(string.Empty, 0f, 1f)
+        animationSlider = new Slider(0f, 1f)
         {
             HasTextField = true,
         };
@@ -57,7 +60,7 @@ public class AnimationPane : BasePane
         stepAmountField = new(0.01f);
         stepAmountField.ControlEvent += OnStepAmountFieldChanged;
 
-        paneHeader = new(Translation.Get("characterAnimationPane", "header"), true);
+        paneHeader = new(new LocalizableGUIContent(translation, "characterAnimationPane", "header"), true);
     }
 
     private static Texture2D PlayIcon =>
@@ -147,9 +150,6 @@ public class AnimationPane : BasePane
 
         animationSlider.SetValueWithoutNotify(CurrentAnimation.Time);
     }
-
-    protected override void ReloadTranslation() =>
-        paneHeader.Label = Translation.Get("characterAnimationPane", "header");
 
     private void OnCharacterSelectionChanging(object sender, SelectionEventArgs<CharacterController> e)
     {

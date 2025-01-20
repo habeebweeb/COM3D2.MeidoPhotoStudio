@@ -1,4 +1,5 @@
 using MeidoPhotoStudio.Plugin.Core.Character;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Core.Props;
 using MeidoPhotoStudio.Plugin.Framework;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
@@ -55,10 +56,12 @@ public class AttachPropPane : BasePane
     private readonly Label noCharactersOrPropsLabel;
 
     public AttachPropPane(
+        Translation translation,
         CharacterService characterService,
         PropAttachmentService propAttachmentService,
         SelectionController<PropController> propSelectionController)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.characterService = characterService ?? throw new ArgumentNullException(nameof(characterService));
         this.propAttachmentService = propAttachmentService ?? throw new ArgumentNullException(nameof(propAttachmentService));
         this.propSelectionController = propSelectionController ?? throw new ArgumentNullException(nameof(propSelectionController));
@@ -68,18 +71,18 @@ public class AttachPropPane : BasePane
         this.propAttachmentService.AttachedProp += OnPropAttachedOrDetached;
         this.propAttachmentService.DetachedProp += OnPropAttachedOrDetached;
 
-        paneHeader = new(Translation.Get("attachPropPane", "header"), true);
+        paneHeader = new(new LocalizableGUIContent(translation, "attachPropPane", "header"), true);
 
         characterDropdown = new(formatter: CharacterFormatter);
         characterDropdown.SelectionChanged += OnCharacterOrPropSelected;
 
-        keepWorldPositionToggle = new(Translation.Get("attachPropPane", "keepWorldPosition"));
+        keepWorldPositionToggle = new(new LocalizableGUIContent(translation, "attachPropPane", "keepWorldPosition"));
 
         foreach (var attachPoint in Enum.GetValues(typeof(AttachPoint))
             .Cast<AttachPoint>()
             .Where(attachPoint => attachPoint is not AttachPoint.None))
         {
-            var toggle = new Toggle(Translation.Get("attachPropPane", ToggleTranslation[attachPoint]));
+            var toggle = new Toggle(new LocalizableGUIContent(translation, "attachPropPane", ToggleTranslation[attachPoint]));
 
             toggle.ControlEvent += (object sender, EventArgs e) =>
                 OnToggleChanged(attachPoint);
@@ -87,7 +90,7 @@ public class AttachPropPane : BasePane
             attachPointToggles[attachPoint] = toggle;
         }
 
-        noCharactersOrPropsLabel = new(Translation.Get("attachPropPane", "noCharactersOrPropsLabel"));
+        noCharactersOrPropsLabel = new(new LocalizableGUIContent(translation, "attachPropPane", "noCharactersOrPropsLabel"));
 
         static LabelledDropdownItem CharacterFormatter(CharacterController character, int index) =>
             new($"{character.Slot + 1}: {character.CharacterModel.FullName()}");
@@ -136,21 +139,6 @@ public class AttachPropPane : BasePane
             GUILayout.FlexibleSpace();
 
             GUILayout.EndHorizontal();
-        }
-    }
-
-    protected override void ReloadTranslation()
-    {
-        paneHeader.Label = Translation.Get("attachPropPane", "header");
-        noCharactersOrPropsLabel.Text = Translation.Get("attachPropPane", "noCharactersOrPropsLabel");
-        keepWorldPositionToggle.Label = Translation.Get("attachPropPane", "keepWorldPosition");
-
-        foreach (var attachPoint in Enum.GetValues(typeof(AttachPoint)).Cast<AttachPoint>())
-        {
-            if (attachPoint is AttachPoint.None)
-                continue;
-
-            attachPointToggles[attachPoint].Label = Translation.Get("attachPropPane", ToggleTranslation[attachPoint]);
         }
     }
 

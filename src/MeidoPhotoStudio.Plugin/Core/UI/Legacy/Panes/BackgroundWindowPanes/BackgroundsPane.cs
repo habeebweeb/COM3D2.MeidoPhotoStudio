@@ -2,6 +2,7 @@ using System.ComponentModel;
 
 using MeidoPhotoStudio.Plugin.Core.Background;
 using MeidoPhotoStudio.Plugin.Core.Database.Background;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
@@ -24,21 +25,25 @@ public class BackgroundsPane : BasePane
     private readonly SearchBar<BackgroundModel> searchBar;
 
     public BackgroundsPane(
+        Translation translation,
         BackgroundService backgroundService,
         BackgroundRepository backgroundRepository,
         BackgroundDragHandleService backgroundDragHandleService)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.backgroundService = backgroundService ?? throw new ArgumentNullException(nameof(backgroundService));
         this.backgroundRepository = backgroundRepository ?? throw new ArgumentNullException(nameof(backgroundRepository));
         this.backgroundDragHandleService = backgroundDragHandleService ?? throw new ArgumentNullException(nameof(backgroundDragHandleService));
 
         this.backgroundService.PropertyChanged += OnBackgroundPropertyChanged;
 
-        paneHeader = new(Translation.Get("backgroundsPane", "header"));
+        translation.Initialized += OnTranslationInitialized;
+
+        paneHeader = new(new LocalizableGUIContent(translation, "backgroundsPane", "header"));
 
         searchBar = new(SearchSelector, PropFormatter)
         {
-            Placeholder = Translation.Get("backgroundsPane", "searchBarPlaceholder"),
+            PlaceholderContent = new LocalizableGUIContent(translation, "backgroundsPane", "searchBarPlaceholder"),
         };
 
         searchBar.SelectedValue += OnSearchSelected;
@@ -50,20 +55,27 @@ public class BackgroundsPane : BasePane
         backgroundDropdown.SelectionChanged += OnChangedBackground;
 
         dragHandleEnabledToggle = new(
-            Translation.Get("backgroundsPane", "dragHandleVisible"), backgroundDragHandleService.Enabled);
+            new LocalizableGUIContent(translation, "backgroundsPane", "dragHandleVisible"),
+            backgroundDragHandleService.Enabled);
 
         dragHandleEnabledToggle.ControlEvent += OnToggledDragHandleEnabled;
 
         backgroundVisibleToggle = new(
-            Translation.Get("backgroundsPane", "backgroundVisible"), backgroundService.BackgroundVisible);
+            new LocalizableGUIContent(translation, "backgroundsPane", "backgroundVisible"),
+            backgroundService.BackgroundVisible);
 
         backgroundVisibleToggle.ControlEvent += OnToggledBackgroundVisible;
 
-        colourModeToggle = new(Translation.Get("backgroundsPane", "colour"));
+        colourModeToggle = new(new LocalizableGUIContent(translation, "backgroundsPane", "colour"));
 
         var backgroundColour = backgroundService.BackgroundColour;
 
-        redSlider = new(Translation.Get("backgroundsPane", "red"), 0f, 1f, backgroundColour.r, backgroundColour.r)
+        redSlider = new(
+            new LocalizableGUIContent(translation, "backgroundsPane", "red"),
+            0f,
+            1f,
+            backgroundColour.r,
+            backgroundColour.r)
         {
             HasReset = true,
             HasTextField = true,
@@ -71,7 +83,12 @@ public class BackgroundsPane : BasePane
 
         redSlider.ControlEvent += OnColourSliderChanged;
 
-        greenSlider = new(Translation.Get("backgroundsPane", "green"), 0f, 1f, backgroundColour.g, backgroundColour.g)
+        greenSlider = new(
+            new LocalizableGUIContent(translation, "backgroundsPane", "green"),
+            0f,
+            1f,
+            backgroundColour.g,
+            backgroundColour.g)
         {
             HasReset = true,
             HasTextField = true,
@@ -79,7 +96,12 @@ public class BackgroundsPane : BasePane
 
         greenSlider.ControlEvent += OnColourSliderChanged;
 
-        blueSlider = new(Translation.Get("backgroundsPane", "blue"), 0f, 1f, backgroundColour.b, backgroundColour.b)
+        blueSlider = new(
+            new LocalizableGUIContent(translation, "backgroundsPane", "blue"),
+            0f,
+            1f,
+            backgroundColour.b,
+            backgroundColour.b)
         {
             HasReset = true,
             HasTextField = true,
@@ -87,7 +109,7 @@ public class BackgroundsPane : BasePane
 
         blueSlider.ControlEvent += OnColourSliderChanged;
 
-        static LabelledDropdownItem BackgroundCategoryFormatter(BackgroundCategory category, int index)
+        LabelledDropdownItem BackgroundCategoryFormatter(BackgroundCategory category, int index)
         {
             var translationKey = category switch
             {
@@ -97,7 +119,7 @@ public class BackgroundsPane : BasePane
                 _ => throw new InvalidEnumArgumentException(nameof(category), (int)category, typeof(BackgroundCategory)),
             };
 
-            return new(Translation.Get("backgroundSource", translationKey));
+            return new(translation["backgroundSource", translationKey]);
         }
 
         IEnumerable<BackgroundModel> SearchSelector(string query) =>
@@ -105,6 +127,13 @@ public class BackgroundsPane : BasePane
 
         IDropdownItem PropFormatter(BackgroundModel model, int index) =>
             new LabelledDropdownItem(model.Name);
+
+        void OnTranslationInitialized(object sender, EventArgs e)
+        {
+            searchBar.Reformat();
+            backgroundCategoryDropdown.Reformat();
+            backgroundDropdown.Reformat();
+        }
     }
 
     public override void Draw()
@@ -183,23 +212,6 @@ public class BackgroundsPane : BasePane
 
             backgroundDropdown.SetItemsWithoutNotify(backgrounds, backgroundIndex);
         }
-    }
-
-    protected override void ReloadTranslation()
-    {
-        base.ReloadTranslation();
-
-        paneHeader.Label = Translation.Get("backgroundsPane", "header");
-        dragHandleEnabledToggle.Label = Translation.Get("backgroundsPane", "dragHandleVisible");
-        backgroundVisibleToggle.Label = Translation.Get("backgroundsPane", "backgroundVisible");
-        colourModeToggle.Label = Translation.Get("backgroundsPane", "colour");
-        redSlider.Label = Translation.Get("backgroundsPane", "red");
-        greenSlider.Label = Translation.Get("backgroundsPane", "green");
-        blueSlider.Label = Translation.Get("backgroundsPane", "blue");
-        backgroundCategoryDropdown.Reformat();
-        backgroundDropdown.Reformat();
-        searchBar.Placeholder = Translation.Get("backgroundsPane", "searchBarPlaceholder");
-        searchBar.Reformat();
     }
 
     private void OnToggledDragHandleEnabled(object sender, EventArgs e) =>

@@ -1,3 +1,4 @@
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
@@ -11,14 +12,21 @@ public class PropsPane : BasePane
     private readonly List<PropCategory> propTypes = [];
     private readonly PaneHeader paneHeader;
 
-    public PropsPane()
+    public PropsPane(Translation translation)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
+
+        translation.Initialized += OnTranslationInitialized;
+
         propTypeDropdown = new(formatter: CategoryFormatter);
 
-        paneHeader = new(Translation.Get("propsPane", "header"), true);
+        paneHeader = new(new LocalizableGUIContent(translation, "propsPane", "header"), true);
 
-        static LabelledDropdownItem CategoryFormatter(PropCategory category, int index) =>
-            new(Translation.Get("propTypes", category.ToLower()));
+        LabelledDropdownItem CategoryFormatter(PropCategory category, int index) =>
+            new(translation["propTypes", category.ToLower()]);
+
+        void OnTranslationInitialized(object sender, EventArgs e) =>
+            propTypeDropdown.Reformat();
     }
 
     public enum PropCategory
@@ -51,15 +59,6 @@ public class PropsPane : BasePane
         UIUtility.DrawBlackLine();
 
         propPanes[propTypes[propTypeDropdown.SelectedItemIndex]].Draw();
-    }
-
-    protected override void ReloadTranslation()
-    {
-        base.ReloadTranslation();
-
-        propTypeDropdown.Reformat();
-
-        paneHeader.Label = Translation.Get("propsPane", "header");
     }
 
     private void Add(PropCategory key, BasePane pane)

@@ -1,6 +1,7 @@
 using System.ComponentModel;
 
 using MeidoPhotoStudio.Plugin.Core.Lighting;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework;
 using MeidoPhotoStudio.Plugin.Framework.Service;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
@@ -10,12 +11,13 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 public class LightsPane : BasePane
 {
     private static Light mainLight;
-
+    private readonly Translation translation;
     private readonly LightRepository lightRepository;
     private readonly SelectionController<LightController> lightSelectionController;
     private readonly Dropdown<LightController> lightDropdown;
     private readonly Dictionary<LightController, string> lightNames = [];
-    private readonly SelectionGrid lightTypeGrid;
+    private readonly Dictionary<LightType, Toggle> lightTypeToggles;
+    private readonly Toggle.Group lightTypeGroup;
     private readonly Toggle lightOnToggle;
     private readonly Button addLightButton;
     private readonly Button deleteLightButton;
@@ -37,14 +39,15 @@ public class LightsPane : BasePane
     private readonly Header resetHeader;
     private readonly Label noLightsLabel;
 
-    private string noLights;
     private bool sliderChangedTransform;
 
     public LightsPane(
+        Translation translation,
         LightRepository lightRepository,
         SelectionController<LightController> lightSelectionController,
         TransformClipboard transformClipboard)
     {
+        this.translation = translation ?? throw new ArgumentNullException(nameof(translation));
         this.lightRepository = lightRepository ?? throw new ArgumentNullException(nameof(lightRepository));
         this.lightSelectionController = lightSelectionController ?? throw new ArgumentNullException(nameof(lightSelectionController));
         _ = transformClipboard ?? throw new ArgumentNullException(nameof(transformClipboard));
@@ -55,31 +58,50 @@ public class LightsPane : BasePane
         lightSelectionController.Selecting += OnSelectingLight;
         lightSelectionController.Selected += OnSelectedLight;
 
-        paneHeader = new(Translation.Get("lightsPane", "header"), true);
-        resetHeader = new(Translation.Get("lightsPane", "resetLabel"));
-        noLightsLabel = new(Translation.Get("lightsPane", "noLights"));
+        paneHeader = new(new LocalizableGUIContent(translation, "lightsPane", "header"), true);
+        resetHeader = new(new LocalizableGUIContent(translation, "lightsPane", "resetLabel"));
+        noLightsLabel = new(new LocalizableGUIContent(translation, "lightsPane", "noLights"));
 
         lightDropdown = new(formatter: LightNameFormatter);
         lightDropdown.SelectionChanged += LightDropdownSelectionChanged;
 
-        lightTypeGrid = new SelectionGrid(Translation.GetArray("lightType", new[] { "normal", "spot", "point" }));
-        lightTypeGrid.ControlEvent += OnLightTypeChanged;
+        var normalLightTypeToggle = new Toggle(new LocalizableGUIContent(translation, "lightType", "normal"), true);
 
-        addLightButton = new Button(Translation.Get("lightsPane", "add"));
+        normalLightTypeToggle.ControlEvent += OnLightTypeToggleChanged(LightType.Directional);
+
+        var spotLightTypeToggle = new Toggle(new LocalizableGUIContent(translation, "lightType", "spot"));
+
+        spotLightTypeToggle.ControlEvent += OnLightTypeToggleChanged(LightType.Spot);
+
+        var pointLightTypeToggle = new Toggle(new LocalizableGUIContent(translation, "lightType", "point"));
+
+        pointLightTypeToggle.ControlEvent += OnLightTypeToggleChanged(LightType.Point);
+
+        lightTypeGroup = [normalLightTypeToggle, spotLightTypeToggle, pointLightTypeToggle];
+
+        lightTypeToggles = new()
+        {
+            [LightType.Directional] = normalLightTypeToggle,
+            [LightType.Spot] = spotLightTypeToggle,
+            [LightType.Point] = pointLightTypeToggle,
+        };
+
+        addLightButton = new(new LocalizableGUIContent(translation, "lightsPane", "add"));
         addLightButton.ControlEvent += OnAddLightButtonPressed;
 
-        deleteLightButton = new Button(Translation.Get("lightsPane", "delete"));
+        deleteLightButton = new(new LocalizableGUIContent(translation, "lightsPane", "delete"));
         deleteLightButton.ControlEvent += OnDeleteButtonPressed;
 
-        clearLightsButton = new Button(Translation.Get("lightsPane", "clear"));
+        clearLightsButton = new(new LocalizableGUIContent(translation, "lightsPane", "clear"));
         clearLightsButton.ControlEvent += OnClearButtonPressed;
 
-        lightOnToggle = new Toggle(Translation.Get("lightsPane", "on"), true);
+        lightOnToggle = new(new LocalizableGUIContent(translation, "lightsPane", "on"), true);
         lightOnToggle.ControlEvent += OnLightOnToggleChanged;
 
         var defaultRotation = LightProperties.DefaultRotation.eulerAngles;
 
-        xRotationSlider = new Slider(Translation.Get("lights", "x"), 0f, 360f, defaultRotation.x, defaultRotation.x)
+        xRotationSlider = new(
+            new LocalizableGUIContent(translation, "lights", "x"), 0f, 360f, defaultRotation.x, defaultRotation.x)
         {
             HasTextField = true,
             HasReset = true,
@@ -87,7 +109,8 @@ public class LightsPane : BasePane
 
         xRotationSlider.ControlEvent += OnRotationSlidersChanged;
 
-        yRotationSlider = new Slider(Translation.Get("lights", "y"), 0f, 360f, defaultRotation.y, defaultRotation.y)
+        yRotationSlider = new(
+            new LocalizableGUIContent(translation, "lights", "y"), 0f, 360f, defaultRotation.y, defaultRotation.y)
         {
             HasTextField = true,
             HasReset = true,
@@ -95,7 +118,7 @@ public class LightsPane : BasePane
 
         yRotationSlider.ControlEvent += OnRotationSlidersChanged;
 
-        intensitySlider = new Slider(Translation.Get("lights", "intensity"), 0f, 2f, 0.95f, 0.95f)
+        intensitySlider = new(new LocalizableGUIContent(translation, "lights", "intensity"), 0f, 2f, 0.95f, 0.95f)
         {
             HasTextField = true,
             HasReset = true,
@@ -103,7 +126,7 @@ public class LightsPane : BasePane
 
         intensitySlider.ControlEvent += OnIntensitySliderChanged;
 
-        shadowStrengthSlider = new Slider(Translation.Get("lights", "shadow"), 0f, 1f, 0.10f, 0.10f)
+        shadowStrengthSlider = new(new LocalizableGUIContent(translation, "lights", "shadow"), 0f, 1f, 0.10f, 0.10f)
         {
             HasTextField = true,
             HasReset = true,
@@ -111,7 +134,7 @@ public class LightsPane : BasePane
 
         shadowStrengthSlider.ControlEvent += OnShadowStrenthSliderChanged;
 
-        rangeSlider = new Slider(Translation.Get("lights", "range"), 0f, 150f, 10f, 10f)
+        rangeSlider = new(new LocalizableGUIContent(translation, "lights", "range"), 0f, 150f, 10f, 10f)
         {
             HasTextField = true,
             HasReset = true,
@@ -119,7 +142,7 @@ public class LightsPane : BasePane
 
         rangeSlider.ControlEvent += OnRangeSliderChanged;
 
-        spotAngleSlider = new Slider(Translation.Get("lights", "spot"), 0f, 150f, 50f, 50f)
+        spotAngleSlider = new(new LocalizableGUIContent(translation, "lights", "spot"), 0f, 150f, 50f, 50f)
         {
             HasTextField = true,
             HasReset = true,
@@ -127,7 +150,7 @@ public class LightsPane : BasePane
 
         spotAngleSlider.ControlEvent += OnSpotAngleSliderChanged;
 
-        redSlider = new Slider(Translation.Get("lights", "red"), 0f, 1f, 1f, 1f)
+        redSlider = new(new LocalizableGUIContent(translation, "lights", "red"), 0f, 1f, 1f, 1f)
         {
             HasTextField = true,
             HasReset = true,
@@ -135,7 +158,7 @@ public class LightsPane : BasePane
 
         redSlider.ControlEvent += OnColourSliderChanged;
 
-        greenSlider = new Slider(Translation.Get("lights", "green"), 0f, 1f, 1f, 1f)
+        greenSlider = new(new LocalizableGUIContent(translation, "lights", "green"), 0f, 1f, 1f, 1f)
         {
             HasTextField = true,
             HasReset = true,
@@ -143,7 +166,7 @@ public class LightsPane : BasePane
 
         greenSlider.ControlEvent += OnColourSliderChanged;
 
-        blueSlider = new Slider(Translation.Get("lights", "blue"), 0f, 1f, 1f, 1f)
+        blueSlider = new(new LocalizableGUIContent(translation, "lights", "blue"), 0f, 1f, 1f, 1f)
         {
             HasTextField = true,
             HasReset = true,
@@ -151,15 +174,15 @@ public class LightsPane : BasePane
 
         blueSlider.ControlEvent += OnColourSliderChanged;
 
-        resetPropertiesButton = new Button(Translation.Get("lightsPane", "resetProperties"));
+        resetPropertiesButton = new(new LocalizableGUIContent(translation, "lightsPane", "resetProperties"));
         resetPropertiesButton.ControlEvent += OnResetPropertiesButtonPressed;
 
-        resetPositionButton = new Button(Translation.Get("lightsPane", "resetPosition"));
+        resetPositionButton = new(new LocalizableGUIContent(translation, "lightsPane", "resetPosition"));
         resetPositionButton.ControlEvent += OnResetPositionButtonPressed;
 
-        transformInputToggle = new(Translation.Get("lightsPane", "preciseTransformToggle"));
+        transformInputToggle = new(new LocalizableGUIContent(translation, "lightsPane", "preciseTransformToggle"));
 
-        transformInputPane = new(transformClipboard)
+        transformInputPane = new(translation, transformClipboard)
         {
             EnableScale = false,
         };
@@ -168,6 +191,18 @@ public class LightsPane : BasePane
 
         LabelledDropdownItem LightNameFormatter(LightController light, int index) =>
             new(lightNames[light]);
+
+        EventHandler OnLightTypeToggleChanged(LightType type) =>
+            (sender, _) =>
+            {
+                if (sender is not Toggle { Value: true })
+                    return;
+
+                if (CurrentLightController is not LightController controller)
+                    return;
+
+                controller.Type = type;
+            };
     }
 
     public static Light MainLight =>
@@ -213,6 +248,8 @@ public class LightsPane : BasePane
 
         DrawColourControls();
 
+        UIUtility.DrawBlackLine();
+
         transformInputToggle.Draw();
 
         if (transformInputToggle.Value)
@@ -250,7 +287,12 @@ public class LightsPane : BasePane
 
             GUI.enabled = enabled && lightOnToggle.Value;
 
-            lightTypeGrid.Draw();
+            GUILayout.BeginHorizontal();
+
+            foreach (var lightTypeToggle in lightTypeGroup)
+                lightTypeToggle.Draw();
+
+            GUILayout.EndHorizontal();
 
             GUI.enabled = enabled;
 
@@ -303,31 +345,6 @@ public class LightsPane : BasePane
 
             GUILayout.EndHorizontal();
         }
-    }
-
-    protected override void ReloadTranslation()
-    {
-        paneHeader.Label = Translation.Get("lightsPane", "header");
-        resetHeader.Text = Translation.Get("lightsPane", "resetLabel");
-        noLights = Translation.Get("lightsPane", "noLights");
-        noLightsLabel.Text = noLights;
-        lightTypeGrid.SetItemsWithoutNotify(Translation.GetArray("lightType", new[] { "normal", "spot", "point" }));
-        addLightButton.Label = Translation.Get("lightsPane", "add");
-        deleteLightButton.Label = Translation.Get("lightsPane", "delete");
-        clearLightsButton.Label = Translation.Get("lightsPane", "clear");
-        lightOnToggle.Label = Translation.Get("lightsPane", "on");
-        xRotationSlider.Label = Translation.Get("lights", "x");
-        yRotationSlider.Label = Translation.Get("lights", "y");
-        intensitySlider.Label = Translation.Get("lights", "intensity");
-        shadowStrengthSlider.Label = Translation.Get("lights", "shadow");
-        rangeSlider.Label = Translation.Get("lights", "range");
-        spotAngleSlider.Label = Translation.Get("lights", "spot");
-        redSlider.Label = Translation.Get("lights", "red");
-        greenSlider.Label = Translation.Get("lights", "green");
-        blueSlider.Label = Translation.Get("lights", "blue");
-        resetPropertiesButton.Label = Translation.Get("lightsPane", "resetProperties");
-        resetPositionButton.Label = Translation.Get("lightsPane", "resetPosition");
-        transformInputToggle.Label = Translation.Get("lightsPane", "preciseTransformToggle");
     }
 
     private void OnSelectingLight(object sender, SelectionEventArgs<LightController> e)
@@ -393,8 +410,8 @@ public class LightsPane : BasePane
 
             return newLightName;
 
-            static string LightName(Light light) =>
-                light == MainLight ? Translation.Get("lightType", "main") : Translation.Get("lightType", "light");
+            string LightName(Light light) =>
+                translation["lightType", light == MainLight ? "main" : "light"];
         }
     }
 
@@ -446,30 +463,25 @@ public class LightsPane : BasePane
 
     private void UpdateControls()
     {
-        if (CurrentLightController is null)
+        if (CurrentLightController is not LightController controller)
             return;
 
-        lightTypeGrid.SetValueWithoutNotify(CurrentLightController.Type switch
-        {
-            LightType.Directional => 0,
-            LightType.Spot => 1,
-            LightType.Point => 2,
-            LightType.Area or _ => 0,
-        });
+        if (lightTypeToggles.TryGetValue(controller.Type, out var lightTypeToggle))
+            lightTypeToggle.SetEnabledWithoutNotify(true);
 
-        lightOnToggle.SetEnabledWithoutNotify(CurrentLightController.Enabled);
+        lightOnToggle.SetEnabledWithoutNotify(controller.Enabled);
 
-        var rotation = CurrentLightController.Rotation.eulerAngles;
+        var rotation = controller.Rotation.eulerAngles;
 
         xRotationSlider.SetValueWithoutNotify(rotation.x);
         yRotationSlider.SetValueWithoutNotify(rotation.y);
-        intensitySlider.SetValueWithoutNotify(CurrentLightController.Intensity);
-        shadowStrengthSlider.SetValueWithoutNotify(CurrentLightController.ShadowStrength);
-        rangeSlider.SetValueWithoutNotify(CurrentLightController.Range);
-        spotAngleSlider.SetValueWithoutNotify(CurrentLightController.SpotAngle);
-        redSlider.SetValueWithoutNotify(CurrentLightController.Colour.r);
-        greenSlider.SetValueWithoutNotify(CurrentLightController.Colour.g);
-        blueSlider.SetValueWithoutNotify(CurrentLightController.Colour.b);
+        intensitySlider.SetValueWithoutNotify(controller.Intensity);
+        shadowStrengthSlider.SetValueWithoutNotify(controller.ShadowStrength);
+        rangeSlider.SetValueWithoutNotify(controller.Range);
+        spotAngleSlider.SetValueWithoutNotify(controller.SpotAngle);
+        redSlider.SetValueWithoutNotify(controller.Colour.r);
+        greenSlider.SetValueWithoutNotify(controller.Colour.g);
+        blueSlider.SetValueWithoutNotify(controller.Colour.b);
     }
 
     private void LightDropdownSelectionChanged(object sender, EventArgs e)
@@ -480,28 +492,13 @@ public class LightsPane : BasePane
         lightSelectionController.Select(lightDropdown.SelectedItem);
     }
 
-    private void OnLightTypeChanged(object sender, EventArgs e)
+    private void OnChangedLightType(object sender, KeyedPropertyChangeEventArgs<LightType> e)
     {
-        if (CurrentLightController is null)
+        if (!lightTypeToggles.TryGetValue(e.Key, out var lightTypeToggle))
             return;
 
-        CurrentLightController.Type = lightTypeGrid.SelectedItemIndex switch
-        {
-            0 => LightType.Directional,
-            1 => LightType.Spot,
-            2 => LightType.Point,
-            _ => LightType.Directional,
-        };
+        lightTypeToggle.SetEnabledWithoutNotify(true);
     }
-
-    private void OnChangedLightType(object sender, KeyedPropertyChangeEventArgs<LightType> e) =>
-        lightTypeGrid.SetValueWithoutNotify(e.Key switch
-        {
-            LightType.Directional => 0,
-            LightType.Spot => 1,
-            LightType.Point => 2,
-            LightType.Area or _ => 0,
-        });
 
     private void OnAddLightButtonPressed(object sender, EventArgs e) =>
         lightRepository.AddLight();

@@ -1,4 +1,5 @@
 using MeidoPhotoStudio.Plugin.Core.Camera;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
@@ -7,13 +8,15 @@ public class CameraPane : BasePane
 {
     private readonly CameraController cameraController;
     private readonly CameraSaveSlotController cameraSaveSlotController;
-    private readonly SelectionGrid cameraSlotSelectionGrid;
+    private readonly Toggle.Group cameraGroup;
     private readonly Slider zRotationSlider;
     private readonly Slider fovSlider;
     private readonly PaneHeader paneHeader;
 
-    public CameraPane(CameraController cameraController, CameraSaveSlotController cameraSaveSlotController)
+    public CameraPane(
+        Translation translation, CameraController cameraController, CameraSaveSlotController cameraSaveSlotController)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.cameraController = cameraController
             ?? throw new ArgumentNullException(nameof(cameraController));
 
@@ -25,7 +28,8 @@ public class CameraPane : BasePane
         var camera = GameMain.Instance.MainCamera.camera;
         var cameraRotation = camera.transform.eulerAngles;
 
-        zRotationSlider = new(Translation.Get("cameraPane", "zRotation"), 0f, 360f, cameraRotation.z)
+        zRotationSlider = new(
+            new LocalizableGUIContent(translation, "cameraPane", "zRotation"), 0f, 360f, cameraRotation.z)
         {
             HasReset = true,
             HasTextField = true,
@@ -35,7 +39,7 @@ public class CameraPane : BasePane
 
         var fieldOfView = camera.fieldOfView;
 
-        fovSlider = new(Translation.Get("cameraPane", "fov"), 20f, 150f, fieldOfView, fieldOfView)
+        fovSlider = new(new LocalizableGUIContent(translation, "cameraPane", "fov"), 20f, 150f, fieldOfView, fieldOfView)
         {
             HasReset = true,
             HasTextField = true,
@@ -43,10 +47,28 @@ public class CameraPane : BasePane
 
         fovSlider.ControlEvent += OnFieldOfViewSliderChanged;
 
-        cameraSlotSelectionGrid = new(Enumerable.Range(1, cameraSaveSlotController.SaveSlotCount).Select(static x => x.ToString()).ToArray());
-        cameraSlotSelectionGrid.ControlEvent += OnCameraSlotChanged;
+        cameraGroup = [..
+            Enumerable.Range(1, cameraSaveSlotController.SaveSlotCount)
+            .Select(index =>
+            {
+                var toggle = new Toggle(index.ToString(), index is 1);
 
-        paneHeader = new(Translation.Get("cameraPane", "header"), true);
+                toggle.ControlEvent += OnCameraToggleChanged(index - 1);
+
+                return toggle;
+
+                EventHandler OnCameraToggleChanged(int cameraIndex) =>
+                    (sender, _) =>
+                    {
+                        if (sender is not Toggle { Value: true })
+                            return;
+
+                        cameraSaveSlotController.CurrentCameraSlot = cameraIndex;
+                    };
+            })
+        ];
+
+        paneHeader = new(new LocalizableGUIContent(translation, "cameraPane", "header"), true);
     }
 
     public override void Draw()
@@ -56,7 +78,13 @@ public class CameraPane : BasePane
         if (!paneHeader.Enabled)
             return;
 
-        cameraSlotSelectionGrid.Draw();
+        GUILayout.BeginHorizontal();
+
+        foreach (var cameraToggle in cameraGroup)
+            cameraToggle.Draw();
+
+        GUILayout.EndHorizontal();
+
         zRotationSlider.Draw();
         fovSlider.Draw();
     }
@@ -67,14 +95,7 @@ public class CameraPane : BasePane
 
         zRotationSlider.SetValueWithoutNotify(camera.transform.eulerAngles.z);
         fovSlider.SetValueWithoutNotify(camera.fieldOfView);
-        cameraSlotSelectionGrid.SetValueWithoutNotify(cameraSaveSlotController.CurrentCameraSlot);
-    }
-
-    protected override void ReloadTranslation()
-    {
-        zRotationSlider.Label = Translation.Get("cameraPane", "zRotation");
-        fovSlider.Label = Translation.Get("cameraPane", "fov");
-        paneHeader.Label = Translation.Get("cameraPane", "header");
+        cameraGroup[cameraSaveSlotController.CurrentCameraSlot].SetEnabledWithoutNotify(true);
     }
 
     private void OnZRotationChanged(object sender, EventArgs e)
@@ -88,9 +109,6 @@ public class CameraPane : BasePane
 
     private void OnFieldOfViewSliderChanged(object sender, EventArgs e) =>
         GameMain.Instance.MainCamera.camera.fieldOfView = fovSlider.Value;
-
-    private void OnCameraSlotChanged(object sender, EventArgs e) =>
-        cameraSaveSlotController.CurrentCameraSlot = cameraSlotSelectionGrid.SelectedItemIndex;
 
     private void OnCameraChanged(object sender, EventArgs e) =>
         UpdatePane();

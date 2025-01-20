@@ -1,6 +1,7 @@
 using MeidoPhotoStudio.Plugin.Core.Configuration;
 using MeidoPhotoStudio.Plugin.Core.Database.Props;
 using MeidoPhotoStudio.Plugin.Core.Database.Props.Menu;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Core.Props;
 using MeidoPhotoStudio.Plugin.Framework;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
@@ -40,26 +41,30 @@ public class MenuPropsPane : BasePane, IVirtualListHandler
     private FilterType currentFilter;
 
     public MenuPropsPane(
+        Translation translation,
         PropService propService,
         MenuPropRepository menuPropRepository,
         MenuPropsConfiguration menuPropsConfiguration,
         IconCache iconCache)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.propService = propService ?? throw new ArgumentNullException(nameof(propService));
         this.menuPropRepository = menuPropRepository ?? throw new ArgumentNullException(nameof(menuPropRepository));
         this.menuPropsConfiguration = menuPropsConfiguration;
         this.iconCache = iconCache ?? throw new ArgumentNullException(nameof(iconCache));
 
+        translation.Initialized += OnTranslationInitialized;
+
         propCategoryDropdown = new(formatter: CategoryFormatter);
         propCategoryDropdown.SelectionChanged += OnPropCategoryDropdownChanged;
 
-        modFilterToggle = new(Translation.Get("menuFilePropsPane", "modsToggle"));
+        modFilterToggle = new(new LocalizableGUIContent(translation, "menuFilePropsPane", "modsToggle"));
         modFilterToggle.ControlEvent += OnModFilterChanged;
 
-        baseFilterToggle = new(Translation.Get("menuFilePropsPane", "baseToggle"));
+        baseFilterToggle = new(new LocalizableGUIContent(translation, "menuFilePropsPane", "baseToggle"));
         baseFilterToggle.ControlEvent += OnBaseFilterChanged;
 
-        initializingLabel = new(Translation.Get("systemMessage", "initializing"));
+        initializingLabel = new(new LocalizableGUIContent(translation, "systemMessage", "initializing"));
 
         virtualList = new()
         {
@@ -69,7 +74,7 @@ public class MenuPropsPane : BasePane, IVirtualListHandler
 
         searchBar = new(SearchSelector, PropFormatter)
         {
-            Placeholder = Translation.Get("menuFilePropsPane", "searchBarPlaceholder"),
+            PlaceholderContent = new LocalizableGUIContent(translation, "menuFilePropsPane", "searchBarPlaceholder"),
         };
 
         searchBar.SelectedValue += OnSearchSelected;
@@ -85,8 +90,8 @@ public class MenuPropsPane : BasePane, IVirtualListHandler
             Initialize();
         }
 
-        static LabelledDropdownItem CategoryFormatter(MPN category, int index) =>
-            new(Translation.Get("clothing", category.ToString()));
+        LabelledDropdownItem CategoryFormatter(MPN category, int index) =>
+            new(translation["clothing", category.ToString()]);
 
         IEnumerable<MenuFilePropModel> SearchSelector(string query) =>
             menuDatabaseBusy
@@ -119,6 +124,14 @@ public class MenuPropsPane : BasePane, IVirtualListHandler
             ];
 
             propCategoryDropdown.SetItems(categories);
+        }
+
+        void OnTranslationInitialized(object sender, EventArgs e)
+        {
+            if (menuPropRepository.Busy)
+                return;
+
+            propCategoryDropdown.Reformat();
         }
     }
 
@@ -201,22 +214,6 @@ public class MenuPropsPane : BasePane, IVirtualListHandler
     Vector2 IVirtualListHandler.ItemDimensions(int index) =>
         buttonSize;
 
-    protected override void ReloadTranslation()
-    {
-        base.ReloadTranslation();
-
-        if (menuPropRepository.Busy)
-            return;
-
-        propCategoryDropdown.Reformat();
-
-        modFilterToggle.Label = Translation.Get("menuFilePropsPane", "modsToggle");
-        baseFilterToggle.Label = Translation.Get("menuFilePropsPane", "baseToggle");
-
-        initializingLabel.Text = Translation.Get("systemMessage", "initializing");
-        searchBar.Placeholder = Translation.Get("menuFilePropsPane", "searchBarPlaceholder");
-    }
-
     private void OnSearchSelected(object sender, SearchBarSelectionEventArgs<MenuFilePropModel> e) =>
         propService.Add(e.Item);
 
@@ -247,7 +244,7 @@ public class MenuPropsPane : BasePane, IVirtualListHandler
                 propList = propList.Where(static prop => prop.GameMenu);
         }
 
-        currentPropList = propList.ToArray();
+        currentPropList = [.. propList];
     }
 
     private void OnPropCategoryDropdownChanged(object sender, EventArgs e) =>

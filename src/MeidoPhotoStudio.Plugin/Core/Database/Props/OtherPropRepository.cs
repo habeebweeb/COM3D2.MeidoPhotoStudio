@@ -1,21 +1,24 @@
 using System.Collections.ObjectModel;
 
 using MeidoPhotoStudio.Plugin.Core.Database.Background;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using Newtonsoft.Json;
 
 namespace MeidoPhotoStudio.Plugin.Core.Database.Props;
 
 public class OtherPropRepository : IEnumerable<OtherPropModel>
 {
+    private readonly Translation translation;
     private readonly BackgroundRepository backgroundRepository;
 
     private Dictionary<string, IList<OtherPropModel>> props;
 
-    public OtherPropRepository(BackgroundRepository backgroundRepository)
+    public OtherPropRepository(Translation translation, BackgroundRepository backgroundRepository)
     {
+        this.translation = translation ?? throw new ArgumentNullException(nameof(translation));
         this.backgroundRepository = backgroundRepository ?? throw new ArgumentNullException(nameof(backgroundRepository));
 
-        Translation.ReloadTranslationEvent += OnReloadedTranslation;
+        this.translation.Initialized += OnReloadedTranslation;
     }
 
     public IEnumerable<string> Categories =>
@@ -42,7 +45,7 @@ public class OtherPropRepository : IEnumerable<OtherPropModel>
     public OtherPropModel GetByID(string id) =>
         this.FirstOrDefault(model => string.Equals(model.ID, id, StringComparison.OrdinalIgnoreCase));
 
-    private static Dictionary<string, IList<OtherPropModel>> Initialize(BackgroundRepository backgroundRepository)
+    private Dictionary<string, IList<OtherPropModel>> Initialize(BackgroundRepository backgroundRepository)
     {
         var models = new Dictionary<string, IList<OtherPropModel>>()
         {
@@ -57,18 +60,18 @@ public class OtherPropRepository : IEnumerable<OtherPropModel>
 
         return models;
 
-        static ReadOnlyCollection<OtherPropModel> GetMobProps() =>
+        ReadOnlyCollection<OtherPropModel> GetMobProps() =>
             new[]
             {
                 "Mob_Man_Stand001", "Mob_Man_Stand002", "Mob_Man_Stand003", "Mob_Man_Sit001", "Mob_Man_Sit002",
                 "Mob_Man_Sit003", "Mob_Girl_Stand001", "Mob_Girl_Stand002", "Mob_Girl_Stand003", "Mob_Girl_Sit001",
                 "Mob_Girl_Sit002", "Mob_Girl_Sit003",
             }
-            .Select(asset => new OtherPropModel(asset, Translation.Get("propNames", asset)))
+            .Select(asset => new OtherPropModel(asset, translation["propNames", asset]))
             .ToList()
             .AsReadOnly();
 
-        static ReadOnlyCollection<OtherPropModel> GameProps(BackgroundRepository backgroundRepository)
+        ReadOnlyCollection<OtherPropModel> GameProps(BackgroundRepository backgroundRepository)
         {
             var otherProps = OtherPropsSet();
 
@@ -78,7 +81,7 @@ public class OtherPropRepository : IEnumerable<OtherPropModel>
                 .Select(Path.GetFileNameWithoutExtension)
                 .Where(file => !file.EndsWith("_hit") && !file.EndsWith("_not_optimisation"))
                 .Where(file => !otherProps.Contains(file))
-                .Select(file => new OtherPropModel(file, Translation.Get("propNames", file)))
+                .Select(file => new OtherPropModel(file, translation["propNames", file]))
                 .ToList()
                 .AsReadOnly();
 
@@ -104,7 +107,7 @@ public class OtherPropRepository : IEnumerable<OtherPropModel>
             }
         }
 
-        static ReadOnlyCollection<OtherPropModel> GetPropExtend()
+        ReadOnlyCollection<OtherPropModel> GetPropExtend()
         {
             try
             {
@@ -113,7 +116,7 @@ public class OtherPropRepository : IEnumerable<OtherPropModel>
                 var propExtendFile = Path.Combine(databasePath, "extra_dogu.json");
 
                 return JsonConvert.DeserializeObject<string[]>(File.ReadAllText(propExtendFile))
-                    .Select(asset => new OtherPropModel(asset, Translation.Get("propNames", asset)))
+                    .Select(asset => new OtherPropModel(asset, translation["propNames", asset]))
                     .ToList()
                     .AsReadOnly();
             }
@@ -133,6 +136,6 @@ public class OtherPropRepository : IEnumerable<OtherPropModel>
     private void OnReloadedTranslation(object sender, EventArgs e)
     {
         foreach (var prop in this)
-            prop.Name = Translation.Get("propNames", prop.AssetName);
+            prop.Name = translation["propNames", prop.AssetName];
     }
 }

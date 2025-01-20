@@ -1,5 +1,6 @@
 using MeidoPhotoStudio.Plugin.Core.Database.Props;
 using MeidoPhotoStudio.Plugin.Core.Database.Props.Menu;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Core.Props;
 using MeidoPhotoStudio.Plugin.Framework;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
@@ -22,26 +23,30 @@ public class HandItemPropsPane : BasePane
     private bool hasHandItems;
 
     public HandItemPropsPane(
+        Translation translation,
         PropService propService,
         MenuPropRepository menuPropRepository)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.propService = propService ?? throw new ArgumentNullException(nameof(propService));
         _ = menuPropRepository ?? throw new ArgumentNullException(nameof(menuPropRepository));
 
+        translation.Initialized += OnTranslationInitialized;
+
         searchBar = new(SearchSelector, PropFormatter)
         {
-            Placeholder = Translation.Get("handItemPropsPane", "searchBarPlaceholder"),
+            PlaceholderContent = new LocalizableGUIContent(translation, "handItemPropsPane", "searchBarPlaceholder"),
         };
 
         searchBar.SelectedValue += OnSearchSelected;
 
         propDropdown = new(formatter: PropFormatter);
 
-        addPropButton = new(Translation.Get("propsPane", "addProp"));
+        addPropButton = new(new LocalizableGUIContent(translation, "propsPane", "addProp"));
         addPropButton.ControlEvent += OnAddPropButtonPressed;
 
-        initializingLabel = new(Translation.Get("systemMessage", "initializing"));
-        noHandItemsLabel = new(Translation.Get("handItemPropsPane", "noHandItems"));
+        initializingLabel = new(new LocalizableGUIContent(translation, "systemMessage", "initializing"));
+        noHandItemsLabel = new(new LocalizableGUIContent(translation, "handItemPropsPane", "noHandItems"));
 
         if (menuPropRepository.Busy)
         {
@@ -81,6 +86,12 @@ public class HandItemPropsPane : BasePane
                 : menuPropRepository[HandItem].Where(model =>
                     model.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
                     Path.GetFileNameWithoutExtension(model.Filename).Contains(query, StringComparison.OrdinalIgnoreCase));
+
+        void OnTranslationInitialized(object sender, EventArgs e)
+        {
+            propDropdown.Reformat();
+            searchBar.Reformat();
+        }
     }
 
     public override void Draw()
@@ -106,17 +117,6 @@ public class HandItemPropsPane : BasePane
         UIUtility.DrawBlackLine();
 
         addPropButton.Draw();
-    }
-
-    protected override void ReloadTranslation()
-    {
-        initializingLabel.Text = Translation.Get("systemMessage", "initializing");
-        noHandItemsLabel.Text = Translation.Get("handItemPropsPane", "noHandItems");
-        propDropdown.Reformat();
-
-        addPropButton.Label = Translation.Get("propsPane", "addProp");
-        searchBar.Placeholder = Translation.Get("handItemPropsPane", "searchBarPlaceholder");
-        searchBar.Reformat();
     }
 
     private void OnSearchSelected(object sender, SearchBarSelectionEventArgs<MenuFilePropModel> e) =>

@@ -2,6 +2,7 @@ using System.ComponentModel;
 
 using MeidoPhotoStudio.Plugin.Core.Character;
 using MeidoPhotoStudio.Plugin.Core.Database.Character;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
@@ -9,19 +10,16 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
 public class AnimationSelectorPane : BasePane
 {
-    private const int GameAnimation = 0;
-    private const int CustomAnimation = 1;
-
-    private static readonly string[] AnimationSourceTranslationKeys = ["baseTab", "customTab"];
-
-    private readonly SelectionGrid animationSourceGrid;
-    private readonly Dropdown<string> animationCategoryDropdown;
-    private readonly Dropdown<IAnimationModel> animationDropdown;
+    private readonly Translation translation;
     private readonly GameAnimationRepository gameAnimationRepository;
     private readonly CustomAnimationRepository customAnimationRepository;
     private readonly CharacterUndoRedoService characterUndoRedoService;
     private readonly SelectionController<CharacterController> characterSelectionController;
     private readonly CustomAnimationRepositorySorter customAnimationRepositorySorter;
+    private readonly Toggle.Group animationSourceGroup;
+    private readonly Dictionary<AnimationSource, Toggle> animationSourceToggles;
+    private readonly Dropdown<string> animationCategoryDropdown;
+    private readonly Dropdown<IAnimationModel> animationDropdown;
     private readonly PaneHeader paneHeader;
     private readonly Framework.UI.Legacy.ComboBox animationCategoryComboBox;
     private readonly TextField animationNameTextField;
@@ -35,16 +33,19 @@ public class AnimationSelectorPane : BasePane
     private readonly Label savedAnimationLabel;
     private readonly SearchBar<IAnimationModel> searchBar;
 
+    private AnimationSource currentAnimationSource = AnimationSource.Game;
     private bool showSavedAnimationLabel;
     private float saveTime;
 
     public AnimationSelectorPane(
+        Translation translation,
         GameAnimationRepository gameAnimationRepository,
         CustomAnimationRepository customAnimationRepository,
         CharacterUndoRedoService characterUndoRedoService,
         SelectionController<CharacterController> characterSelectionController,
         CustomAnimationRepositorySorter customAnimationRepositorySorter)
     {
+        this.translation = translation ?? throw new ArgumentNullException(nameof(translation));
         this.gameAnimationRepository = gameAnimationRepository ?? throw new ArgumentNullException(nameof(gameAnimationRepository));
         this.customAnimationRepository = customAnimationRepository ?? throw new ArgumentNullException(nameof(customAnimationRepository));
         this.characterUndoRedoService = characterUndoRedoService ?? throw new ArgumentNullException(nameof(characterUndoRedoService));
@@ -56,52 +57,63 @@ public class AnimationSelectorPane : BasePane
         this.characterSelectionController.Selecting += OnCharacterSelectionChanging;
         this.characterSelectionController.Selected += OnCharacterSelectionChanged;
 
-        animationSourceGrid = new(Translation.GetArray("posePane", AnimationSourceTranslationKeys));
-        animationSourceGrid.ControlEvent += OnAnimationSourceChanged;
+        this.translation.Initialized += OnTranslationInitialized;
+
+        var gameToggle = new Toggle(new LocalizableGUIContent(translation, "posePane", "baseTab"), true);
+
+        gameToggle.ControlEvent += OnAnimationSourceToggleChanged(AnimationSource.Game);
+
+        var customToggle = new Toggle(new LocalizableGUIContent(translation, "posePane", "customTab"));
+
+        customToggle.ControlEvent += OnAnimationSourceToggleChanged(AnimationSource.Custom);
+
+        animationSourceGroup = [gameToggle, customToggle];
+        animationSourceToggles = new()
+        {
+            [AnimationSource.Game] = gameToggle,
+            [AnimationSource.Custom] = customToggle,
+        };
 
         searchBar = new(SearchSelector, Formatter)
         {
-            Placeholder = Translation.Get("posePane", "searchBarPlaceholder"),
+            PlaceholderContent = new LocalizableGUIContent(translation, "posePane", "searchBarPlaceholder"),
         };
 
         searchBar.SelectedValue += OnSearchSelected;
 
-        animationCategoryDropdown = new(
-            GetAnimationCategoryFormatter(animationSourceGrid.SelectedItemIndex is CustomAnimation));
-
+        animationCategoryDropdown = new(GetAnimationCategoryFormatter(currentAnimationSource));
         animationCategoryDropdown.SelectionChanged += OnAnimationCategoryChanged;
 
-        animationDropdown = new(
-            AnimationList(animationSourceGrid.SelectedItemIndex is CustomAnimation), formatter: Formatter);
-
+        animationDropdown = new(AnimationList(currentAnimationSource), formatter: Formatter);
         animationDropdown.SelectionChanged += OnAnimationChanged;
 
-        paneHeader = new(Translation.Get("posePane", "header"), true);
+        paneHeader = new(new LocalizableGUIContent(translation, "posePane", "header"), true);
 
-        saveAnimationToggle = new(Translation.Get("posePane", "saveToggle"), false);
+        saveAnimationToggle = new(new LocalizableGUIContent(translation, "posePane", "saveToggle"), false);
+
         animationCategoryComboBox = new(this.customAnimationRepository.Categories)
         {
-            Placeholder = Translation.Get("posePane", "categorySearchBarPlaceholder"),
+            PlaceholderContent = new LocalizableGUIContent(translation, "posePane", "categorySearchBarPlaceholder"),
         };
 
         animationNameTextField = new()
         {
-            Placeholder = Translation.Get("posePane", "nameTextFieldPlaceholder"),
+            PlaceholderContent = new LocalizableGUIContent(translation, "posePane", "nameTextFieldPlaceholder"),
         };
 
-        savePoseButton = new(Translation.Get("posePane", "saveButton"));
+        savePoseButton = new(new LocalizableGUIContent(translation, "posePane", "saveButton"));
         savePoseButton.ControlEvent += OnSavePoseButtonPushed;
 
-        refreshButton = new(Translation.Get("posePane", "refreshButton"));
+        refreshButton = new(new LocalizableGUIContent(translation, "posePane", "refreshButton"));
         refreshButton.ControlEvent += OnRefreshButtonPushed;
 
-        animationDirectoryHeader = new(Translation.Get("posePane", "categoryHeader"));
-        animationFilenameHeader = new(Translation.Get("posePane", "nameHeader"));
+        animationDirectoryHeader = new(new LocalizableGUIContent(translation, "posePane", "categoryHeader"));
+        animationFilenameHeader = new(new LocalizableGUIContent(translation, "posePane", "nameHeader"));
 
-        initializingLabel = new(Translation.Get("systemMessage", "initializing"));
-        noAnimationsLabel = new(Translation.Get("posePane", "noAnimations"));
+        initializingLabel = new(new LocalizableGUIContent(translation, "systemMessage", "initializing"));
+        noAnimationsLabel = new(new LocalizableGUIContent(translation, "posePane", "noAnimations"));
 
-        savedAnimationLabel = new(Translation.Get("posePane", "savedAnimationLabel"));
+        savedAnimationLabel = new(new LocalizableGUIContent(translation, "posePane", "savedAnimationLabel"));
 
         if (gameAnimationRepository.Busy)
             gameAnimationRepository.InitializedAnimations += OnGameAnimationsRepositoryReady;
@@ -117,13 +129,13 @@ public class AnimationSelectorPane : BasePane
 
         void InitializeGameAnimations()
         {
-            if (animationSourceGrid.SelectedItemIndex is CustomAnimation)
+            if (currentAnimationSource is AnimationSource.Custom)
                 return;
 
-            animationCategoryDropdown.SetItemsWithoutNotify(AnimationCategoryList(custom: false), 0);
-            animationCategoryDropdown.Formatter = GetAnimationCategoryFormatter(custom: false);
+            animationCategoryDropdown.SetItemsWithoutNotify(AnimationCategoryList(AnimationSource.Game), 0);
+            animationCategoryDropdown.Formatter = GetAnimationCategoryFormatter(AnimationSource.Game);
 
-            animationDropdown.SetItemsWithoutNotify(AnimationList(custom: false), 0);
+            animationDropdown.SetItemsWithoutNotify(AnimationList(AnimationSource.Game), 0);
         }
 
         IDropdownItem Formatter(IAnimationModel model, int index) =>
@@ -131,19 +143,40 @@ public class AnimationSelectorPane : BasePane
 
         IEnumerable<IAnimationModel> SearchSelector(string query)
         {
-            var repository = animationSourceGrid.SelectedItemIndex is GameAnimation
+            var repository = currentAnimationSource is AnimationSource.Game
                 ? gameAnimationRepository.Cast<IAnimationModel>()
                 : customAnimationRepository.Cast<IAnimationModel>();
 
-            return repository.Where(Selector);
-
-            bool Selector(IAnimationModel model)
+            return repository.Where((IAnimationModel model) =>
             {
                 var search = model.Custom ? model.Name : model.Filename;
 
                 return search.Contains(query, StringComparison.OrdinalIgnoreCase);
-            }
+            });
         }
+
+        EventHandler OnAnimationSourceToggleChanged(AnimationSource source) =>
+            (sender, _) =>
+            {
+                if (sender is not Toggle { Value: true })
+                    return;
+
+                ChangeAnimationSource(source);
+            };
+
+        void OnTranslationInitialized(object sender, EventArgs e)
+        {
+            if (currentAnimationSource is AnimationSource.Game)
+                animationCategoryDropdown.Reformat();
+
+            searchBar.Reformat();
+        }
+    }
+
+    private enum AnimationSource
+    {
+        Game,
+        Custom,
     }
 
     private CharacterController Character =>
@@ -163,14 +196,20 @@ public class AnimationSelectorPane : BasePane
         if (!paneHeader.Enabled)
             return;
 
-        animationSourceGrid.Draw();
+        GUILayout.BeginHorizontal();
+
+        foreach (var sourceToggle in animationSourceGroup)
+            sourceToggle.Draw();
+
+        GUILayout.EndHorizontal();
+
         UIUtility.DrawBlackLine();
 
         DrawTextFieldWithScrollBarOffset(searchBar);
 
         GUI.enabled = enabled;
 
-        if (animationSourceGrid.SelectedItemIndex is GameAnimation && gameAnimationRepository.Busy)
+        if (currentAnimationSource is AnimationSource.Game && gameAnimationRepository.Busy)
             initializingLabel.Draw();
         else
             DrawDropdowns();
@@ -181,7 +220,7 @@ public class AnimationSelectorPane : BasePane
 
         saveAnimationToggle.Draw();
 
-        if (animationSourceGrid.SelectedItemIndex is CustomAnimation)
+        if (currentAnimationSource is AnimationSource.Custom)
         {
             GUILayout.FlexibleSpace();
 
@@ -238,37 +277,15 @@ public class AnimationSelectorPane : BasePane
         }
     }
 
-    protected override void ReloadTranslation()
+    private Func<string, int, IDropdownItem> GetAnimationCategoryFormatter(AnimationSource source)
     {
-        animationSourceGrid.SetItemsWithoutNotify(Translation.GetArray("posePane", AnimationSourceTranslationKeys));
-
-        if (animationSourceGrid.SelectedItemIndex is GameAnimation)
-            animationCategoryDropdown.Reformat();
-
-        paneHeader.Label = Translation.Get("posePane", "header");
-        saveAnimationToggle.Label = Translation.Get("posePane", "saveToggle");
-        savePoseButton.Label = Translation.Get("posePane", "saveButton");
-        refreshButton.Label = Translation.Get("posePane", "refreshButton");
-        animationCategoryComboBox.Placeholder = Translation.Get("posePane", "categorySearchBarPlaceholder");
-        animationNameTextField.Placeholder = Translation.Get("posePane", "nameTextFieldPlaceholder");
-        animationDirectoryHeader.Text = Translation.Get("posePane", "categoryHeader");
-        animationFilenameHeader.Text = Translation.Get("posePane", "nameHeader");
-        initializingLabel.Text = Translation.Get("systemMessage", "initializing");
-        noAnimationsLabel.Text = Translation.Get("posePane", "noAnimations");
-        savedAnimationLabel.Text = Translation.Get("posePane", "savedAnimationLabel");
-        searchBar.Placeholder = Translation.Get("posePane", "searchBarPlaceholder");
-        searchBar.Reformat();
-    }
-
-    private static Func<string, int, IDropdownItem> GetAnimationCategoryFormatter(bool custom)
-    {
-        return custom ? CustomAnimationCategoryFormatter : GameAnimationCategoryFormatter;
+        return source is AnimationSource.Custom ? CustomAnimationCategoryFormatter : GameAnimationCategoryFormatter;
 
         static LabelledDropdownItem CustomAnimationCategoryFormatter(string category, int index) =>
             new(category);
 
-        static LabelledDropdownItem GameAnimationCategoryFormatter(string category, int index) =>
-            new(Translation.Get("poseGroupDropdown", category));
+        LabelledDropdownItem GameAnimationCategoryFormatter(string category, int index) =>
+            new(translation["poseGroupDropdown", category]);
     }
 
     private void OnAnimationAdded(object sender, AddedAnimationEventArgs e)
@@ -279,13 +296,13 @@ public class AnimationSelectorPane : BasePane
         if (!animationCategoryComboBox.Contains(e.Animation.Category))
             animationCategoryComboBox.SetItems(customAnimationRepository.Categories);
 
-        if (animationSourceGrid.SelectedItemIndex is not CustomAnimation)
+        if (currentAnimationSource is not AnimationSource.Custom)
             return;
 
         var currentCategory = animationCategoryDropdown.SelectedItem;
 
         if (!animationCategoryDropdown.Contains(e.Animation.Category))
-            animationCategoryDropdown.SetItemsWithoutNotify(AnimationCategoryList(e.Animation.Custom));
+            animationCategoryDropdown.SetItemsWithoutNotify(AnimationCategoryList(AnimationSource.Custom));
 
         var currentCategoryIndex = animationCategoryDropdown.IndexOf(currentCategory, StringComparer.Ordinal);
 
@@ -296,7 +313,7 @@ public class AnimationSelectorPane : BasePane
 
         var currentAnimation = animationDropdown.SelectedItem;
 
-        animationDropdown.SetItemsWithoutNotify(AnimationList(e.Animation.Custom));
+        animationDropdown.SetItemsWithoutNotify(AnimationList(AnimationSource.Custom));
 
         var currentAnimationIndex = animationDropdown.IndexOf(currentAnimation);
 
@@ -305,11 +322,11 @@ public class AnimationSelectorPane : BasePane
 
     private void OnCustomAnimationRepositoryRefreshed(object sender, EventArgs e)
     {
-        var newCategories = AnimationCategoryList(custom: true).ToArray();
+        var newCategories = AnimationCategoryList(AnimationSource.Custom).ToArray();
 
         animationCategoryComboBox.SetItems(newCategories);
 
-        if (animationSourceGrid.SelectedItemIndex is not CustomAnimation)
+        if (currentAnimationSource is not AnimationSource.Custom)
             return;
 
         if (CurrentAnimation?.Animation is not CustomAnimationModel animation)
@@ -323,14 +340,14 @@ public class AnimationSelectorPane : BasePane
             if (categoryIndex < 0)
             {
                 animationCategoryDropdown.SetItemsWithoutNotify(newCategories, 0);
-                animationDropdown.SetItemsWithoutNotify(AnimationList(custom: true), 0);
+                animationDropdown.SetItemsWithoutNotify(AnimationList(AnimationSource.Custom), 0);
 
                 return;
             }
 
             animationCategoryDropdown.SetItemsWithoutNotify(newCategories, categoryIndex);
 
-            var newAnimations = AnimationList(custom: true).Cast<CustomAnimationModel>().ToArray();
+            var newAnimations = AnimationList(AnimationSource.Custom).Cast<CustomAnimationModel>().ToArray();
             var animationIndex = newAnimations.FindIndex(newAnimation => newAnimation.ID == animation.ID);
 
             if (animationIndex < 0)
@@ -341,18 +358,17 @@ public class AnimationSelectorPane : BasePane
         else
         {
             animationCategoryDropdown.SetItemsWithoutNotify(newCategories, 0);
-            animationDropdown.SetItemsWithoutNotify(AnimationList(custom: true), 0);
+            animationDropdown.SetItemsWithoutNotify(AnimationList(AnimationSource.Custom), 0);
         }
     }
 
-    private void OnAnimationSourceChanged(object sender, EventArgs e)
+    private void ChangeAnimationSource(AnimationSource source)
     {
-        var custom = animationSourceGrid.SelectedItemIndex is CustomAnimation;
+        currentAnimationSource = source;
+        animationCategoryDropdown.SetItemsWithoutNotify(AnimationCategoryList(currentAnimationSource), 0);
+        animationCategoryDropdown.Formatter = GetAnimationCategoryFormatter(currentAnimationSource);
 
-        animationCategoryDropdown.SetItemsWithoutNotify(AnimationCategoryList(custom), 0);
-        animationCategoryDropdown.Formatter = GetAnimationCategoryFormatter(custom);
-
-        animationDropdown.SetItemsWithoutNotify(AnimationList(custom), 0);
+        animationDropdown.SetItemsWithoutNotify(AnimationList(currentAnimationSource), 0);
 
         if (animationDropdown.SelectedItem is not null)
             ChangeAnimation(animationDropdown.SelectedItem);
@@ -365,7 +381,7 @@ public class AnimationSelectorPane : BasePane
         if (e.PreviousSelectedItemIndex == e.SelectedItemIndex)
             animationDropdown.SelectedItemIndex = 0;
         else
-            animationDropdown.SetItems(AnimationList(animationSourceGrid.SelectedItemIndex is CustomAnimation), 0);
+            animationDropdown.SetItems(AnimationList(currentAnimationSource), 0);
     }
 
     private void OnCharacterSelectionChanging(object sender, SelectionEventArgs<CharacterController> e)
@@ -414,23 +430,24 @@ public class AnimationSelectorPane : BasePane
 
     private void UpdatePanel(IAnimationModel animation)
     {
-        var animationSource = animation.Custom ? CustomAnimation : GameAnimation;
+        var animationSource = animation.Custom ? AnimationSource.Custom : AnimationSource.Game;
 
-        if (animationSource is GameAnimation && gameAnimationRepository.Busy)
+        if (animationSource is AnimationSource.Game && gameAnimationRepository.Busy)
             return;
 
-        if (animationSource != animationSourceGrid.SelectedItemIndex)
+        if (animationSource != currentAnimationSource)
         {
-            animationSourceGrid.SetValueWithoutNotify(animationSource);
+            currentAnimationSource = animationSource;
+            animationSourceToggles[animationSource].SetEnabledWithoutNotify(true);
 
-            animationCategoryDropdown.SetItemsWithoutNotify(AnimationCategoryList(animation.Custom));
-            animationCategoryDropdown.Formatter = GetAnimationCategoryFormatter(animation.Custom);
+            animationCategoryDropdown.SetItemsWithoutNotify(AnimationCategoryList(animationSource));
+            animationCategoryDropdown.Formatter = GetAnimationCategoryFormatter(animationSource);
 
             var categoryIndex = GetCategoryIndex(animation);
 
             animationCategoryDropdown.SetSelectedIndexWithoutNotify(categoryIndex);
 
-            var newAnimationList = AnimationList(animation.Custom);
+            var newAnimationList = AnimationList(animationSource);
             var animationIndex = GetAnimationIndex(newAnimationList, animation);
 
             animationDropdown.SetItemsWithoutNotify(newAnimationList, animationIndex);
@@ -443,7 +460,7 @@ public class AnimationSelectorPane : BasePane
             animationCategoryDropdown.SetSelectedIndexWithoutNotify(categoryIndex);
 
             if (categoryIndex != oldCategoryIndex)
-                animationDropdown.SetItemsWithoutNotify(AnimationList(animation.Custom));
+                animationDropdown.SetItemsWithoutNotify(AnimationList(animationSource));
 
             var animationIndex = GetAnimationIndex(animationDropdown, animation);
 
@@ -469,7 +486,7 @@ public class AnimationSelectorPane : BasePane
 
     private void OnAnimationChanged(object sender, DropdownEventArgs<IAnimationModel> e)
     {
-        if (animationSourceGrid.SelectedItemIndex is GameAnimation && gameAnimationRepository.Busy)
+        if (currentAnimationSource is AnimationSource.Game && gameAnimationRepository.Busy)
             return;
 
         if (e.Item is null)
@@ -516,14 +533,17 @@ public class AnimationSelectorPane : BasePane
         UpdatePanel(controller.Animation);
     }
 
-    private IEnumerable<string> AnimationCategoryList(bool custom) =>
-        custom ? customAnimationRepositorySorter.GetCategories(customAnimationRepository) :
-        gameAnimationRepository.Busy ? [] :
-        gameAnimationRepository.Categories;
+    private IEnumerable<string> AnimationCategoryList(AnimationSource source) =>
+        source switch
+        {
+            AnimationSource.Game => gameAnimationRepository.Busy ? [] : gameAnimationRepository.Categories,
+            AnimationSource.Custom => customAnimationRepositorySorter.GetCategories(customAnimationRepository),
+            _ => throw new ArgumentOutOfRangeException(nameof(source)),
+        };
 
-    private IEnumerable<IAnimationModel> AnimationList(bool custom)
+    private IEnumerable<IAnimationModel> AnimationList(AnimationSource source)
     {
-        return custom ? GetCustomAnimtions() : GetGameAnimations();
+        return source is AnimationSource.Custom ? GetCustomAnimtions() : GetGameAnimations();
 
         IEnumerable<IAnimationModel> GetGameAnimations() =>
             gameAnimationRepository.Busy || !animationCategoryDropdown.Any() ? [] :

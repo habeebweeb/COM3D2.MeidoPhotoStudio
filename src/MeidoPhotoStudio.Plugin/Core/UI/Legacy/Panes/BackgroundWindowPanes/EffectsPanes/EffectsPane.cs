@@ -1,3 +1,4 @@
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
@@ -10,11 +11,21 @@ public class EffectsPane : BasePane
     private readonly Dictionary<EffectType, BasePane> effectsPanes = new(EnumEqualityComparer<EffectType>.Instance);
     private readonly PaneHeader paneHeader;
 
-    public EffectsPane()
+    public EffectsPane(Translation translation)
     {
-        effectTypesDropdown = new(static (type, _) => new LabelledDropdownItem(Translation.Get("effectTypes", type.ToLower())));
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
 
-        paneHeader = new(Translation.Get("effectsPane", "header"), true);
+        translation.Initialized += OnTranslationInitialized;
+
+        effectTypesDropdown = new(EffectTypeFormatter);
+
+        paneHeader = new(new LocalizableGUIContent(translation, "effectsPane", "header"), true);
+
+        IDropdownItem EffectTypeFormatter(EffectType type, int index) =>
+            new LabelledDropdownItem(translation["effectTypes", type.ToLower()]);
+
+        void OnTranslationInitialized(object sender, EventArgs e) =>
+            effectTypesDropdown.Reformat();
     }
 
     public enum EffectType
@@ -45,13 +56,6 @@ public class EffectsPane : BasePane
         DrawDropdown(effectTypesDropdown);
 
         effectsPanes[effectTypesDropdown.SelectedItem].Draw();
-    }
-
-    protected override void ReloadTranslation()
-    {
-        effectTypesDropdown.Reformat();
-
-        paneHeader.Label = Translation.Get("effectsPane", "header");
     }
 
     private void Add(EffectType type, BasePane pane)

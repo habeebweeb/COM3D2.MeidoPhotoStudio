@@ -1,3 +1,4 @@
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Core.Props;
 using MeidoPhotoStudio.Plugin.Framework;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
@@ -9,15 +10,17 @@ public class PropShapeKeyPane : BasePane
 {
     private readonly SelectionController<PropController> propSelectionController;
     private readonly Dictionary<string, EventHandler> sliderChangeEvents = [];
-    private readonly PaneHeader paneHeader = new(Translation.Get("propShapeKeyPane", "header"), true);
+    private readonly PaneHeader paneHeader;
     private readonly Dictionary<string, Slider> sliders = new(StringComparer.Ordinal);
 
-    public PropShapeKeyPane(SelectionController<PropController> propSelectionController)
+    public PropShapeKeyPane(Translation translation, SelectionController<PropController> propSelectionController)
     {
         this.propSelectionController = propSelectionController ?? throw new ArgumentNullException(nameof(propSelectionController));
 
         this.propSelectionController.Selecting += OnSelectingProp;
         this.propSelectionController.Selected += OnSelectedProp;
+
+        paneHeader = new(new LocalizableGUIContent(translation, "propShapeKeyPane", "header"), true);
     }
 
     private ShapeKeyController CurrentShapeKeyController =>
@@ -48,9 +51,6 @@ public class PropShapeKeyPane : BasePane
             GUILayout.EndHorizontal();
         }
     }
-
-    protected override void ReloadTranslation() =>
-        paneHeader.Label = Translation.Get("propShapeKeyPane", "header");
 
     private void OnSelectingProp(object sender, SelectionEventArgs<PropController> e)
     {

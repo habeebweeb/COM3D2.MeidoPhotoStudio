@@ -1,3 +1,5 @@
+using MeidoPhotoStudio.Plugin.Core.Localization;
+using MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 using MeidoPhotoStudio.Plugin.Framework.Service;
 
 using TransformType = MeidoPhotoStudio.Plugin.Framework.Service.TransformClipboard.TransformType;
@@ -13,17 +15,18 @@ public class TransformInputPane : BasePane
     private bool internalChange;
     private IObservableTransform target;
 
-    public TransformInputPane(TransformClipboard transformClipboard)
+    public TransformInputPane(Translation translation, TransformClipboard transformClipboard)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         _ = transformClipboard ?? throw new ArgumentNullException(nameof(transformClipboard));
 
-        positionControl = new(transformClipboard, TransformType.Position);
+        positionControl = new(translation, transformClipboard, TransformType.Position);
         positionControl.ControlEvent += OnPositionChanged;
 
-        rotationControl = new(transformClipboard, TransformType.Rotation);
+        rotationControl = new(translation, transformClipboard, TransformType.Rotation);
         rotationControl.ControlEvent += OnRotationChanged;
 
-        scaleControl = new(transformClipboard, TransformType.Scale);
+        scaleControl = new(translation, transformClipboard, TransformType.Scale);
         scaleControl.ControlEvent += OnScaleChanged;
     }
 
@@ -96,13 +99,6 @@ public class TransformInputPane : BasePane
 
         if (EnableScale)
             scaleControl.Draw(fieldWidth);
-    }
-
-    protected override void ReloadTranslation()
-    {
-        positionControl.ReloadTranslation();
-        rotationControl.ReloadTranslation();
-        scaleControl.ReloadTranslation();
     }
 
     private void OnTransformChanged(object sender, EventArgs e)
@@ -192,20 +188,29 @@ public class TransformInputPane : BasePane
         private bool yFocus;
         private bool zFocus;
 
-        public TransformControl(TransformClipboard clipboard, TransformType transformType)
+        public TransformControl(Translation translation, TransformClipboard clipboard, TransformType transformType)
         {
+            _ = translation ?? throw new ArgumentNullException(nameof(translation));
             this.clipboard = clipboard ?? throw new ArgumentNullException(nameof(clipboard));
             this.transformType = transformType;
 
-            header = new(Header(transformType));
+            var (tableKey, translationKey) = transformType switch
+            {
+                TransformType.Position => ("transformInputPane", "positionHeader"),
+                TransformType.Rotation => ("transformInputPane", "rotationHeader"),
+                TransformType.Scale => ("transformInputPane", "scaleHeader"),
+                _ => throw new ArgumentOutOfRangeException(nameof(transformType)),
+            };
 
-            copyButton = new(Translation.Get("transformInputPane", "copyButton"));
+            header = new(new LocalizableGUIContent(translation, tableKey, translationKey));
+
+            copyButton = new(new LocalizableGUIContent(translation, "transformInputPane", "copyButton"));
             copyButton.ControlEvent += OnCopyButtonPushed;
 
-            pasteButton = new(Translation.Get("transformInputPane", "pasteButton"));
+            pasteButton = new(new LocalizableGUIContent(translation, "transformInputPane", "pasteButton"));
             pasteButton.ControlEvent += OnPasteButtonPushed;
 
-            resetButton = new(Translation.Get("transformInputPane", "resetButton"));
+            resetButton = new(new LocalizableGUIContent(translation, "transformInputPane", "resetButton"));
             resetButton.ControlEvent += OnResetButtonPushed;
 
             xTextField = new(DefaultValue.x);
@@ -358,25 +363,8 @@ public class TransformInputPane : BasePane
             }
         }
 
-        public void ReloadTranslation()
-        {
-            header.Text = Header(transformType);
-            copyButton.Label = Translation.Get("transformInputPane", "copyButton");
-            pasteButton.Label = Translation.Get("transformInputPane", "pasteButton");
-            resetButton.Label = Translation.Get("transformInputPane", "resetButton");
-        }
-
         public void SetValueWithoutNotify(Vector3 value) =>
             SetValue(value, false);
-
-        private static string Header(TransformType transformType) =>
-            transformType switch
-            {
-                TransformType.Position => Translation.Get("transformInputPane", "positionHeader"),
-                TransformType.Rotation => Translation.Get("transformInputPane", "rotationHeader"),
-                TransformType.Scale => Translation.Get("transformInputPane", "scaleHeader"),
-                _ => transformType.ToString(),
-            };
 
         private void OnCopyButtonPushed(object sender, EventArgs e) =>
             clipboard[transformType] = Value;

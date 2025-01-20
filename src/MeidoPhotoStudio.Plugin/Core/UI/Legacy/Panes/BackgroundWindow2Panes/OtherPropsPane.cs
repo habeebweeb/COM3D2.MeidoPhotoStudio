@@ -1,4 +1,5 @@
 using MeidoPhotoStudio.Plugin.Core.Database.Props;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Core.Props;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
@@ -14,14 +15,17 @@ public class OtherPropsPane : BasePane
     private readonly Button addPropButton;
     private readonly SearchBar<OtherPropModel> searchBar;
 
-    public OtherPropsPane(PropService propService, OtherPropRepository otherPropRepository)
+    public OtherPropsPane(Translation translation, PropService propService, OtherPropRepository otherPropRepository)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.propService = propService ?? throw new ArgumentNullException(nameof(propService));
         this.otherPropRepository = otherPropRepository ?? throw new ArgumentNullException(nameof(otherPropRepository));
 
+        translation.Initialized += OnTranslationInitialized;
+
         searchBar = new(SearchSelector, PropFormatter)
         {
-            Placeholder = Translation.Get("otherPropsPane", "searchBarPlaceholder"),
+            PlaceholderContent = new LocalizableGUIContent(translation, "otherPropsPane", "searchBarPlaceholder"),
         };
 
         searchBar.SelectedValue += OnSearchSelected;
@@ -33,17 +37,24 @@ public class OtherPropsPane : BasePane
 
         propDropdown = new(this.otherPropRepository[propCategoryDropdown.SelectedItem], formatter: PropFormatter);
 
-        addPropButton = new(Translation.Get("propsPane", "addProp"));
+        addPropButton = new(new LocalizableGUIContent(translation, "propsPane", "addProp"));
         addPropButton.ControlEvent += OnAddPropButtonPressed;
-
-        static LabelledDropdownItem CategoryFormatter(string category, int index) =>
-            new(Translation.Get("otherPropCategories", category));
 
         static LabelledDropdownItem PropFormatter(OtherPropModel prop, int index) =>
             new(prop.Name);
 
+        LabelledDropdownItem CategoryFormatter(string category, int index) =>
+            new(translation["otherPropCategories", category]);
+
         IEnumerable<OtherPropModel> SearchSelector(string query) =>
             otherPropRepository.Where(model => model.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
+
+        void OnTranslationInitialized(object sender, EventArgs e)
+        {
+            propCategoryDropdown.Reformat();
+            propDropdown.Reformat();
+            searchBar.Reformat();
+        }
     }
 
     public override void Draw()
@@ -56,15 +67,6 @@ public class OtherPropsPane : BasePane
         UIUtility.DrawBlackLine();
 
         addPropButton.Draw();
-    }
-
-    protected override void ReloadTranslation()
-    {
-        propCategoryDropdown.Reformat();
-        propDropdown.Reformat();
-        addPropButton.Label = Translation.Get("propsPane", "addProp");
-        searchBar.Placeholder = Translation.Get("otherPropsPane", "searchBarPlaceholder");
-        searchBar.Reformat();
     }
 
     private void OnSearchSelected(object sender, SearchBarSelectionEventArgs<OtherPropModel> e) =>

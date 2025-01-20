@@ -1,4 +1,5 @@
 using MeidoPhotoStudio.Plugin.Core.Configuration;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.Input;
@@ -9,19 +10,19 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 public class InputSettingsPane : BasePane
 {
     private readonly Dictionary<Hotkey, GUIContent> hotkeyMapping;
-    private readonly Dictionary<Hotkey, GUIContent> hotkeyName;
+    private readonly Dictionary<Hotkey, LocalizableGUIContent> hotkeyName;
     private readonly InputConfiguration inputConfiguration;
     private readonly InputRemapper inputRemapper;
     private readonly Dictionary<Shortcut, GUIContent> shortcutMapping;
-    private readonly Dictionary<Shortcut, GUIContent> shortcutName;
+    private readonly Dictionary<Shortcut, LocalizableGUIContent> shortcutName;
     private readonly PaneHeader generalControlsHeader;
     private readonly PaneHeader cameraControlsHeader;
     private readonly PaneHeader transformDragHandleControlsHeader;
     private readonly PaneHeader characterControlsHeader;
-    private readonly GUIContent cancelRebindLabel = new("Cancel");
-    private readonly GUIContent pushAnyKeyLabel = new("Push any key combo");
-    private readonly GUIContent clearBindingLabel = new("Clear");
-    private readonly GUIContent resetBindingLabel = new("Reset");
+    private readonly Label pushAnyKeyLabel;
+    private readonly LocalizableGUIContent cancelRebindLabel;
+    private readonly LocalizableGUIContent clearBindingLabel;
+    private readonly LocalizableGUIContent resetBindingLabel;
     private readonly LazyStyle labelStyle = new(StyleSheet.TextSize, static () => new(GUI.skin.label));
     private readonly LazyStyle inputButtonStyle = new(
         StyleSheet.TextSize,
@@ -36,15 +37,16 @@ public class InputSettingsPane : BasePane
     private Shortcut currentShortcut;
     private bool listeningToShortcut;
 
-    public InputSettingsPane(InputConfiguration inputConfiguration, InputRemapper inputRemapper)
+    public InputSettingsPane(Translation translation, InputConfiguration inputConfiguration, InputRemapper inputRemapper)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.inputConfiguration = inputConfiguration ?? throw new ArgumentNullException(nameof(inputConfiguration));
         this.inputRemapper = inputRemapper ? inputRemapper : throw new ArgumentNullException(nameof(inputRemapper));
 
-        generalControlsHeader = new(Translation.Get("inputSettingsPane", "generalControlsHeader"));
-        cameraControlsHeader = new(Translation.Get("inputSettingsPane", "cameraControlsHeader"));
-        transformDragHandleControlsHeader = new(Translation.Get("inputSettingsPane", "transformDragHandleControlsHeader"));
-        characterControlsHeader = new(Translation.Get("inputSettingsPane", "characterControlsHeader"));
+        generalControlsHeader = new(new LocalizableGUIContent(translation, "inputSettingsPane", "generalControlsHeader"));
+        cameraControlsHeader = new(new LocalizableGUIContent(translation, "inputSettingsPane", "cameraControlsHeader"));
+        transformDragHandleControlsHeader = new(new LocalizableGUIContent(translation, "inputSettingsPane", "transformDragHandleControlsHeader"));
+        characterControlsHeader = new(new LocalizableGUIContent(translation, "inputSettingsPane", "characterControlsHeader"));
 
         var shortcutValues = (Shortcut[])Enum.GetValues(typeof(Shortcut));
 
@@ -57,7 +59,7 @@ public class InputSettingsPane : BasePane
         shortcutName = shortcutValues
             .ToDictionary(
                 shortcut => shortcut,
-                shortcut => new GUIContent(Translation.Get("controls", shortcut.ToLower())),
+                shortcut => new LocalizableGUIContent(translation, "controls", shortcut.ToLower()),
                 EnumEqualityComparer<Shortcut>.Instance);
 
         var hotkeyValues = (Hotkey[])Enum.GetValues(typeof(Hotkey));
@@ -71,13 +73,13 @@ public class InputSettingsPane : BasePane
         hotkeyName = hotkeyValues
             .ToDictionary(
                 hotkey => hotkey,
-                hotkey => new GUIContent(Translation.Get("controls", hotkey.ToLower())),
+                hotkey => new LocalizableGUIContent(translation, "controls", hotkey.ToLower()),
                 EnumEqualityComparer<Hotkey>.Instance);
 
-        pushAnyKeyLabel.text = Translation.Get("inputSettingsPane", "pushAnyKeyLabel");
-        cancelRebindLabel.text = Translation.Get("inputSettingsPane", "cancelRebindLabel");
-        clearBindingLabel.text = Translation.Get("inputSettingsPane", "clearBindingLabel");
-        resetBindingLabel.text = Translation.Get("inputSettingsPane", "resetBindingLabel");
+        pushAnyKeyLabel = new(new LocalizableGUIContent(translation, "inputSettingsPane", "pushAnyKeyLabel"));
+        cancelRebindLabel = new(translation, "inputSettingsPane", "cancelRebindLabel");
+        clearBindingLabel = new(translation, "inputSettingsPane", "clearBindingLabel");
+        resetBindingLabel = new(translation, "inputSettingsPane", "resetBindingLabel");
     }
 
     public override void Draw()
@@ -155,7 +157,7 @@ public class InputSettingsPane : BasePane
             {
                 GUI.enabled = false;
 
-                GUILayout.Button(pushAnyKeyLabel, inputButtonStyle, buttonWidth);
+                pushAnyKeyLabel.Draw(inputButtonStyle, buttonWidth);
 
                 GUI.enabled = parentEnabled;
 
@@ -261,24 +263,5 @@ public class InputSettingsPane : BasePane
                 GUILayout.Label(keyName, labelStyle, GUILayout.ExpandWidth(false));
             }
         }
-    }
-
-    protected override void ReloadTranslation()
-    {
-        foreach (var shortcut in (Shortcut[])Enum.GetValues(typeof(Shortcut)))
-            shortcutName[shortcut].text = Translation.Get("controls", shortcut.ToLower());
-
-        foreach (var hotkey in (Hotkey[])Enum.GetValues(typeof(Hotkey)))
-            hotkeyName[hotkey].text = Translation.Get("controls", hotkey.ToLower());
-
-        generalControlsHeader.Label = Translation.Get("inputSettingsPane", "generalControlsHeader");
-        cameraControlsHeader.Label = Translation.Get("inputSettingsPane", "cameraControlsHeader");
-        transformDragHandleControlsHeader.Label = Translation.Get("inputSettingsPane", "transformDragHandleControlsHeader");
-        characterControlsHeader.Label = Translation.Get("inputSettingsPane", "characterControlsHeader");
-
-        pushAnyKeyLabel.text = Translation.Get("inputSettingsPane", "pushAnyKeyLabel");
-        cancelRebindLabel.text = Translation.Get("inputSettingsPane", "cancelRebindLabel");
-        clearBindingLabel.text = Translation.Get("inputSettingsPane", "clearBindingLabel");
-        resetBindingLabel.text = Translation.Get("inputSettingsPane", "resetBindingLabel");
     }
 }

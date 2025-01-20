@@ -7,12 +7,8 @@ public abstract class BaseWindow
     private Rect rect;
     private bool enabled = true;
 
-    public BaseWindow()
-    {
+    public BaseWindow() =>
         ID = id++;
-
-        Translation.ReloadTranslationEvent += OnTranslationReloaded;
-    }
 
     public int ID { get; }
 
@@ -73,11 +69,4 @@ public abstract class BaseWindow
         if (WindowRect.Contains(mousePos))
             UnityEngine.Input.ResetInputAxes();
     }
-
-    protected virtual void ReloadTranslation()
-    {
-    }
-
-    private void OnTranslationReloaded(object sender, EventArgs e) =>
-        ReloadTranslation();
 }

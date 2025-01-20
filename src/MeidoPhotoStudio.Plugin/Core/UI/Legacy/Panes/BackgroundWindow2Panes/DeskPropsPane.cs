@@ -1,4 +1,5 @@
 using MeidoPhotoStudio.Plugin.Core.Database.Props;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Core.Props;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
@@ -15,14 +16,17 @@ public class DeskPropsPane : BasePane
     private readonly Label noPropsLabel;
     private readonly SearchBar<DeskPropModel> searchBar;
 
-    public DeskPropsPane(PropService propService, DeskPropRepository deskPropRepository)
+    public DeskPropsPane(Translation translation, PropService propService, DeskPropRepository deskPropRepository)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.propService = propService ?? throw new ArgumentNullException(nameof(propService));
         this.deskPropRepository = deskPropRepository ?? throw new ArgumentNullException(nameof(deskPropRepository));
 
+        translation.Initialized += OnTranslationInitialized;
+
         searchBar = new(SearchSelector, PropFormatter)
         {
-            Placeholder = Translation.Get("deskPropsPane", "searchBarPlaceholder"),
+            PlaceholderContent = new LocalizableGUIContent(translation, "deskPropsPane", "searchBarPlaceholder"),
         };
 
         searchBar.SelectedValue += OnSearchSelected;
@@ -36,19 +40,26 @@ public class DeskPropsPane : BasePane
             this.deskPropRepository[propCategoryDropdown.SelectedItem],
             formatter: PropFormatter);
 
-        addPropButton = new(Translation.Get("propsPane", "addProp"));
+        addPropButton = new(new LocalizableGUIContent(translation, "propsPane", "addProp"));
         addPropButton.ControlEvent += OnAddPropButtonPressed;
 
-        noPropsLabel = new(Translation.Get("propsPane", "noProps"));
-
-        static LabelledDropdownItem CategoryFormatter(int id, int index) =>
-            new(Translation.Get("deskPropCategories", id.ToString()));
+        noPropsLabel = new(new LocalizableGUIContent(translation, "propsPane", "noProps"));
 
         static LabelledDropdownItem PropFormatter(DeskPropModel prop, int index) =>
             new(prop.Name);
 
+        LabelledDropdownItem CategoryFormatter(int id, int index) =>
+            new(translation["deskPropCategories", id.ToString()]);
+
         IEnumerable<DeskPropModel> SearchSelector(string query) =>
             deskPropRepository.Where(model => model.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
+
+        void OnTranslationInitialized(object sender, EventArgs e)
+        {
+            propCategoryDropdown.Reformat();
+            propDropdown.Reformat();
+            searchBar.Reformat();
+        }
     }
 
     public override void Draw()
@@ -69,17 +80,6 @@ public class DeskPropsPane : BasePane
         UIUtility.DrawBlackLine();
 
         addPropButton.Draw();
-    }
-
-    protected override void ReloadTranslation()
-    {
-        propCategoryDropdown.Reformat();
-        propDropdown.Reformat();
-
-        addPropButton.Label = Translation.Get("propsPane", "addProp");
-        noPropsLabel.Text = Translation.Get("propsPane", "noProps");
-        searchBar.Placeholder = Translation.Get("deskPropsPane", "searchBarPlaceholder");
-        searchBar.Reformat();
     }
 
     private void OnSearchSelected(object sender, SearchBarSelectionEventArgs<DeskPropModel> e) =>

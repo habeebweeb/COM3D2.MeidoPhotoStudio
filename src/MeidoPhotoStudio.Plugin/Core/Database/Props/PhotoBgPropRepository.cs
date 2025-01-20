@@ -1,13 +1,19 @@
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 
 namespace MeidoPhotoStudio.Plugin.Core.Database.Props;
 
 public class PhotoBgPropRepository : IEnumerable<PhotoBgPropModel>
 {
+    private readonly Translation translation;
+
     private Dictionary<string, IList<PhotoBgPropModel>> props;
 
-    public PhotoBgPropRepository() =>
-        Translation.ReloadTranslationEvent += OnReloadedTranslation;
+    public PhotoBgPropRepository(Translation translation)
+    {
+        this.translation = translation ?? throw new ArgumentNullException(nameof(translation));
+        this.translation.Initialized += OnReloadedTranslation;
+    }
 
     public IEnumerable<string> Categories =>
         Props.Keys;
@@ -33,7 +39,7 @@ public class PhotoBgPropRepository : IEnumerable<PhotoBgPropModel>
     public PhotoBgPropModel GetByID(long id) =>
         this.FirstOrDefault(model => model.ID == id);
 
-    private static Dictionary<string, IList<PhotoBgPropModel>> Initialize()
+    private Dictionary<string, IList<PhotoBgPropModel>> Initialize()
     {
         PhotoBGObjectData.Create();
 
@@ -53,7 +59,7 @@ public class PhotoBgPropRepository : IEnumerable<PhotoBgPropModel>
                 if (string.IsNullOrEmpty(assetName))
                     continue;
 
-                props[category].Add(new(prop, Translation.Get("propNames", assetName)));
+                props[category].Add(new(prop, translation["propNames", assetName]));
             }
         }
 
@@ -71,7 +77,7 @@ public class PhotoBgPropRepository : IEnumerable<PhotoBgPropModel>
             if (string.IsNullOrEmpty(assetName))
                 continue;
 
-            prop.Name = Translation.Get("propNames", assetName);
+            prop.Name = translation["propNames", assetName];
         }
     }
 }

@@ -1,6 +1,7 @@
 using System.ComponentModel;
 
 using MeidoPhotoStudio.Plugin.Core.Character;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
@@ -45,42 +46,50 @@ public class CharacterCallPane : BasePane, IVirtualListHandler
     private Vector2 charactersListScrollPosition;
     private Vector2 activeCharactersListScrollPosition;
 
-    public CharacterCallPane(CallController characterCallController)
+    public CharacterCallPane(Translation translation, CallController characterCallController)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.characterCallController = characterCallController ?? throw new ArgumentNullException(nameof(characterCallController));
         this.characterCallController.PropertyChanged += OnCallControllerPropertyChanged;
 
-        clearSelectedButton = new(Translation.Get("maidCallWindow", "clearButton"));
+        clearSelectedButton = new(new LocalizableGUIContent(translation, "maidCallWindow", "clearButton"));
         clearSelectedButton.ControlEvent += OnClearMaidsButttonPushed;
 
-        callButton = new(Translation.Get("maidCallWindow", "callButton"));
+        callButton = new(new LocalizableGUIContent(translation, "maidCallWindow", "callButton"));
         callButton.ControlEvent += OnCallButtonPushed;
 
-        activeCharacterToggle = new(Translation.Get("maidCallWindow", "activeOnlyToggle"));
+        activeCharacterToggle = new(new LocalizableGUIContent(translation, "maidCallWindow", "activeOnlyToggle"));
         activeCharacterToggle.ControlEvent += OnActiveCharactersToggleChanged;
 
         searchBar = new()
         {
-            Placeholder = Translation.Get("maidCallWindow", "searchBarPlaceholder"),
+            PlaceholderContent = new LocalizableGUIContent(translation, "maidCallWindow", "searchBarPlaceholder"),
         };
 
         searchBar.ChangedValue += OnSearchSubmitted;
 
         sortTypeDropdown = new(
-            (CallController.SortType[])Enum.GetValues(typeof(CallController.SortType)),
-            formatter: static (sortType, _) => new LabelledDropdownItem(Translation.Get("characterSortTypeDropdown", sortType.ToLower())));
+            (CallController.SortType[])Enum.GetValues(typeof(CallController.SortType)), formatter: SortTypeFormatter);
 
         sortTypeDropdown.SelectionChanged += OnSortTypeChanged;
 
-        descendingToggle = new(Translation.Get("maidCallWindow", "descendingToggle"));
+        translation.Initialized += OnTranslationInitialized;
+
+        descendingToggle = new(new LocalizableGUIContent(translation, "maidCallWindow", "descendingToggle"));
         descendingToggle.ControlEvent += OnDescendingChanged;
 
-        header = new(Translation.Get("maidCallWindow", "header"));
+        header = new(new LocalizableGUIContent(translation, "maidCallWindow", "header"));
 
         virtualList = new()
         {
             Handler = this,
         };
+
+        LabelledDropdownItem SortTypeFormatter(CallController.SortType sortType, int index) =>
+            new(translation["characterSortTypeDropdown", sortType.ToLower()]);
+
+        void OnTranslationInitialized(object sender, EventArgs e) =>
+            sortTypeDropdown.Reformat();
     }
 
     int IVirtualListHandler.Count =>
@@ -181,17 +190,6 @@ public class CharacterCallPane : BasePane, IVirtualListHandler
         charactersListScrollPosition = Vector2.zero;
         activeCharactersListScrollPosition = Vector2.zero;
         searchBar.Value = string.Empty;
-    }
-
-    protected override void ReloadTranslation()
-    {
-        sortTypeDropdown.Reformat();
-        clearSelectedButton.Label = Translation.Get("maidCallWindow", "clearButton");
-        callButton.Label = Translation.Get("maidCallWindow", "callButton");
-        activeCharacterToggle.Label = Translation.Get("maidCallWindow", "activeOnlyToggle");
-        descendingToggle.Label = Translation.Get("maidCallWindow", "descendingToggle");
-        header.Text = Translation.Get("maidCallWindow", "header");
-        searchBar.Placeholder = Translation.Get("maidCallWindow", "searchBarPlaceholder");
     }
 
     private void OnCallControllerPropertyChanged(object sender, PropertyChangedEventArgs e)

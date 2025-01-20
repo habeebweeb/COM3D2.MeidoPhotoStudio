@@ -1,4 +1,5 @@
 using MeidoPhotoStudio.Plugin.Core.Database.Props;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Core.Props;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
@@ -26,11 +27,14 @@ public class MyRoomPropsPane : BasePane, IVirtualListHandler
     private IList<MyRoomPropModel> currentPropList = [];
 
     public MyRoomPropsPane(
-        PropService propService, MyRoomPropRepository myRoomPropRepository, IconCache iconCache)
+        Translation translation, PropService propService, MyRoomPropRepository myRoomPropRepository, IconCache iconCache)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.propService = propService ?? throw new ArgumentNullException(nameof(propService));
         this.myRoomPropRepository = myRoomPropRepository ?? throw new ArgumentNullException(nameof(myRoomPropRepository));
         this.iconCache = iconCache ?? throw new ArgumentNullException(nameof(iconCache));
+
+        translation.Initialized += OnTranslationInitialized;
 
         int[] categories = [-1, .. myRoomPropRepository.CategoryIDs.OrderBy(id => id)];
 
@@ -39,7 +43,7 @@ public class MyRoomPropsPane : BasePane, IVirtualListHandler
 
         searchBar = new(SearchSelector, PropFormatter)
         {
-            Placeholder = Translation.Get("myRoomPropsPane", "searchBarPlaceholder"),
+            PlaceholderContent = new LocalizableGUIContent(translation, "myRoomPropsPane", "searchBarPlaceholder"),
         };
 
         searchBar.SelectedValue += OnSearchSelected;
@@ -52,8 +56,8 @@ public class MyRoomPropsPane : BasePane, IVirtualListHandler
             Grid = true,
         };
 
-        static LabelledDropdownItem CategoryFormatter(int category, int index) =>
-            new(Translation.Get("myRoomPropCategories", category.ToString()));
+        LabelledDropdownItem CategoryFormatter(int category, int index) =>
+            new(translation["myRoomPropCategories", category.ToString()]);
 
         IEnumerable<MyRoomPropModel> SearchSelector(string query) =>
             this.myRoomPropRepository
@@ -62,6 +66,12 @@ public class MyRoomPropsPane : BasePane, IVirtualListHandler
 
         IconDropdownItem PropFormatter(MyRoomPropModel model, int index) =>
             new($"{model.Name}\n{model.AssetName}", () => iconCache.GetMyRoomIcon(model), 75);
+
+        void OnTranslationInitialized(object sender, EventArgs e)
+        {
+            propCategoryDropdown.Reformat();
+            searchBar.Reformat();
+        }
     }
 
     int IVirtualListHandler.Count =>
@@ -116,13 +126,6 @@ public class MyRoomPropsPane : BasePane, IVirtualListHandler
 
     Vector2 IVirtualListHandler.ItemDimensions(int index) =>
         buttonSize;
-
-    protected override void ReloadTranslation()
-    {
-        propCategoryDropdown.Reformat();
-        searchBar.Placeholder = Translation.Get("myRoomPropsPane", "searchBarPlaceholder");
-        searchBar.Reformat();
-    }
 
     private void OnSearchSelected(object sender, SearchBarSelectionEventArgs<MyRoomPropModel> e) =>
         propService.Add(e.Item);

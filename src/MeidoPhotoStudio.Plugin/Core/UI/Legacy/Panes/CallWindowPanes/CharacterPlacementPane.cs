@@ -1,4 +1,5 @@
 using MeidoPhotoStudio.Plugin.Core.Character;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
@@ -11,8 +12,9 @@ public class CharacterPlacementPane : BasePane
     private readonly Button applyPlacementButton;
     private readonly Header header;
 
-    public CharacterPlacementPane(PlacementService characterPlacementController)
+    public CharacterPlacementPane(Translation translation, PlacementService characterPlacementController)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.characterPlacementController = characterPlacementController ?? throw new ArgumentNullException(nameof(characterPlacementController));
 
         placementDropdown = new(
@@ -21,13 +23,18 @@ public class CharacterPlacementPane : BasePane
                 .ToArray(),
             formatter: PlacementTypeFormatter);
 
-        applyPlacementButton = new(Translation.Get("placementPane", "applyButton"));
+        translation.Initialized += OnTranslationInitialized;
+
+        applyPlacementButton = new(new LocalizableGUIContent(translation, "placementPane", "applyButton"));
         applyPlacementButton.ControlEvent += OnPlacementButtonPushed;
 
-        header = new(Translation.Get("placementPane", "header"));
+        header = new(new LocalizableGUIContent(translation, "placementPane", "header"));
 
-        static LabelledDropdownItem PlacementTypeFormatter(PlacementService.Placement placement, int index) =>
-            new(Translation.Get("placementDropdown", placement.ToLower()));
+        LabelledDropdownItem PlacementTypeFormatter(PlacementService.Placement placement, int index) =>
+            new(translation["placementDropdown", placement.ToLower()]);
+
+        void OnTranslationInitialized(object sender, EventArgs e) =>
+            placementDropdown.Reformat();
     }
 
     public override void Draw()
@@ -39,14 +46,6 @@ public class CharacterPlacementPane : BasePane
         placementDropdown.Draw(GUILayout.Width(150));
         applyPlacementButton.Draw();
         GUILayout.EndHorizontal();
-    }
-
-    protected override void ReloadTranslation()
-    {
-        placementDropdown.Reformat();
-
-        applyPlacementButton.Label = Translation.Get("placementPane", "applyButton");
-        header.Text = Translation.Get("placementPane", "header");
     }
 
     private void OnPlacementButtonPushed(object sender, EventArgs e) =>

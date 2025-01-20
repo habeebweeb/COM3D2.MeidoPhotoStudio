@@ -1,4 +1,5 @@
 using MeidoPhotoStudio.Plugin.Core.Database.Props;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Core.Props;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
@@ -15,14 +16,17 @@ public class GamePropsPane : BasePane
     private readonly Label noPropsLabel;
     private readonly SearchBar<PhotoBgPropModel> searchBar;
 
-    public GamePropsPane(PropService propService, PhotoBgPropRepository gamePropRepository)
+    public GamePropsPane(Translation translation, PropService propService, PhotoBgPropRepository gamePropRepository)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.propService = propService ?? throw new ArgumentNullException(nameof(propService));
         this.gamePropRepository = gamePropRepository ?? throw new ArgumentNullException(nameof(gamePropRepository));
 
+        translation.Initialized += OnTranslationInitialized;
+
         searchBar = new(SearchSelector, PropFormatter)
         {
-            Placeholder = Translation.Get("gamePropsPane", "searchBarPlaceholder"),
+            PlaceholderContent = new LocalizableGUIContent(translation, "gamePropsPane", "searchBarPlaceholder"),
         };
 
         searchBar.SelectedValue += OnSearchSelected;
@@ -34,19 +38,26 @@ public class GamePropsPane : BasePane
 
         propDropdown = new(this.gamePropRepository[propCategoryDropdown.SelectedItem], formatter: PropFormatter);
 
-        addPropButton = new(Translation.Get("propsPane", "addProp"));
+        addPropButton = new(new LocalizableGUIContent(translation, "propsPane", "addProp"));
         addPropButton.ControlEvent += OnAddPropButtonPressed;
 
-        noPropsLabel = new(Translation.Get("propsPane", "noProps"));
+        noPropsLabel = new(new LocalizableGUIContent(translation, "propsPane", "noProps"));
 
-        static LabelledDropdownItem CategoryFormatter(string category, int index) =>
-            new(Translation.Get("gamePropCategories", category));
+        LabelledDropdownItem CategoryFormatter(string category, int index) =>
+            new(translation["gamePropCategories", category]);
 
         static LabelledDropdownItem PropFormatter(PhotoBgPropModel prop, int index) =>
             new(prop.Name);
 
         IEnumerable<PhotoBgPropModel> SearchSelector(string query) =>
             gamePropRepository.Where(model => model.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
+
+        void OnTranslationInitialized(object sender, EventArgs e)
+        {
+            propCategoryDropdown.Reformat();
+            propDropdown.Reformat();
+            searchBar.Reformat();
+        }
     }
 
     public override void Draw()
@@ -67,20 +78,6 @@ public class GamePropsPane : BasePane
         UIUtility.DrawBlackLine();
 
         addPropButton.Draw();
-    }
-
-    protected override void ReloadTranslation()
-    {
-        base.ReloadTranslation();
-
-        propCategoryDropdown.Reformat();
-        propDropdown.Reformat();
-
-        addPropButton.Label = Translation.Get("propsPane", "addProp");
-        noPropsLabel.Text = Translation.Get("propsPane", "noProps");
-
-        searchBar.Placeholder = Translation.Get("gamePropsPane", "searchBarPlaceholder");
-        searchBar.Reformat();
     }
 
     private void OnSearchSelected(object sender, SearchBarSelectionEventArgs<PhotoBgPropModel> e) =>

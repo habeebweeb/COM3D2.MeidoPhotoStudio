@@ -1,5 +1,6 @@
 using MeidoPhotoStudio.Plugin.Core.Database.Background;
 using MeidoPhotoStudio.Plugin.Core.Database.Props;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Core.Props;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
@@ -15,14 +16,18 @@ public class BackgroundPropsPane : BasePane
     private readonly Button addPropButton;
     private readonly SearchBar<BackgroundPropModel> searchBar;
 
-    public BackgroundPropsPane(PropService propService, BackgroundPropRepository backgroundPropRepository)
+    public BackgroundPropsPane(
+        Translation translation, PropService propService, BackgroundPropRepository backgroundPropRepository)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.propService = propService ?? throw new ArgumentNullException(nameof(propService));
         this.backgroundPropRepository = backgroundPropRepository ?? throw new ArgumentNullException(nameof(backgroundPropRepository));
 
+        translation.Initialized += OnTranslationInitialized;
+
         searchBar = new(SearchSelector, PropFormatter)
         {
-            Placeholder = Translation.Get("backgroundPropsPane", "searchBarPlaceholder"),
+            PlaceholderContent = new LocalizableGUIContent(translation, "backgroundPropsPane", "searchBarPlaceholder"),
         };
 
         searchBar.SelectedValue += OnSearchSelected;
@@ -36,10 +41,13 @@ public class BackgroundPropsPane : BasePane
             this.backgroundPropRepository[propCategoryDropdown.SelectedItem],
             formatter: PropFormatter);
 
-        addPropButton = new(Translation.Get("propsPane", "addProp"));
+        addPropButton = new(new LocalizableGUIContent(translation, "propsPane", "addProp"));
         addPropButton.ControlEvent += OnAddPropButtonPressed;
 
-        static LabelledDropdownItem CategoryFormatter(BackgroundCategory category, int index)
+        static LabelledDropdownItem PropFormatter(BackgroundPropModel prop, int index) =>
+            new(prop.Name);
+
+        LabelledDropdownItem CategoryFormatter(BackgroundCategory category, int index)
         {
             var translationKey = category switch
             {
@@ -49,16 +57,20 @@ public class BackgroundPropsPane : BasePane
                 _ => throw new NotSupportedException($"{nameof(category)} is not supported"),
             };
 
-            return new(Translation.Get("backgroundSource", translationKey));
+            return new(translation["backgroundSource", translationKey]);
         }
-
-        static LabelledDropdownItem PropFormatter(BackgroundPropModel prop, int index) =>
-            new(prop.Name);
 
         IEnumerable<BackgroundPropModel> SearchSelector(string query) =>
             backgroundPropRepository
                 .Where(model => model.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
                     model.AssetName.Contains(query, StringComparison.OrdinalIgnoreCase));
+
+        void OnTranslationInitialized(object sender, EventArgs e)
+        {
+            propCategoryDropdown.Reformat();
+            propDropdown.Reformat();
+            searchBar.Reformat();
+        }
     }
 
     public override void Draw()
@@ -71,15 +83,6 @@ public class BackgroundPropsPane : BasePane
         UIUtility.DrawBlackLine();
 
         addPropButton.Draw();
-    }
-
-    protected override void ReloadTranslation()
-    {
-        propCategoryDropdown.Reformat();
-        propDropdown.Reformat();
-        addPropButton.Label = Translation.Get("propsPane", "addProp");
-        searchBar.Placeholder = Translation.Get("backgroundPropsPane", "searchBarPlaceholder");
-        searchBar.Reformat();
     }
 
     private void OnSearchSelected(object sender, SearchBarSelectionEventArgs<BackgroundPropModel> e) =>

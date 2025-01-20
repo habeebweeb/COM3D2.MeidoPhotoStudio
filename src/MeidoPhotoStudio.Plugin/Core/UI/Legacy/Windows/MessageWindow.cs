@@ -1,6 +1,8 @@
 using System.ComponentModel;
 
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Core.Message;
+using MeidoPhotoStudio.Plugin.Framework.Extensions;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 using Alignment = NGUIText.Alignment;
@@ -26,9 +28,11 @@ public partial class MessageWindow : BaseWindow
 
     private Vector2 scrollPosition;
 
-    public MessageWindow(MessageWindowManager messageWindowManager, InputRemapper inputRemapper)
+    public MessageWindow(
+        Translation translation, MessageWindowManager messageWindowManager, InputRemapper inputRemapper)
     {
-        this.messageWindowManager = messageWindowManager;
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
+        this.messageWindowManager = messageWindowManager ?? throw new ArgumentNullException(nameof(messageWindowManager));
         this.inputRemapper = inputRemapper ? inputRemapper : throw new ArgumentNullException(nameof(inputRemapper));
 
         this.messageWindowManager.PropertyChanged += OnMessageWindowPropertyChanged;
@@ -46,26 +50,29 @@ public partial class MessageWindow : BaseWindow
 
         var (left, right) = MessageWindowManager.FontBounds;
 
-        fontSizeSlider = new(string.Empty, left, right);
+        fontSizeSlider = new(left, right);
         fontSizeSlider.ControlEvent += ChangeFontSize;
 
         messageTextArea = new();
 
-        okButton = new(Translation.Get("messageWindow", "okButton"));
+        okButton = new(new LocalizableGUIContent(translation, "messageWindow", "okButton"));
         okButton.ControlEvent += ShowMessage;
 
-        alignmentLabel = new(Translation.Get("messageWindow", "alignmentLabel"));
+        alignmentLabel = new(new LocalizableGUIContent(translation, "messageWindow", "alignmentLabel"));
 
         alignmentDropdown = new(
-            new Alignment[] { Alignment.Left, Alignment.Center, Alignment.Right },
+            new[] { Alignment.Left, Alignment.Center, Alignment.Right },
             formatter: AlignmentFormatter);
+
         alignmentDropdown.SelectionChanged += OnAlignmentChanged;
+
+        translation.Initialized += OnTranslationInitialized;
 
         closeButton = new("X");
         closeButton.ControlEvent += OnCloseButtonPushed;
 
-        nameLabel = new(Translation.Get("messageWindow", "name"));
-        fontSizeLabel = new(Translation.Get("messageWindow", "fontSize"));
+        nameLabel = new(new LocalizableGUIContent(translation, "messageWindow", "name"));
+        fontSizeLabel = new(new LocalizableGUIContent(translation, "messageWindow", "fontSize"));
         fontPointLabel = new($"{messageWindowManager.FontSize}pt");
 
         textAreaStyle = new(
@@ -75,8 +82,11 @@ public partial class MessageWindow : BaseWindow
                 alignment = NGUIAlignmentToTextAnchor(messageWindowManager.MessageAlignment),
             });
 
-        static LabelledDropdownItem AlignmentFormatter(Alignment alignment, int index) =>
-            new(Translation.Get("messageWindow", string.Concat("align", alignment.ToString())));
+        LabelledDropdownItem AlignmentFormatter(Alignment alignment, int index) =>
+            new(translation["messageAlignmentTypes", alignment.ToLower()]);
+
+        void OnTranslationInitialized(object sender, EventArgs e) =>
+            alignmentDropdown.Reformat();
     }
 
     public override bool Enabled =>
@@ -144,15 +154,6 @@ public partial class MessageWindow : BaseWindow
     {
         messageWindowManager.CloseMessagePanel();
         Visible = false;
-    }
-
-    protected override void ReloadTranslation()
-    {
-        okButton.Label = Translation.Get("messageWindow", "okButton");
-        nameLabel.Text = Translation.Get("messageWindow", "name");
-        fontSizeLabel.Text = Translation.Get("messageWindow", "fontSize");
-        alignmentLabel.Text = Translation.Get("messageWindow", "alignmentLabel");
-        alignmentDropdown.Reformat();
     }
 
     private static TextAnchor NGUIAlignmentToTextAnchor(Alignment alignment) =>

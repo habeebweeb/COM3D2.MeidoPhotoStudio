@@ -1,6 +1,7 @@
 using System.ComponentModel;
 
 using MeidoPhotoStudio.Plugin.Core.Character;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
@@ -16,39 +17,39 @@ public class FreeLookPane : BasePane
     private readonly Toggle headToCameraToggle;
     private readonly Label bindLabel;
 
-    public FreeLookPane(SelectionController<CharacterController> characterSelectionController)
+    public FreeLookPane(Translation translation, SelectionController<CharacterController> characterSelectionController)
     {
         this.characterSelectionController = characterSelectionController ?? throw new ArgumentNullException(nameof(characterSelectionController));
 
         this.characterSelectionController.Selecting += OnCharacterSelectionChanging;
         this.characterSelectionController.Selected += OnCharacterSelectionChanged;
 
-        paneHeader = new(Translation.Get("freeLookPane", "header"), true);
+        paneHeader = new(new LocalizableGUIContent(translation, "freeLookPane", "header"), true);
 
-        freeLookToggle = new(Translation.Get("freeLookPane", "freeLookToggle"), false);
+        freeLookToggle = new(new LocalizableGUIContent(translation, "freeLookPane", "freeLookToggle"), false);
         freeLookToggle.ControlEvent += OnFreeLookToggleChanged;
 
-        offsetLookXSlider = new(Translation.Get("freeLookPane", "xSlider"), -0.6f, 0.6f)
+        offsetLookXSlider = new(new LocalizableGUIContent(translation, "freeLookPane", "xSlider"), -0.6f, 0.6f)
         {
             HasReset = true,
         };
 
         offsetLookXSlider.ControlEvent += OnOffsetLookSlidersChanged;
 
-        offsetLookYSlider = new(Translation.Get("freeLookPane", "ySlider"), 0.5f, -0.55f)
+        offsetLookYSlider = new(new LocalizableGUIContent(translation, "freeLookPane", "ySlider"), 0.5f, -0.55f)
         {
             HasReset = true,
         };
 
         offsetLookYSlider.ControlEvent += OnOffsetLookSlidersChanged;
 
-        eyeToCameraToggle = new(Translation.Get("freeLookPane", "eyeToCamToggle"), true);
+        eyeToCameraToggle = new(new LocalizableGUIContent(translation, "freeLookPane", "eyeToCamToggle"), true);
         eyeToCameraToggle.ControlEvent += OnBindEyeToggleChanged;
 
-        headToCameraToggle = new(Translation.Get("freeLookPane", "headToCamToggle"), true);
+        headToCameraToggle = new(new LocalizableGUIContent(translation, "freeLookPane", "headToCamToggle"), true);
         headToCameraToggle.ControlEvent += OnBindHeadToggleChanged;
 
-        bindLabel = new(Translation.Get("freeLookPane", "bindLabel"));
+        bindLabel = new(new LocalizableGUIContent(translation, "freeLookPane", "bindLabel"));
     }
 
     private HeadController CurrentHead =>
@@ -90,17 +91,6 @@ public class FreeLookPane : BasePane
         headToCameraToggle.Draw();
 
         GUILayout.EndHorizontal();
-    }
-
-    protected override void ReloadTranslation()
-    {
-        paneHeader.Label = Translation.Get("freeLookPane", "header");
-        freeLookToggle.Label = Translation.Get("freeLookPane", "freeLookToggle");
-        offsetLookXSlider.Label = Translation.Get("freeLookPane", "xSlider");
-        offsetLookYSlider.Label = Translation.Get("freeLookPane", "ySlider");
-        eyeToCameraToggle.Label = Translation.Get("freeLookPane", "eyeToCamToggle");
-        headToCameraToggle.Label = Translation.Get("freeLookPane", "headToCamToggle");
-        bindLabel.Text = Translation.Get("freeLookPane", "bindLabel");
     }
 
     private void OnCharacterSelectionChanging(object sender, SelectionEventArgs<CharacterController> e)

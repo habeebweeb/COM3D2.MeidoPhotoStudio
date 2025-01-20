@@ -1,6 +1,7 @@
 using System.ComponentModel;
 
 using MeidoPhotoStudio.Plugin.Core.Database.Props;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Core.Props;
 using MeidoPhotoStudio.Plugin.Framework.Service;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
@@ -25,7 +26,8 @@ public class PropManagerPane : BasePane
     private readonly Toggle visibleToggle;
     private readonly Button deletePropButton;
     private readonly Button copyPropButton;
-    private readonly SelectionGrid gizmoMode;
+    private readonly Toggle.Group gizmoModeGroup;
+    private readonly Dictionary<CustomGizmo.GizmoMode, Toggle> gizmoModeToggles;
     private readonly TransformInputPane transformInputPane;
     private readonly Button focusButton;
     private readonly Button addToFavouritesButton;
@@ -40,12 +42,14 @@ public class PropManagerPane : BasePane
     private bool isFavouriteProp;
 
     public PropManagerPane(
+        Translation translation,
         PropService propService,
         FavouritePropRepository favouritePropRepository,
         PropDragHandleService propDragHandleService,
         SelectionController<PropController> propSelectionController,
         TransformClipboard transformClipboard)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.propService = propService ?? throw new ArgumentNullException(nameof(propService));
         this.favouritePropRepository = favouritePropRepository ?? throw new ArgumentNullException(nameof(favouritePropRepository));
         this.propDragHandleService = propDragHandleService ?? throw new ArgumentNullException(nameof(propDragHandleService));
@@ -63,54 +67,76 @@ public class PropManagerPane : BasePane
         propDropdown = new(formatter: PropNameFormatter);
         propDropdown.SelectionChanged += OnPropDropdownSelectionChange;
 
-        dragPointToggle = new(Translation.Get("propManagerPane", "dragPointToggle"));
+        dragPointToggle = new(new LocalizableGUIContent(translation, "propManagerPane", "dragPointToggle"));
         dragPointToggle.ControlEvent += OnDragPointToggleChanged;
 
-        gizmoToggle = new(Translation.Get("propManagerPane", "gizmoToggle"));
+        gizmoToggle = new(new LocalizableGUIContent(translation, "propManagerPane", "gizmoToggle"));
         gizmoToggle.ControlEvent += OnGizmoToggleChanged;
 
-        shadowCastingToggle = new(Translation.Get("propManagerPane", "shadowCastingToggle"));
+        shadowCastingToggle = new(new LocalizableGUIContent(translation, "propManagerPane", "shadowCastingToggle"));
         shadowCastingToggle.ControlEvent += OnShadowCastingToggleChanged;
 
-        visibleToggle = new(Translation.Get("propManagerPane", "visibleToggle"), true);
+        visibleToggle = new(new LocalizableGUIContent(translation, "propManagerPane", "visibleToggle"), true);
         visibleToggle.ControlEvent += OnVisibleToggleChanged;
 
-        copyPropButton = new(Translation.Get("propManagerPane", "copyButton"));
+        copyPropButton = new(new LocalizableGUIContent(translation, "propManagerPane", "copyButton"));
         copyPropButton.ControlEvent += OnCopyButtonPressed;
 
-        deletePropButton = new(Translation.Get("propManagerPane", "deleteButton"));
+        deletePropButton = new(new LocalizableGUIContent(translation, "propManagerPane", "deleteButton"));
         deletePropButton.ControlEvent += OnDeleteButtonPressed;
 
-        gizmoMode = new(Translation.GetArray("propManagerPane", GizmoSpaceTranslationKeys));
-        gizmoMode.ControlEvent += OnGizmoModeToggleChanged;
+        var localSpaceToggle = new Toggle(new LocalizableGUIContent(translation, "propManagerPane", "gizmoSpaceLocal"));
 
-        focusButton = new(Translation.Get("propManagerPane", "focusPropButton"));
+        localSpaceToggle.ControlEvent += OnGizmoModeToggleChanged(CustomGizmo.GizmoMode.Local);
+
+        var worldSpaceToggle = new Toggle(new LocalizableGUIContent(translation, "propManagerPane", "gizmoSpaceWorld"), true);
+
+        worldSpaceToggle.ControlEvent += OnGizmoModeToggleChanged(CustomGizmo.GizmoMode.World);
+
+        gizmoModeGroup = [localSpaceToggle, worldSpaceToggle];
+
+        gizmoModeToggles = new()
+        {
+            [CustomGizmo.GizmoMode.Local] = localSpaceToggle,
+            [CustomGizmo.GizmoMode.World] = worldSpaceToggle,
+        };
+
+        focusButton = new(new LocalizableGUIContent(translation, "propManagerPane", "focusPropButton"));
         focusButton.ControlEvent += OnFocusButtonPushed;
 
-        toggleAllDragHandles = new(Translation.Get("propManagerPane", "allDragHandleToggle"), true);
+        toggleAllDragHandles = new(new LocalizableGUIContent(translation, "propManagerPane", "allDragHandleToggle"), true);
         toggleAllDragHandles.ControlEvent += OnToggleAllDragHandlesChanged;
 
-        toggleAllGizmos = new(Translation.Get("propManagerPane", "allGizmoToggle"), true);
+        toggleAllGizmos = new(new LocalizableGUIContent(translation, "propManagerPane", "allGizmoToggle"), true);
         toggleAllGizmos.ControlEvent += OnToggleAllGizmosChanged;
 
-        gizmoSpaceLabel = new(Translation.Get("propManagerPane", "gizmoSpaceToggle"));
+        gizmoSpaceLabel = new(new LocalizableGUIContent(translation, "propManagerPane", "gizmoSpaceToggle"));
 
-        addToFavouritesButton = new(Translation.Get("propManagerPane", "addFavouriteButton"));
+        addToFavouritesButton = new(new LocalizableGUIContent(translation, "propManagerPane", "addFavouriteButton"));
         addToFavouritesButton.ControlEvent += OnAddFavouritePropButtonPushed;
 
-        removeFromFavouritesButton = new(Translation.Get("propManagerPane", "removeFavouriteButton"));
+        removeFromFavouritesButton = new(new LocalizableGUIContent(translation, "propManagerPane", "removeFavouriteButton"));
         removeFromFavouritesButton.ControlEvent += OnRemoveFavouritePropButtonPushed;
 
-        transformInputPane = new(this.transformClipboard);
+        transformInputPane = new(translation, this.transformClipboard);
         Add(transformInputPane);
 
-        toggleAllHandlesHeader = new(Translation.Get("propManagerPane", "toggleAllHandlesHeader"));
-        paneHeader = new(Translation.Get("propManagerPane", "header"), true);
+        toggleAllHandlesHeader = new(new LocalizableGUIContent(translation, "propManagerPane", "toggleAllHandlesHeader"));
+        paneHeader = new(new LocalizableGUIContent(translation, "propManagerPane", "header"), true);
 
-        noPropsLabel = new(Translation.Get("propManagerPane", "noProps"));
+        noPropsLabel = new(new LocalizableGUIContent(translation, "propManagerPane", "noProps"));
 
         LabelledDropdownItem PropNameFormatter(PropController prop, int index) =>
             new(propNames[prop]);
+
+        EventHandler OnGizmoModeToggleChanged(CustomGizmo.GizmoMode mode) =>
+            (sender, _) =>
+            {
+                if (sender is not Toggle { Value: true } || CurrentProp is not PropController prop)
+                    return;
+
+                propDragHandleService[prop].GizmoMode = mode;
+            };
     }
 
     private PropController CurrentProp =>
@@ -153,7 +179,9 @@ public class PropManagerPane : BasePane
         GUI.enabled = guiEnabled && gizmoToggle.Value;
 
         gizmoSpaceLabel.Draw();
-        gizmoMode.Draw();
+
+        foreach (var gizmoModeToggle in gizmoModeGroup)
+            gizmoModeToggle.Draw();
 
         GUI.enabled = guiEnabled;
 
@@ -191,28 +219,6 @@ public class PropManagerPane : BasePane
         transformInputPane.Draw();
     }
 
-    protected override void ReloadTranslation()
-    {
-        dragPointToggle.Label = Translation.Get("propManagerPane", "dragPointToggle");
-        gizmoToggle.Label = Translation.Get("propManagerPane", "gizmoToggle");
-        shadowCastingToggle.Label = Translation.Get("propManagerPane", "shadowCastingToggle");
-        visibleToggle.Label = Translation.Get("propManagerPane", "visibleToggle");
-        copyPropButton.Label = Translation.Get("propManagerPane", "copyButton");
-        deletePropButton.Label = Translation.Get("propManagerPane", "deleteButton");
-        gizmoMode.SetItemsWithoutNotify(Translation.GetArray("propManagerPane", GizmoSpaceTranslationKeys));
-        focusButton.Label = Translation.Get("propManagerPane", "focusPropButton");
-        toggleAllDragHandles.Label = Translation.Get("propManagerPane", "allDragHandleToggle");
-        toggleAllGizmos.Label = Translation.Get("propManagerPane", "allGizmoToggle");
-        gizmoSpaceLabel.Text = Translation.Get("propManagerPane", "gizmoSpaceToggle");
-
-        toggleAllHandlesHeader.Text = Translation.Get("propManagerPane", "toggleAllHandlesHeader");
-        paneHeader.Label = Translation.Get("propManagerPane", "header");
-        noPropsLabel.Text = Translation.Get("propManagerPane", "noProps");
-
-        addToFavouritesButton.Label = Translation.Get("propManagerPane", "addFavouriteButton");
-        removeFromFavouritesButton.Label = Translation.Get("propManagerPane", "removeFavouriteButton");
-    }
-
     private void UpdateControls()
     {
         transformInputPane.Target = CurrentProp;
@@ -227,7 +233,7 @@ public class PropManagerPane : BasePane
 
         dragPointToggle.SetEnabledWithoutNotify(dragHandleController.Enabled);
         gizmoToggle.SetEnabledWithoutNotify(dragHandleController.GizmoEnabled);
-        gizmoMode.SetValueWithoutNotify((int)dragHandleController.GizmoMode);
+        gizmoModeToggles[dragHandleController.GizmoMode].SetEnabledWithoutNotify(true);
     }
 
     private void OnToggleAllDragHandlesChanged(object sender, EventArgs e)
@@ -244,7 +250,7 @@ public class PropManagerPane : BasePane
 
     private void OnAddedProp(object sender, PropServiceEventArgs e)
     {
-        propNames[e.PropController] = UniquePropName(new(propNames.Values), e.PropController.PropModel);
+        propNames[e.PropController] = UniquePropName([.. propNames.Values], e.PropController.PropModel);
         propDropdown.SetItems(propService, propService.Count - 1);
 
         static string UniquePropName(HashSet<string> currentNames, IPropModel propModel)
@@ -331,7 +337,7 @@ public class PropManagerPane : BasePane
         if (e.PropertyName is nameof(PropDragHandleController.Enabled))
             dragPointToggle.SetEnabledWithoutNotify(controller.Enabled);
         else if (e.PropertyName is nameof(PropDragHandleController.GizmoMode))
-            gizmoMode.SetValueWithoutNotify((int)controller.GizmoMode);
+            gizmoModeToggles[controller.GizmoMode].SetEnabledWithoutNotify(true);
         else if (e.PropertyName is nameof(PropDragHandleController.GizmoEnabled))
             gizmoToggle.SetEnabledWithoutNotify(controller.GizmoEnabled);
     }
@@ -388,16 +394,6 @@ public class PropManagerPane : BasePane
             return;
 
         propService.Remove(propService.IndexOf(CurrentProp));
-    }
-
-    private void OnGizmoModeToggleChanged(object sender, EventArgs e)
-    {
-        if (CurrentProp is null)
-            return;
-
-        var controller = propDragHandleService[CurrentProp];
-
-        controller.GizmoMode = (CustomGizmo.GizmoMode)gizmoMode.SelectedItemIndex;
     }
 
     private void OnFocusButtonPushed(object sender, EventArgs e)

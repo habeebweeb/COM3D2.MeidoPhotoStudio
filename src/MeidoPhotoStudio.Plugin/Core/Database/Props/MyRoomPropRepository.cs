@@ -1,11 +1,18 @@
+using MeidoPhotoStudio.Plugin.Core.Localization;
+
 namespace MeidoPhotoStudio.Plugin.Core.Database.Props;
 
 public class MyRoomPropRepository : IEnumerable<MyRoomPropModel>
 {
+    private readonly Translation translation;
+
     private Dictionary<int, IList<MyRoomPropModel>> props;
 
-    public MyRoomPropRepository() =>
-        Translation.ReloadTranslationEvent += OnReloadedTranslation;
+    public MyRoomPropRepository(Translation translation)
+    {
+        this.translation = translation ?? throw new ArgumentNullException(nameof(translation));
+        this.translation.Initialized += OnReloadedTranslation;
+    }
 
     public IEnumerable<int> CategoryIDs =>
         Props.Keys;
@@ -31,14 +38,14 @@ public class MyRoomPropRepository : IEnumerable<MyRoomPropModel>
     public MyRoomPropModel GetByID(int id) =>
         this.FirstOrDefault(model => model.ID == id);
 
-    private static Dictionary<int, IList<MyRoomPropModel>> Initialize()
+    private Dictionary<int, IList<MyRoomPropModel>> Initialize()
     {
         var models = new Dictionary<int, List<MyRoomPropModel>>();
 
         foreach (var data in MyRoomCustom.PlacementData.GetAllDatas(false))
         {
             var assetName = string.IsNullOrEmpty(data.resourceName) ? data.assetName : data.resourceName;
-            var model = new MyRoomPropModel(data, Translation.Get("myRoomPropNames", assetName));
+            var model = new MyRoomPropModel(data, translation["myRoomPropNames", assetName]);
 
             if (!models.ContainsKey(data.categoryID))
                 models[data.categoryID] = [];
@@ -52,6 +59,6 @@ public class MyRoomPropRepository : IEnumerable<MyRoomPropModel>
     private void OnReloadedTranslation(object sender, EventArgs e)
     {
         foreach (var prop in this)
-            prop.Name = Translation.Get("myRoomPropNames", prop.AssetName);
+            prop.Name = translation["myRoomPropNames", prop.AssetName];
     }
 }

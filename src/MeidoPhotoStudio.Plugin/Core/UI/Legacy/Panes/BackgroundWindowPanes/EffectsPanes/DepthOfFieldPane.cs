@@ -1,6 +1,7 @@
 using System.ComponentModel;
 
 using MeidoPhotoStudio.Plugin.Core.Effects;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
@@ -13,11 +14,16 @@ public class DepthOfFieldPane : EffectPane<DepthOfFieldController>
     private readonly Slider blurSizeSlider;
     private readonly Toggle visualizeFocusToggle;
 
-    public DepthOfFieldPane(DepthOfFieldController effectController)
-        : base(effectController)
+    public DepthOfFieldPane(Translation translation, DepthOfFieldController effectController)
+        : base(translation, effectController)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         focalLengthSlider = new(
-            Translation.Get("effectDof", "focalLength"), 0f, 10f, Effect.FocalLength, Effect.FocalLength)
+            new LocalizableGUIContent(translation, "effectDof", "focalLength"),
+            0f,
+            10f,
+            Effect.FocalLength,
+            Effect.FocalLength)
         {
             HasTextField = true,
             HasReset = true,
@@ -25,7 +31,12 @@ public class DepthOfFieldPane : EffectPane<DepthOfFieldController>
 
         focalLengthSlider.ControlEvent += OnFocalLengthSliderChanged;
 
-        focalSizeSlider = new(Translation.Get("effectDof", "focalArea"), 0f, 2f, Effect.FocalSize, Effect.FocalSize)
+        focalSizeSlider = new(
+            new LocalizableGUIContent(translation, "effectDof", "focalArea"),
+            0f,
+            2f,
+            Effect.FocalSize,
+            Effect.FocalSize)
         {
             HasTextField = true,
             HasReset = true,
@@ -33,7 +44,8 @@ public class DepthOfFieldPane : EffectPane<DepthOfFieldController>
 
         focalSizeSlider.ControlEvent += OnFocalSizeSliderChanged;
 
-        apertureSlider = new(Translation.Get("effectDof", "aperture"), 0f, 60f, Effect.Aperture, Effect.Aperture)
+        apertureSlider = new(
+            new LocalizableGUIContent(translation, "effectDof", "aperture"), 0f, 60f, Effect.Aperture, Effect.Aperture)
         {
             HasTextField = true,
             HasReset = true,
@@ -41,7 +53,12 @@ public class DepthOfFieldPane : EffectPane<DepthOfFieldController>
 
         apertureSlider.ControlEvent += OnApertureSliderChanged;
 
-        blurSizeSlider = new(Translation.Get("effectDof", "blur"), 0f, 10f, Effect.MaxBlurSize, Effect.MaxBlurSize)
+        blurSizeSlider = new(
+            new LocalizableGUIContent(translation, "effectDof", "blur"),
+            0f,
+            10f,
+            Effect.MaxBlurSize,
+            Effect.MaxBlurSize)
         {
             HasTextField = true,
             HasReset = true,
@@ -49,7 +66,9 @@ public class DepthOfFieldPane : EffectPane<DepthOfFieldController>
 
         blurSizeSlider.ControlEvent += OnBlurSizeSliderChanged;
 
-        visualizeFocusToggle = new(Translation.Get("effectDof", "visualizeFocus"), Effect.VisualizeFocus);
+        visualizeFocusToggle = new(
+            new LocalizableGUIContent(translation, "effectDof", "visualizeFocus"), Effect.VisualizeFocus);
+
         visualizeFocusToggle.ControlEvent += OnVisualizeFocusToggleChanged;
     }
 
@@ -62,17 +81,6 @@ public class DepthOfFieldPane : EffectPane<DepthOfFieldController>
         focalSizeSlider.Draw();
         apertureSlider.Draw();
         blurSizeSlider.Draw();
-    }
-
-    protected override void ReloadTranslation()
-    {
-        base.ReloadTranslation();
-
-        focalLengthSlider.Label = Translation.Get("effectDof", "focalLength");
-        focalSizeSlider.Label = Translation.Get("effectDof", "focalArea");
-        apertureSlider.Label = Translation.Get("effectDof", "aperture");
-        blurSizeSlider.Label = Translation.Get("effectDof", "blur");
-        visualizeFocusToggle.Label = Translation.Get("effectDof", "visualizeFocus");
     }
 
     protected override void OnEffectPropertyChanged(object sender, PropertyChangedEventArgs e)

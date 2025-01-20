@@ -11,6 +11,7 @@ using MeidoPhotoStudio.Plugin.Core.Database.Props;
 using MeidoPhotoStudio.Plugin.Core.Database.Scenes;
 using MeidoPhotoStudio.Plugin.Core.Effects;
 using MeidoPhotoStudio.Plugin.Core.Lighting;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Core.Message;
 using MeidoPhotoStudio.Plugin.Core.Props;
 using MeidoPhotoStudio.Plugin.Core.SceneManagement;
@@ -41,6 +42,7 @@ public partial class PluginCore : MonoBehaviour
     private DragHandle.ClickHandler dragHandleClickHandler;
     private CustomGizmo.ClickHandler gizmoClickHandler;
     private TransformWatcher transformWatcher;
+    private Translation translation;
     private ScreenSizeChecker screenSizeChecker;
 
     public bool Active { get; private set; }
@@ -91,7 +93,9 @@ public partial class PluginCore : MonoBehaviour
         var uiConfiguration = new UIConfiguration(configuration);
 
         // Translation
-        Translation.Initialize(translationConfiguration.CurrentLanguage);
+        translation = new Translation(
+            Path.Combine(configRoot, "Translations"),
+            translationConfiguration.CurrentLanguage.Value);
 
         // Utilities
         screenSizeChecker = gameObject.AddComponent<ScreenSizeChecker>();
@@ -139,7 +143,7 @@ public partial class PluginCore : MonoBehaviour
         AddPluginActiveInputHandler(new UndoRedoInputHandler(undoRedoService, inputConfiguration));
 
         // Characters
-        var gameBlendSetRepository = new GameBlendSetRepository();
+        var gameBlendSetRepository = new GameBlendSetRepository(translation);
         var customBlendSetRepository = new CustomBlendSetRepository(Path.Combine(presetsPath, "Face Presets"));
         var gameAnimationRepository = new GameAnimationRepository(databasePath);
         var customAnimationRepository = new CustomAnimationRepository(Path.Combine(presetsPath, "Custom Poses"));
@@ -227,7 +231,7 @@ public partial class PluginCore : MonoBehaviour
                 cameraController, cameraSpeedController, cameraSaveSlotController, inputConfiguration));
 
         // Backgrounds
-        var backgroundRepository = new BackgroundRepository();
+        var backgroundRepository = new BackgroundRepository(translation);
         var backgroundService = new BackgroundService(backgroundRepository);
         var backgroundDragHandleService = new BackgroundDragHandleService(generalDragHandleInputService, backgroundService)
         {
@@ -255,12 +259,13 @@ public partial class PluginCore : MonoBehaviour
         var sepiaToneController = new SepiaToneController(GameMain.Instance.MainCamera.camera);
 
         // Props
-        var gamePropRepository = new PhotoBgPropRepository();
-        var deskPropRepository = new DeskPropRepository();
-        var otherPropRepository = new OtherPropRepository(backgroundRepository);
+        var gamePropRepository = new PhotoBgPropRepository(translation);
+        var deskPropRepository = new DeskPropRepository(translation);
+        var otherPropRepository = new OtherPropRepository(translation, backgroundRepository);
         var backgroundPropRepository = new BackgroundPropRepository(backgroundRepository);
-        var myRoomPropRepository = new MyRoomPropRepository();
+        var myRoomPropRepository = new MyRoomPropRepository(translation);
         var menuPropRepository = new MenuPropRepository(
+            translation,
             menuPropsConfiguration,
             new MenuFileCacheSerializer(Path.Combine(BepInEx.Paths.ConfigPath, Plugin.PluginName)));
 
@@ -281,6 +286,7 @@ public partial class PluginCore : MonoBehaviour
         var propAttachmentService = new PropAttachmentService(characterService, propService);
 
         var propSchemaMapper = new PropSchemaToPropModelMapper(
+            translation,
             backgroundPropRepository,
             deskPropRepository,
             myRoomPropRepository,
@@ -394,8 +400,9 @@ public partial class PluginCore : MonoBehaviour
 
         // Windows
         var sceneBrowser = new SceneBrowserWindow(
+            translation,
             sceneRepository,
-            new(sceneRepository, screenshotService, sceneSchemaBuilder, sceneSerializer, sceneLoader),
+            new(translation, sceneRepository, screenshotService, sceneSchemaBuilder, sceneSerializer, sceneLoader),
             sceneSchemaBuilder,
             screenshotService,
             new(configuration),
@@ -403,111 +410,155 @@ public partial class PluginCore : MonoBehaviour
 
         AddPluginActiveInputHandler(new SceneBrowserWindowInputHandler(sceneBrowser, inputConfiguration));
 
-        var messageWindow = new MessageWindow(messageWindowManager, inputRemapper);
+        var messageWindow = new MessageWindow(translation, messageWindowManager, inputRemapper);
 
         AddPluginActiveInputHandler(new MessageWindow.InputHandler(messageWindow, inputConfiguration));
 
-        var settingsWindow = new SettingsWindow(inputRemapper)
+        var settingsWindow = new SettingsWindow(translation, inputRemapper)
         {
-            [SettingsWindow.SettingType.Controls] = new InputSettingsPane(inputConfiguration, inputRemapper),
+            [SettingsWindow.SettingType.Controls] = new InputSettingsPane(
+                translation, inputConfiguration, inputRemapper),
             [SettingsWindow.SettingType.DragHandle] = new DragHandleSettingsPane(
+                translation,
                 dragHandleConfiguration,
                 ikDragHandleService,
                 propDragHandleService,
                 gravityDragHandleService,
                 lightDragHandleRepository,
                 backgroundDragHandleService),
-            [SettingsWindow.SettingType.AutoSave] = new AutoSaveSettingsPane(autoSaveConfiguration, autoSaveService),
-            [SettingsWindow.SettingType.Translation] = new TranslationSettingsPane(),
+            [SettingsWindow.SettingType.AutoSave] = new AutoSaveSettingsPane(
+                translation, autoSaveConfiguration, autoSaveService),
+            [SettingsWindow.SettingType.Translation] = new TranslationSettingsPane(translationConfiguration, translation),
         };
 
         TransformClipboard transformClipboard = new();
 
-        var mainWindow = new MainWindow(tabSelectionController, customMaidSceneService, inputRemapper, settingsWindow)
+        var mainWindow = new MainWindow(
+            translation, tabSelectionController, customMaidSceneService, inputRemapper, settingsWindow)
         {
             WindowWidth = uiConfiguration.WindowWidth.Value,
 
             [MainWindow.Tab.Call] = new CallWindowPane()
             {
-                new CharacterPlacementPane(new(characterService)),
-                new CharacterCallPane(characterCallController),
+                new CharacterPlacementPane(translation, new(characterService)),
+                new CharacterCallPane(translation, characterCallController),
             },
             [MainWindow.Tab.Character] = new CharacterWindowPane()
             {
                 new CharacterSwitcherPane(
-                    characterService, characterSelectionController, customMaidSceneService, editModeMaidService),
-                new CharacterPane(tabSelectionController, characterSelectionController)
+                    translation,
+                    characterService,
+                    characterSelectionController,
+                    customMaidSceneService,
+                    editModeMaidService),
+                new CharacterPane(translation, tabSelectionController, characterSelectionController)
                 {
                     [CharacterPane.CharacterWindowTab.Pose] =
                     [
-                        new AnimationSelectorPane(gameAnimationRepository, customAnimationRepository, characterUndoRedoService, characterSelectionController, customAnimationRepositorySorter),
-                        new IKPane(ikDragHandleService, characterUndoRedoService,  characterSelectionController, transformClipboard),
-                        new AnimationPane(characterUndoRedoService, characterSelectionController),
-                        new FreeLookPane(characterSelectionController),
-                        new DressingPane(characterSelectionController),
-                        new GravityControlPane(gravityDragHandleService, globalGravityService, characterSelectionController),
-                        new AttachedAccessoryPane(menuPropRepository, characterSelectionController),
-                        new HandPresetSelectorPane(new(Path.Combine(presetsPath, "Hand Presets")), characterUndoRedoService, characterSelectionController),
-                        new CopyPosePane(characterService, characterUndoRedoService, characterSelectionController),
+                        new AnimationSelectorPane(
+                            translation,
+                            gameAnimationRepository,
+                            customAnimationRepository,
+                            characterUndoRedoService,
+                            characterSelectionController,
+                            customAnimationRepositorySorter),
+                        new IKPane(
+                            translation,
+                            ikDragHandleService,
+                            characterUndoRedoService,
+                            characterSelectionController,
+                            transformClipboard),
+                        new AnimationPane(translation, characterUndoRedoService, characterSelectionController),
+                        new FreeLookPane(translation, characterSelectionController),
+                        new DressingPane(translation, characterSelectionController),
+                        new GravityControlPane(
+                            translation, gravityDragHandleService, globalGravityService, characterSelectionController),
+                        new AttachedAccessoryPane(translation, menuPropRepository, characterSelectionController),
+                        new HandPresetSelectorPane(
+                            translation,
+                            new(Path.Combine(presetsPath, "Hand Presets")),
+                            characterUndoRedoService,
+                            characterSelectionController),
+                        new CopyPosePane(
+                            translation, characterService, characterUndoRedoService, characterSelectionController),
                     ],
                     [CharacterPane.CharacterWindowTab.Face] =
                     [
                         new BlendSetSelectorPane(
+                            translation,
                             gameBlendSetRepository,
                             customBlendSetRepository,
                             facialExpressionBuilder,
                             characterSelectionController),
-                        new ExpressionPane(characterSelectionController, faceShapeKeyConfiguration, faceShapekeyRangeConfiguration),
+                        new ExpressionPane(
+                            translation,
+                            characterSelectionController,
+                            faceShapeKeyConfiguration,
+                            faceShapekeyRangeConfiguration),
                     ],
                     [CharacterPane.CharacterWindowTab.Body] =
                     [
-                        new BodyShapeKeyPane(characterSelectionController, bodyShapeKeyConfiguration, bodyShapeKeyRangeConfiguration)
+                        new BodyShapeKeyPane(
+                            translation,
+                            characterSelectionController,
+                            bodyShapeKeyConfiguration,
+                            bodyShapeKeyRangeConfiguration)
                     ],
                 },
             },
             [MainWindow.Tab.Environment] = new BGWindowPane()
             {
-                new SceneManagementPane(sceneBrowser, quickSaveService),
-                new BackgroundsPane(backgroundService, backgroundRepository, backgroundDragHandleService),
-                new CameraPane(cameraController, cameraSaveSlotController),
-                new LightsPane(lightRepository, lightSelectionController, transformClipboard),
-                new EffectsPane()
+                new SceneManagementPane(translation, sceneBrowser, quickSaveService),
+                new BackgroundsPane(translation, backgroundService, backgroundRepository, backgroundDragHandleService),
+                new CameraPane(translation, cameraController, cameraSaveSlotController),
+                new LightsPane(translation, lightRepository, lightSelectionController, transformClipboard),
+                new EffectsPane(translation)
                 {
-                    [EffectsPane.EffectType.Bloom] = new BloomPane(bloomController),
-                    [EffectsPane.EffectType.DepthOfField] = new DepthOfFieldPane(depthOfFieldController),
-                    [EffectsPane.EffectType.Vignette] = new VignettePane(vignetteController),
-                    [EffectsPane.EffectType.Fog] = new FogPane(fogController),
-                    [EffectsPane.EffectType.Blur] = new BlurPane(blurController),
-                    [EffectsPane.EffectType.SepiaTone] = new SepiaTonePane(sepiaToneController),
+                    [EffectsPane.EffectType.Bloom] = new BloomPane(translation, bloomController),
+                    [EffectsPane.EffectType.DepthOfField] = new DepthOfFieldPane(translation, depthOfFieldController),
+                    [EffectsPane.EffectType.Vignette] = new VignettePane(translation, vignetteController),
+                    [EffectsPane.EffectType.Fog] = new FogPane(translation, fogController),
+                    [EffectsPane.EffectType.Blur] = new BlurPane(translation, blurController),
+                    [EffectsPane.EffectType.SepiaTone] = new SepiaTonePane(translation, sepiaToneController),
                 },
             },
             [MainWindow.Tab.Props] = new PropsWindowPane()
             {
-                new PropsPane()
+                new PropsPane(translation)
                 {
-                    [PropsPane.PropCategory.Game] = new GamePropsPane(propService, gamePropRepository),
-                    [PropsPane.PropCategory.Desk] = new DeskPropsPane(propService, deskPropRepository),
-                    [PropsPane.PropCategory.Other] = new OtherPropsPane(propService, otherPropRepository),
-                    [PropsPane.PropCategory.HandItem] = new HandItemPropsPane(propService, menuPropRepository),
+                    [PropsPane.PropCategory.Game] = new GamePropsPane(translation, propService, gamePropRepository),
+                    [PropsPane.PropCategory.Desk] = new DeskPropsPane(translation, propService, deskPropRepository),
+                    [PropsPane.PropCategory.Other] = new OtherPropsPane(translation, propService, otherPropRepository),
+                    [PropsPane.PropCategory.HandItem] = new HandItemPropsPane(
+                        translation, propService, menuPropRepository),
                     [PropsPane.PropCategory.Background] = new BackgroundPropsPane(
+                        translation,
                         propService,
                         backgroundPropRepository),
                     [PropsPane.PropCategory.Menu] = new MenuPropsPane(
+                        translation,
                         propService,
                         menuPropRepository,
                         menuPropsConfiguration,
                         iconCache),
                     [PropsPane.PropCategory.MyRoom] = new MyRoomPropsPane(
-                        propService, myRoomPropRepository, iconCache),
-                    [PropsPane.PropCategory.Favourite] = new FavouritePropsPane(propService, favouritePropRepository, iconCache),
+                        translation, propService, myRoomPropRepository, iconCache),
+                    [PropsPane.PropCategory.Favourite] = new FavouritePropsPane(
+                        translation, propService, favouritePropRepository, iconCache),
                 },
-                new PropManagerPane(propService, favouritePropRepository, propDragHandleService, propSelectionController, transformClipboard),
-                new PropShapeKeyPane(propSelectionController),
-                new AttachPropPane(characterService, propAttachmentService, propSelectionController),
+                new PropManagerPane(
+                    translation,
+                    propService,
+                    favouritePropRepository,
+                    propDragHandleService,
+                    propSelectionController,
+                    transformClipboard),
+                new PropShapeKeyPane(translation, propSelectionController),
+                new AttachPropPane(translation, characterService, propAttachmentService, propSelectionController),
             },
         };
 
-        settingsWindow[SettingsWindow.SettingType.UI] = new UISettingsPane(uiConfiguration, mainWindow);
+        settingsWindow[SettingsWindow.SettingType.UI] = new UISettingsPane(translation, uiConfiguration, mainWindow);
 
         AddPluginActiveInputHandler(new MainWindow.InputHandler(mainWindow, inputConfiguration));
 
@@ -601,7 +652,7 @@ public partial class PluginCore : MonoBehaviour
         }
 
         sysDialog.Show(
-            string.Format(Translation.Get("systemMessage", "exitConfirm"), Plugin.PluginName),
+            string.Format(translation["systemMessage", "exitConfirm"], Plugin.PluginName),
             SystemDialog.TYPE.OK_CANCEL,
             Exit,
             Resume);

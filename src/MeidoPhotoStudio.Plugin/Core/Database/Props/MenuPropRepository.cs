@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 
 using MeidoPhotoStudio.Plugin.Core.Database.Props.Menu;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework;
 using MeidoPhotoStudio.Plugin.Framework.Extensions;
 
@@ -8,18 +9,22 @@ namespace MeidoPhotoStudio.Plugin.Core.Database.Props;
 
 public class MenuPropRepository : IEnumerable<MenuFilePropModel>
 {
+    private readonly Translation translation;
     private readonly IMenuPropsConfiguration menuPropsConfiguration;
     private readonly IMenuFileCacheSerializer menuFileCacheSerializer;
 
     private Dictionary<MPN, IList<MenuFilePropModel>> props;
 
     public MenuPropRepository(
-        IMenuPropsConfiguration menuPropsConfiguration, IMenuFileCacheSerializer menuFileCacheSerializer)
+        Translation translation,
+        IMenuPropsConfiguration menuPropsConfiguration,
+        IMenuFileCacheSerializer menuFileCacheSerializer)
     {
+        this.translation = translation ?? throw new ArgumentNullException(nameof(translation));
         this.menuPropsConfiguration = menuPropsConfiguration ?? throw new ArgumentNullException(nameof(menuPropsConfiguration));
         this.menuFileCacheSerializer = menuFileCacheSerializer ?? throw new ArgumentNullException(nameof(menuFileCacheSerializer));
 
-        Translation.ReloadTranslationEvent += OnReloadedTranslation;
+        this.translation.Initialized += OnReloadedTranslation;
 
         InitializeMenuFiles(menuPropsConfiguration);
     }
@@ -92,7 +97,10 @@ public class MenuPropRepository : IEnumerable<MenuFilePropModel>
                 () => ProcessMenuFiles(menuPropsConfiguration, menuFileCacheSerializer))
                 .ContinueWith(task =>
                 {
-                    props = task.Result;
+                    if (task.IsFaulted && task.Exception is not null)
+                        Plugin.Logger.LogWarning($"Could not initialize menu props because:\n{task.Exception}");
+
+                    props = task.IsFaulted ? [] : task.Result ?? [];
 
                     ProcessingProps = false;
 
@@ -100,7 +108,7 @@ public class MenuPropRepository : IEnumerable<MenuFilePropModel>
                 });
         }
 
-        static Dictionary<MPN, IList<MenuFilePropModel>> ProcessMenuFiles(
+        Dictionary<MPN, IList<MenuFilePropModel>> ProcessMenuFiles(
             IMenuPropsConfiguration menuPropsConfiguration,
             IMenuFileCacheSerializer menuFileCacheSerializer)
         {
@@ -171,7 +179,7 @@ public class MenuPropRepository : IEnumerable<MenuFilePropModel>
                 }
 
                 if (menuFile.CategoryMpn == SafeMpn.GetValue(nameof(MPN.handitem)))
-                    menuFile.Name = Translation.Get("propNames", menuFile.Filename);
+                    menuFile.Name = translation["propNames", menuFile.Filename];
 
                 models.Add(menuFile);
             }
@@ -237,7 +245,7 @@ public class MenuPropRepository : IEnumerable<MenuFilePropModel>
         void ApplyTranslation()
         {
             foreach (var prop in this[SafeMpn.GetValue(nameof(MPN.handitem))])
-                prop.Name = Translation.Get("propNames", prop.Filename);
+                prop.Name = translation["propNames", prop.Filename];
         }
     }
 }

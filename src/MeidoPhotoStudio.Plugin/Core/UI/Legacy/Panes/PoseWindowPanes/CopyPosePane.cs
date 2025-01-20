@@ -1,4 +1,5 @@
 using MeidoPhotoStudio.Plugin.Core.Character;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
@@ -19,39 +20,41 @@ public class CopyPosePane : BasePane
     private readonly Header copyHandHeader;
 
     public CopyPosePane(
+        Translation translation,
         CharacterService characterService,
         CharacterUndoRedoService characterUndoRedoService,
         SelectionController<CharacterController> characterSelectionController)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.characterService = characterService ?? throw new ArgumentNullException(nameof(characterService));
         this.characterUndoRedoService = characterUndoRedoService ?? throw new ArgumentNullException(nameof(characterUndoRedoService));
         this.characterSelectionController = characterSelectionController ?? throw new ArgumentNullException(nameof(characterSelectionController));
 
         this.characterService.CalledCharacters += OnCharactersCalled;
 
-        paneHeader = new(Translation.Get("copyPosePane", "header"), true);
+        paneHeader = new(new LocalizableGUIContent(translation, "copyPosePane", "header"), true);
 
         otherCharacterDropdown = new(formatter: OtherCharacterFormatter);
 
-        copyPoseButton = new(Translation.Get("copyPosePane", "copyButton"));
+        copyPoseButton = new(new LocalizableGUIContent(translation, "copyPosePane", "copyButton"));
         copyPoseButton.ControlEvent += OnCopyPoseButtonPushed;
 
-        copyBothHandsButton = new(Translation.Get("copyPosePane", "copyBothHands"));
+        copyBothHandsButton = new(new LocalizableGUIContent(translation, "copyPosePane", "copyBothHands"));
         copyBothHandsButton.ControlEvent += OnCopyBothHandsButtonPushed;
 
-        copyLeftHandToLeftButton = new(Translation.Get("copyPosePane", "copyLeftHandToLeft"));
+        copyLeftHandToLeftButton = new(new LocalizableGUIContent(translation, "copyPosePane", "copyLeftHandToLeft"));
         copyLeftHandToLeftButton.ControlEvent += OnCopyLefHandToLeftButtonPushed;
 
-        copyLeftHandToRightButton = new(Translation.Get("copyPosePane", "copyLeftHandToRight"));
+        copyLeftHandToRightButton = new(new LocalizableGUIContent(translation, "copyPosePane", "copyLeftHandToRight"));
         copyLeftHandToRightButton.ControlEvent += OnCopyLefHandToRightButtonPushed;
 
-        copyRightHandToLeftButton = new(Translation.Get("copyPosePane", "copyRightHandToLeft"));
+        copyRightHandToLeftButton = new(new LocalizableGUIContent(translation, "copyPosePane", "copyRightHandToLeft"));
         copyRightHandToLeftButton.ControlEvent += OnCopyRightHandToLeftButtonPushed;
 
-        copyRightHandToRightButton = new(Translation.Get("copyPosePane", "copyRightHandToRight"));
+        copyRightHandToRightButton = new(new LocalizableGUIContent(translation, "copyPosePane", "copyRightHandToRight"));
         copyRightHandToRightButton.ControlEvent += OnCopyRightHandToRightButtonPushed;
 
-        copyHandHeader = new(Translation.Get("copyPosePane", "copyHandHeader"));
+        copyHandHeader = new(new LocalizableGUIContent(translation, "copyPosePane", "copyHandHeader"));
 
         static LabelledDropdownItem OtherCharacterFormatter(CharacterController character, int index) =>
             new($"{character.Slot + 1}: {character.CharacterModel.FullName()}");
@@ -81,10 +84,11 @@ public class CopyPosePane : BasePane
             UIUtility.DrawBlackLine();
 
             copyPoseButton.Draw();
+
+            UIUtility.DrawBlackLine();
         }
 
         copyHandHeader.Draw();
-        UIUtility.DrawBlackLine();
 
         if (CurrentCharacter != OtherCharacter)
         {
@@ -113,18 +117,6 @@ public class CopyPosePane : BasePane
 
             GUILayout.EndHorizontal();
         }
-    }
-
-    protected override void ReloadTranslation()
-    {
-        paneHeader.Label = Translation.Get("copyPosePane", "header");
-        copyPoseButton.Label = Translation.Get("copyPosePane", "copyButton");
-        copyBothHandsButton.Label = Translation.Get("copyPosePane", "copyBothHands");
-        copyLeftHandToLeftButton.Label = Translation.Get("copyPosePane", "copyLeftHandToLeft");
-        copyLeftHandToRightButton.Label = Translation.Get("copyPosePane", "copyLeftHandToRight");
-        copyRightHandToLeftButton.Label = Translation.Get("copyPosePane", "copyRightHandToLeft");
-        copyRightHandToRightButton.Label = Translation.Get("copyPosePane", "copyRightHandToRight");
-        copyHandHeader.Text = Translation.Get("copyPosePane", "copyHandHeader");
     }
 
     private void OnCharactersCalled(object sender, EventArgs e) =>

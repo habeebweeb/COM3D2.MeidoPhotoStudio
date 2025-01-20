@@ -4,9 +4,6 @@ public abstract class BasePane : IEnumerable<BasePane>
 {
     private List<BasePane> panes;
 
-    protected BasePane() =>
-        Translation.ReloadTranslationEvent += OnReloadTranslation;
-
     protected BaseWindow Parent { get; private set; }
 
     protected IEnumerable<BasePane> Panes =>
@@ -66,10 +63,6 @@ public abstract class BasePane : IEnumerable<BasePane>
             pane.Deactivate();
     }
 
-    protected virtual void ReloadTranslation()
-    {
-    }
-
     protected void DrawDropdown<T>(Dropdown<T> dropdown)
     {
         GUILayout.BeginHorizontal();
@@ -104,7 +97,4 @@ public abstract class BasePane : IEnumerable<BasePane>
         textField.Draw(
             GUILayout.Width(Parent.WindowRect.width - 35f),
             GUILayout.Height(Mathf.Max(23f, UIUtility.Scaled(TextFieldHeight))));
-
-    private void OnReloadTranslation(object sender, EventArgs args) =>
-        ReloadTranslation();
 }

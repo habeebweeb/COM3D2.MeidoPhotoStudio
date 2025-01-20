@@ -2,6 +2,7 @@ using System.ComponentModel;
 
 using MeidoPhotoStudio.Plugin.Core.Character;
 using MeidoPhotoStudio.Plugin.Core.Character.Pose;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework.Service;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
@@ -27,11 +28,13 @@ public class IKPane : BasePane
     private readonly Header customFloorHeightHeader;
 
     public IKPane(
+        Translation translation,
         IKDragHandleService ikDragHandleService,
         CharacterUndoRedoService characterUndoRedoService,
         SelectionController<CharacterController> characterSelectionController,
         TransformClipboard transformClipboard)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.ikDragHandleService = ikDragHandleService ?? throw new ArgumentNullException(nameof(ikDragHandleService));
         this.characterUndoRedoService = characterUndoRedoService ?? throw new ArgumentNullException(nameof(characterUndoRedoService));
         this.characterSelectionController = characterSelectionController ?? throw new ArgumentNullException(nameof(characterSelectionController));
@@ -40,23 +43,26 @@ public class IKPane : BasePane
         this.characterSelectionController.Selecting += OnCharacterSelectionChanging;
         this.characterSelectionController.Selected += OnCharacterSelectionChanged;
 
-        paneHeader = new(Translation.Get("maidPoseWindow", "header"), true);
+        paneHeader = new(new LocalizableGUIContent(translation, "maidPoseWindow", "header"), true);
 
-        ikEnabledToggle = new(Translation.Get("maidPoseWindow", "enabledToggle"), true);
+        ikEnabledToggle = new(new LocalizableGUIContent(translation, "maidPoseWindow", "enabledToggle"), true);
         ikEnabledToggle.ControlEvent += OnIKEnabledChanged;
 
-        boneModeEnabledToggle = new(Translation.Get("maidPoseWindow", "boneToggle"), false);
+        boneModeEnabledToggle = new(new LocalizableGUIContent(translation, "maidPoseWindow", "boneToggle"), false);
         boneModeEnabledToggle.ControlEvent += OnBoneModeEnabledChanged;
 
-        limitLimbRotationsToggle = new(Translation.Get("maidPoseWindow", "limitJointsToggle"));
+        limitLimbRotationsToggle = new(new LocalizableGUIContent(translation, "maidPoseWindow", "limitJointsToggle"));
         limitLimbRotationsToggle.ControlEvent += OnLimitLimbRotationsChanged;
 
-        limitDigitRotationsToggle = new(Translation.Get("maidPoseWindow", "limitDigitsToggle"));
+        limitDigitRotationsToggle = new(new LocalizableGUIContent(translation, "maidPoseWindow", "limitDigitsToggle"));
         limitDigitRotationsToggle.ControlEvent += OnLimitDigitRotationsChanged;
 
-        customFloorHeightHeader = new(Translation.Get("maidPoseWindow", "customFloorHeightHeader"));
+        customFloorHeightHeader = new(
+            new LocalizableGUIContent(translation, "maidPoseWindow", "customFloorHeightHeader"));
 
-        customFloorHeightToggle = new(Translation.Get("maidPoseWindow", "customFloorHeightEnabledToggle"), false);
+        customFloorHeightToggle = new(
+            new LocalizableGUIContent(translation, "maidPoseWindow", "customFloorHeightEnabledToggle"), false);
+
         customFloorHeightToggle.ControlEvent += OnCustomFloorHeightToggleChanged;
 
         decreaseFloorHeightButton = new("<", 3f);
@@ -68,12 +74,12 @@ public class IKPane : BasePane
         floorHeightTextfield = new(0f);
         floorHeightTextfield.ControlEvent += OnFloorHeightChanged;
 
-        flipButton = new(Translation.Get("maidPoseWindow", "flipPoseToggle"));
+        flipButton = new(new LocalizableGUIContent(translation, "maidPoseWindow", "flipPoseToggle"));
         flipButton.ControlEvent += OnFlipButtonPushed;
 
-        transformInputToggle = new(Translation.Get("maidPoseWindow", "preciseTransformToggle"));
+        transformInputToggle = new(new LocalizableGUIContent(translation, "maidPoseWindow", "preciseTransformToggle"));
 
-        transformInputPane = new(transformClipboard)
+        transformInputPane = new(translation, transformClipboard)
         {
             LinkScale = true,
         };
@@ -171,19 +177,6 @@ public class IKPane : BasePane
 
             flipButton.Draw(GUILayout.ExpandWidth(false));
         }
-    }
-
-    protected override void ReloadTranslation()
-    {
-        paneHeader.Label = Translation.Get("maidPoseWindow", "header");
-        ikEnabledToggle.Label = Translation.Get("maidPoseWindow", "enabledToggle");
-        boneModeEnabledToggle.Label = Translation.Get("maidPoseWindow", "boneToggle");
-        limitLimbRotationsToggle.Label = Translation.Get("maidPoseWindow", "limitJointsToggle");
-        limitDigitRotationsToggle.Label = Translation.Get("maidPoseWindow", "limitDigitsToggle");
-        customFloorHeightHeader.Text = Translation.Get("maidPoseWindow", "customFloorHeightHeader");
-        customFloorHeightToggle.Label = Translation.Get("maidPoseWindow", "customFloorHeightEnabledToggle");
-        flipButton.Label = Translation.Get("maidPoseWindow", "flipPoseToggle");
-        transformInputToggle.Label = Translation.Get("maidPoseWindow", "preciseTransformToggle");
     }
 
     private void OnCharacterSelectionChanging(object sender, SelectionEventArgs<CharacterController> e)

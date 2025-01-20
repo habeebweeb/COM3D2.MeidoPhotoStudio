@@ -1,6 +1,7 @@
 using System.ComponentModel;
 
 using MeidoPhotoStudio.Plugin.Core.Effects;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
@@ -14,11 +15,16 @@ public class BloomPane : EffectPane<BloomController>
     private readonly Slider blueSlider;
     private readonly Toggle hdrToggle;
 
-    public BloomPane(BloomController effectController)
-        : base(effectController)
+    public BloomPane(Translation translation, BloomController effectController)
+        : base(translation, effectController)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         intensitySlider = new(
-            Translation.Get("effectBloom", "intensity"), 0f, 100f, Effect.BloomValue, Effect.BloomValue)
+            new LocalizableGUIContent(translation, "effectBloom", "intensity"),
+            0f,
+            100f,
+            Effect.BloomValue,
+            Effect.BloomValue)
         {
             HasTextField = true,
             HasReset = true,
@@ -26,7 +32,12 @@ public class BloomPane : EffectPane<BloomController>
 
         intensitySlider.ControlEvent += OnItensitySliderChanged;
 
-        blurSlider = new(Translation.Get("effectBloom", "blur"), 0f, 15f, Effect.BlurIterations, Effect.BlurIterations)
+        blurSlider = new(
+            new LocalizableGUIContent(translation, "effectBloom", "blur"),
+            0f,
+            15f,
+            Effect.BlurIterations,
+            Effect.BlurIterations)
         {
             HasTextField = true,
             HasReset = true,
@@ -36,7 +47,12 @@ public class BloomPane : EffectPane<BloomController>
 
         var bloomThresholdColour = Effect.BloomThresholdColour;
 
-        redSlider = new(Translation.Get("effectBloom", "red"), 1f, 0f, bloomThresholdColour.r, bloomThresholdColour.r)
+        redSlider = new(
+            new LocalizableGUIContent(translation, "effectBloom", "red"),
+            1f,
+            0f,
+            bloomThresholdColour.r,
+            bloomThresholdColour.r)
         {
             HasTextField = true,
             HasReset = true,
@@ -45,7 +61,11 @@ public class BloomPane : EffectPane<BloomController>
         redSlider.ControlEvent += OnColourSliderChanged;
 
         greenSlider = new(
-            Translation.Get("effectBloom", "green"), 1f, 0f, bloomThresholdColour.g, bloomThresholdColour.g)
+            new LocalizableGUIContent(translation, "effectBloom", "green"),
+            1f,
+            0f,
+            bloomThresholdColour.g,
+            bloomThresholdColour.g)
         {
             HasTextField = true,
             HasReset = true,
@@ -54,7 +74,11 @@ public class BloomPane : EffectPane<BloomController>
         greenSlider.ControlEvent += OnColourSliderChanged;
 
         blueSlider = new(
-            Translation.Get("effectBloom", "blue"), 1f, 0f, bloomThresholdColour.b, bloomThresholdColour.b)
+            new LocalizableGUIContent(translation, "effectBloom", "blue"),
+            1f,
+            0f,
+            bloomThresholdColour.b,
+            bloomThresholdColour.b)
         {
             HasTextField = true,
             HasReset = true,
@@ -62,7 +86,7 @@ public class BloomPane : EffectPane<BloomController>
 
         blueSlider.ControlEvent += OnColourSliderChanged;
 
-        hdrToggle = new(Translation.Get("effectBloom", "hdrToggle"), Effect.HDR);
+        hdrToggle = new(new LocalizableGUIContent(translation, "effectBloom", "hdrToggle"), Effect.HDR);
         hdrToggle.ControlEvent += OnHDRToggleChanged;
     }
 
@@ -76,18 +100,6 @@ public class BloomPane : EffectPane<BloomController>
         greenSlider.Draw();
         blueSlider.Draw();
         hdrToggle.Draw();
-    }
-
-    protected override void ReloadTranslation()
-    {
-        base.ReloadTranslation();
-
-        intensitySlider.Label = Translation.Get("effectBloom", "intensity");
-        blurSlider.Label = Translation.Get("effectBloom", "blur");
-        redSlider.Label = Translation.Get("backgroundWindow", "red");
-        greenSlider.Label = Translation.Get("backgroundWindow", "green");
-        blueSlider.Label = Translation.Get("backgroundWindow", "blue");
-        hdrToggle.Label = Translation.Get("effectBloom", "hdrToggle");
     }
 
     protected override void OnEffectPropertyChanged(object sender, PropertyChangedEventArgs e)

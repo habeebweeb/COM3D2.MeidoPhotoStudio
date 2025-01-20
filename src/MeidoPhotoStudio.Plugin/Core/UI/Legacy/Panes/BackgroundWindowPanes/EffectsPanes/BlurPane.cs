@@ -1,6 +1,7 @@
 using System.ComponentModel;
 
 using MeidoPhotoStudio.Plugin.Core.Effects;
+using MeidoPhotoStudio.Plugin.Core.Localization;
 using MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
@@ -11,24 +12,27 @@ public class BlurPane : EffectPane<BlurController>
     private readonly Slider blurIterationsSlider;
     private readonly Slider downsampleSlider;
 
-    public BlurPane(BlurController effectController)
-        : base(effectController)
+    public BlurPane(Translation translation, BlurController effectController)
+        : base(translation, effectController)
     {
-        blurSizeSlider = new(Translation.Get("effectBlur", "blurSize"), 0f, 20f, Effect.BlurSize)
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
+        blurSizeSlider = new(new LocalizableGUIContent(translation, "effectBlur", "blurSize"), 0f, 20f, Effect.BlurSize)
         {
             HasTextField = true,
         };
 
         blurSizeSlider.ControlEvent += OnBlurSizeChanged;
 
-        blurIterationsSlider = new(Translation.Get("effectBlur", "blurIterations"), 0f, 20f, Effect.BlurIterations)
+        blurIterationsSlider = new(
+            new LocalizableGUIContent(translation, "effectBlur", "blurIterations"), 0f, 20f, Effect.BlurIterations)
         {
             HasTextField = true,
         };
 
         blurIterationsSlider.ControlEvent += OnBlurIterationsChanged;
 
-        downsampleSlider = new(Translation.Get("effectBlur", "downsample"), 0f, 10f, Effect.Downsample)
+        downsampleSlider = new(
+            new LocalizableGUIContent(translation, "effectBlur", "downsample"), 0f, 10f, Effect.Downsample)
         {
             HasTextField = true,
         };
@@ -43,15 +47,6 @@ public class BlurPane : EffectPane<BlurController>
         blurSizeSlider.Draw();
         blurIterationsSlider.Draw();
         downsampleSlider.Draw();
-    }
-
-    protected override void ReloadTranslation()
-    {
-        base.ReloadTranslation();
-
-        blurSizeSlider.Label = Translation.Get("effectBlur", "blurSize");
-        blurIterationsSlider.Label = Translation.Get("effectBlur", "blurIterations");
-        downsampleSlider.Label = Translation.Get("effectBlur", "downsample");
     }
 
     protected override void OnEffectPropertyChanged(object sender, PropertyChangedEventArgs e)
