@@ -2,7 +2,6 @@ namespace MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 public class Button(GUIContent content) : BaseControl
 {
-    private float clickTime;
     private GUIContent content = content;
 
     public Button(string label)
@@ -46,17 +45,6 @@ public class Button(GUIContent content) : BaseControl
     public void Draw(GUIStyle buttonStyle, params GUILayoutOption[] layoutOptions)
     {
         if (GUILayout.Button(content, buttonStyle, layoutOptions))
-        {
-            if (Time.time - clickTime <= 0.3f)
-            {
-                Plugin.Logger.LogDebug("Double click");
-                DoubleClicked?.Invoke(this, EventArgs.Empty);
-            }
-            else
-            {
-                clickTime = Time.time;
-                OnControlEvent(EventArgs.Empty);
-            }
-        }
+            OnControlEvent(EventArgs.Empty);
     }
 }
