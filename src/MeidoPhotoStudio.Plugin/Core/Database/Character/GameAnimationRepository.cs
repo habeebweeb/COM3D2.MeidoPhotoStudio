@@ -119,7 +119,7 @@ public class GameAnimationRepository : IEnumerable<GameAnimationModel>
 
                     animationSet.Add(file);
 
-                    if (file.StartsWith("edit_"))
+                    if (file.Contains("edit_pose"))
                     {
                         animations.Add(new("normal", file));
                     }
