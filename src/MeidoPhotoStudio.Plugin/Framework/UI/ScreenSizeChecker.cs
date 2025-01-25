@@ -15,6 +15,9 @@ internal class ScreenSizeChecker : MonoBehaviour
     private void OnEnable() =>
         CheckScreenDimensions();
 
+    private void OnDestroy() =>
+        ScreenSizeChanged = null;
+
     private void CheckScreenDimensions()
     {
         var newScreenDimensions = new Vector2(Screen.width, Screen.height);
