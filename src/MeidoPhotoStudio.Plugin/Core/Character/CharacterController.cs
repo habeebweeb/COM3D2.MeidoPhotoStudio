@@ -162,7 +162,7 @@ public class CharacterController(CharacterModel characterModel, TransformWatcher
             Body ??= new(this);
             Clothing ??= new(this, transformWatcher);
 
-            Head.FreeLook = false;
+            Head.FreeLook = true;
             Head.HeadToCamera = true;
             Head.EyeToCamera = true;
 
