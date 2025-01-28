@@ -8,7 +8,7 @@ public class BloomController(UnityEngine.Camera camera) : EffectControllerBase
     private Bloom bloom;
     private bool active;
     private int initialGameBloomValue;
-    private int backupBloomValue;
+    private int bloomValue;
 
     // NOTE: The game will disable bloom when the bloom intensity is <= 0.01f so effect active needs to handled
     // differently.
@@ -22,15 +22,7 @@ public class BloomController(UnityEngine.Camera camera) : EffectControllerBase
 
             active = value;
 
-            if (active)
-            {
-                GameMain.Instance.CMSystem.BloomValue = backupBloomValue;
-            }
-            else
-            {
-                backupBloomValue = BloomValue;
-                GameMain.Instance.CMSystem.BloomValue = 0;
-            }
+            GameMain.Instance.CMSystem.BloomValue = active ? bloomValue : 0;
 
             base.Active = value;
         }
@@ -38,10 +30,13 @@ public class BloomController(UnityEngine.Camera camera) : EffectControllerBase
 
     public int BloomValue
     {
-        get => GameMain.Instance.CMSystem.BloomValue;
+        get => bloomValue;
         set
         {
-            GameMain.Instance.CMSystem.BloomValue = value;
+            bloomValue = value;
+
+            if (active)
+                GameMain.Instance.CMSystem.BloomValue = bloomValue;
 
             RaisePropertyChanged(nameof(BloomValue));
         }
@@ -94,17 +89,18 @@ public class BloomController(UnityEngine.Camera camera) : EffectControllerBase
         }
     }
 
-    public override void Reset()
-    {
+    public override void Reset() =>
         ApplyBackup(initialBloomSettings);
-        GameMain.Instance.CMSystem.BloomValue = initialGameBloomValue;
-    }
 
     protected override void Activate()
     {
         base.Activate();
 
-        backupBloomValue = initialGameBloomValue = GameMain.Instance.CMSystem.BloomValue;
+        initialGameBloomValue = GameMain.Instance.CMSystem.BloomValue;
+
+        BloomValue = initialGameBloomValue;
+
+        Active = true;
     }
 
     protected override void Deactivate()
@@ -117,7 +113,7 @@ public class BloomController(UnityEngine.Camera camera) : EffectControllerBase
     }
 
     private void ApplyBackup(BloomBackup backup) =>
-        (GameMain.Instance.CMSystem.BloomValue, BlurIterations, BloomThresholdColour, HDR) = backup;
+        (BloomValue, BlurIterations, BloomThresholdColour, HDR) = backup;
 
     private readonly record struct BloomBackup(int BloomValue, int BlurIterations, Color BloomThresholdColour, bool HDR)
     {
