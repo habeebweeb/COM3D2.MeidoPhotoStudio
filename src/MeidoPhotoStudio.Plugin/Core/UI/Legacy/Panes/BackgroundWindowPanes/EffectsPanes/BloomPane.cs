@@ -135,7 +135,7 @@ public class BloomPane : EffectPane<BloomController>
         Effect.BlurIterations = (int)((Slider)sender).Value;
 
     private void OnColourSliderChanged(object sender, EventArgs e) =>
-        Effect.BloomThresholdColour = new(redSlider.Value, blueSlider.Value, greenSlider.Value);
+        Effect.BloomThresholdColour = new(redSlider.Value, greenSlider.Value, blueSlider.Value);
 
     private void OnHDRToggleChanged(object sender, EventArgs e) =>
         Effect.HDR = ((Toggle)sender).Value;

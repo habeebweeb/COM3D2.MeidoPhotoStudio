@@ -148,5 +148,5 @@ public class FogPane : EffectPane<FogController>
         Effect.Height = ((Slider)sender).Value;
 
     private void OnColourSliderChanged(object sender, EventArgs e) =>
-        Effect.FogColour = new(redSlider.Value, blueSlider.Value, greenSlider.Value);
+        Effect.FogColour = new(redSlider.Value, greenSlider.Value, blueSlider.Value);
 }
