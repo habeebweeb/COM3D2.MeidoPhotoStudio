@@ -409,7 +409,8 @@
     "gizmoSpaceWorld": "World",
     "focusPropButton": "Focus",
     "addFavouriteButton": "Add to favourites",
-    "removeFavouriteButton": "Remove from favourites"
+    "removeFavouriteButton": "Remove from favourites",
+    "preciseTransformToggle": "Precise Transform"
   },
   "propShapeKeyPane": {
     "header": "Prop Shape Keys"

@@ -23,7 +23,7 @@ public class AnimationSelectorPane : BasePane
     private readonly PaneHeader paneHeader;
     private readonly Framework.UI.Legacy.ComboBox animationCategoryComboBox;
     private readonly TextField animationNameTextField;
-    private readonly Toggle saveAnimationToggle;
+    private readonly SubPaneHeader saveAnimationToggle;
     private readonly Button savePoseButton;
     private readonly Label initializingLabel;
     private readonly Label noAnimationsLabel;
@@ -229,7 +229,7 @@ public class AnimationSelectorPane : BasePane
 
         GUILayout.EndHorizontal();
 
-        if (saveAnimationToggle.Value)
+        if (saveAnimationToggle.Enabled)
             DrawAddAnimation();
 
         void DrawDropdowns()

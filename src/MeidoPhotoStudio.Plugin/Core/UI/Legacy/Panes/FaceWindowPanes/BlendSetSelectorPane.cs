@@ -21,7 +21,7 @@ public class BlendSetSelectorPane : BasePane
     private readonly Dictionary<BlendSetSource, Toggle> blendSetSourceToggles;
     private readonly Dropdown<string> blendSetCategoryDropdown;
     private readonly Dropdown<IBlendSetModel> blendSetDropdown;
-    private readonly Toggle saveBlendSetToggle;
+    private readonly SubPaneHeader saveBlendSetToggle;
     private readonly Framework.UI.Legacy.ComboBox blendSetCategoryComboBox;
     private readonly TextField blendSetNameTextField;
     private readonly Button saveBlendSetButton;
@@ -208,7 +208,7 @@ public class BlendSetSelectorPane : BasePane
 
         GUILayout.EndHorizontal();
 
-        if (saveBlendSetToggle.Value)
+        if (saveBlendSetToggle.Enabled)
             DrawAddBlendSet();
 
         void DrawAddBlendSet()

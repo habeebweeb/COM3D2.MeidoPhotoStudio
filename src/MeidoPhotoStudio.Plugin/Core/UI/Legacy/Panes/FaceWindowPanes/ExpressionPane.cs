@@ -35,8 +35,8 @@ public class ExpressionPane : BasePane
     private readonly Toggle blinkToggle;
     private readonly Button refreshRangeButton;
     private readonly PaneHeader paneHeader;
-    private readonly PaneHeader baseGameShapeKeyHeader;
-    private readonly PaneHeader customShapeKeyHeader;
+    private readonly SubPaneHeader baseGameShapeKeyHeader;
+    private readonly SubPaneHeader customShapeKeyHeader;
     private readonly ShapeKeysPane shapeKeysPane;
 
     public ExpressionPane(
@@ -138,6 +138,8 @@ public class ExpressionPane : BasePane
 
         if (baseGameShapeKeyHeader.Enabled)
             DrawBuiltinTab();
+
+        UIUtility.DrawBlackLine();
 
         customShapeKeyHeader.Draw();
 

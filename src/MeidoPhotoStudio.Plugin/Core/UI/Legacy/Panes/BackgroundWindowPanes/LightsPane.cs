@@ -31,7 +31,7 @@ public class LightsPane : BasePane
     private readonly Slider redSlider;
     private readonly Slider greenSlider;
     private readonly Slider blueSlider;
-    private readonly Toggle transformInputToggle;
+    private readonly SubPaneHeader transformInputToggle;
     private readonly TransformInputPane transformInputPane;
     private readonly Button resetPositionButton;
     private readonly Button resetPropertiesButton;
@@ -180,7 +180,7 @@ public class LightsPane : BasePane
         resetPositionButton = new(new LocalizableGUIContent(translation, "lightsPane", "resetPosition"));
         resetPositionButton.ControlEvent += OnResetPositionButtonPressed;
 
-        transformInputToggle = new(new LocalizableGUIContent(translation, "lightsPane", "preciseTransformToggle"));
+        transformInputToggle = new(new LocalizableGUIContent(translation, "lightsPane", "preciseTransformToggle"), false);
 
         transformInputPane = new(translation, transformClipboard)
         {
@@ -252,7 +252,7 @@ public class LightsPane : BasePane
 
         transformInputToggle.Draw();
 
-        if (transformInputToggle.Value)
+        if (transformInputToggle.Enabled)
             transformInputPane.Draw();
 
         DrawReset();

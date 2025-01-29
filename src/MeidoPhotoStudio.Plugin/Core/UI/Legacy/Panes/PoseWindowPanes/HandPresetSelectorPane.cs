@@ -19,7 +19,7 @@ public class HandPresetSelectorPane : BasePane
     private readonly Button applyLeftHandButton;
     private readonly Button applyRightHandButton;
     private readonly Button swapHandsButton;
-    private readonly Toggle savePresetToggle;
+    private readonly SubPaneHeader savePresetToggle;
     private readonly Framework.UI.Legacy.ComboBox handPresetCategoryComboBox;
     private readonly TextField handPresetNameTextField;
     private readonly Button saveLeftPresetButton;
@@ -73,7 +73,7 @@ public class HandPresetSelectorPane : BasePane
         swapHandsButton = new(new LocalizableGUIContent(translation, "handPane", "swapHands"));
         swapHandsButton.ControlEvent += OnSwapButtonPushed;
 
-        savePresetToggle = new(new LocalizableGUIContent(translation, "handPane", "saveToggle"));
+        savePresetToggle = new(new LocalizableGUIContent(translation, "handPane", "saveToggle"), false);
         handPresetCategoryComboBox = new(this.handPresetRepository.Categories)
         {
             PlaceholderContent = new LocalizableGUIContent(translation, "handPane", "categorySearchBarPlaceholder"),
@@ -168,13 +168,11 @@ public class HandPresetSelectorPane : BasePane
 
         savePresetToggle.Draw();
 
-        GUILayout.FlexibleSpace();
-
-        refreshButton.Draw();
+        refreshButton.Draw(GUILayout.ExpandWidth(false));
 
         GUILayout.EndHorizontal();
 
-        if (savePresetToggle.Value)
+        if (savePresetToggle.Enabled)
             DrawAddHandPreset();
 
         void DrawAddHandPreset()

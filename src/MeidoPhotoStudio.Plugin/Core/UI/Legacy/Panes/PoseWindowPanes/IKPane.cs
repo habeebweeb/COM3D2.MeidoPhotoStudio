@@ -23,7 +23,7 @@ public class IKPane : BasePane
     private readonly Button flipButton;
     private readonly RepeatButton decreaseFloorHeightButton;
     private readonly RepeatButton increaseFloorHeightButton;
-    private readonly Toggle transformInputToggle;
+    private readonly SubPaneHeader transformInputToggle;
     private readonly TransformInputPane transformInputPane;
     private readonly Header customFloorHeightHeader;
 
@@ -77,7 +77,7 @@ public class IKPane : BasePane
         flipButton = new(new LocalizableGUIContent(translation, "maidPoseWindow", "flipPoseToggle"));
         flipButton.ControlEvent += OnFlipButtonPushed;
 
-        transformInputToggle = new(new LocalizableGUIContent(translation, "maidPoseWindow", "preciseTransformToggle"));
+        transformInputToggle = new(new LocalizableGUIContent(translation, "maidPoseWindow", "preciseTransformToggle"), false);
 
         transformInputPane = new(translation, transformClipboard)
         {
@@ -118,7 +118,7 @@ public class IKPane : BasePane
 
         transformInputToggle.Draw();
 
-        if (transformInputToggle.Value)
+        if (transformInputToggle.Enabled)
             transformInputPane.Draw();
 
         void DrawIK(bool enabled)

@@ -28,6 +28,7 @@ public class PropManagerPane : BasePane
     private readonly Button copyPropButton;
     private readonly Toggle.Group gizmoModeGroup;
     private readonly Dictionary<CustomGizmo.GizmoMode, Toggle> gizmoModeToggles;
+    private readonly SubPaneHeader transformPaneHeader;
     private readonly TransformInputPane transformInputPane;
     private readonly Button focusButton;
     private readonly Button addToFavouritesButton;
@@ -118,6 +119,7 @@ public class PropManagerPane : BasePane
         removeFromFavouritesButton = new(new LocalizableGUIContent(translation, "propManagerPane", "removeFavouriteButton"));
         removeFromFavouritesButton.ControlEvent += OnRemoveFavouritePropButtonPushed;
 
+        transformPaneHeader = new(new LocalizableGUIContent(translation, "propManagerPane", "preciseTransformToggle"), false);
         transformInputPane = new(translation, this.transformClipboard);
         Add(transformInputPane);
 
@@ -215,7 +217,10 @@ public class PropManagerPane : BasePane
 
         UIUtility.DrawBlackLine();
 
-        transformInputPane.Draw();
+        transformPaneHeader.Draw();
+
+        if (transformPaneHeader.Enabled)
+            transformInputPane.Draw();
     }
 
     private void UpdateControls()

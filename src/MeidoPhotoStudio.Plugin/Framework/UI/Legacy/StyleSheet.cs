@@ -8,5 +8,5 @@ public static class StyleSheet
 
     public static int HeadingSize { get; } = 19;
 
-    public static int SubHeadingSize { get; } = 17;
+    public static int SubHeadingSize { get; } = 16;
 }

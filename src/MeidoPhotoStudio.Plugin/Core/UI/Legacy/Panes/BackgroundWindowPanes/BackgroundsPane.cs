@@ -17,7 +17,7 @@ public class BackgroundsPane : BasePane
     private readonly Dropdown<BackgroundModel> backgroundDropdown;
     private readonly Toggle dragHandleEnabledToggle;
     private readonly Toggle backgroundVisibleToggle;
-    private readonly Toggle colourModeToggle;
+    private readonly SubPaneHeader colourModeToggle;
     private readonly Slider redSlider;
     private readonly Slider greenSlider;
     private readonly Slider blueSlider;
@@ -66,7 +66,7 @@ public class BackgroundsPane : BasePane
 
         backgroundVisibleToggle.ControlEvent += OnToggledBackgroundVisible;
 
-        colourModeToggle = new(new LocalizableGUIContent(translation, "backgroundsPane", "colour"));
+        colourModeToggle = new(new LocalizableGUIContent(translation, "backgroundsPane", "colour"), false);
 
         var backgroundColour = backgroundService.BackgroundColour;
 
@@ -160,9 +160,7 @@ public class BackgroundsPane : BasePane
 
             backgroundVisibleToggle.Draw();
 
-            GUILayout.FlexibleSpace();
-
-            dragHandleEnabledToggle.Draw();
+            dragHandleEnabledToggle.Draw(GUILayout.ExpandWidth(false));
 
             GUILayout.EndHorizontal();
         }
@@ -171,7 +169,7 @@ public class BackgroundsPane : BasePane
         {
             colourModeToggle.Draw();
 
-            if (!colourModeToggle.Value)
+            if (!colourModeToggle.Enabled)
                 return;
 
             redSlider.Draw();
