@@ -336,7 +336,6 @@ public class LightsPane : BasePane
         void DrawReset()
         {
             resetHeader.Draw();
-            UIUtility.DrawBlackLine();
 
             GUILayout.BeginHorizontal();
 

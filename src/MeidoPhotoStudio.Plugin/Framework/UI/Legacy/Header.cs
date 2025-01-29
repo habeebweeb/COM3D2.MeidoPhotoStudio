@@ -13,10 +13,10 @@ public class Header(GUIContent content) : BaseControl
         StyleSheet.SubHeadingSize,
         static () => new(GUI.skin.label)
         {
-            padding = new(7, 0, 0, -5),
             fontStyle = FontStyle.Bold,
             normal = { textColor = Color.white },
             wordWrap = true,
+            contentOffset = new(5f, 0f),
         });
 
     public string Text
