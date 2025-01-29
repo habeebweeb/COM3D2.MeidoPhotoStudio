@@ -25,9 +25,19 @@ public class PaneHeader(GUIContent content, bool open = true) : BaseControl
         oenLR+5C2+IMSHSJcwg1xQ2thqoWYL3qKv3mBOnbF8kKK4jEAAAAAElFTkSuQmCC
         """;
 
+    private static readonly GUILayoutOption[] LineHeight = [GUILayout.Height(1)];
     private static readonly GUIContent ClosedArrow = new(UIUtility.LoadTextureFromBase64(16, 16, ClosedArrowBase64));
     private static readonly GUIContent OpenedArrow = new(UIUtility.LoadTextureFromBase64(16, 16, OpenedArrowBase64));
     private static readonly GUIContent ClosedArrowRight = new(UIUtility.LoadTextureFromBase64(16, 16, ClosedArrowRightBase64));
+    private static readonly LazyStyle WhiteLineStyle = new(
+        0,
+        static () => new(GUI.skin.box)
+        {
+            margin = new(0, 0, 0, 0),
+            normal = { background = UIUtility.CreateTexture(2, 2, new(0.75f, 0.75f, 0.75f)) },
+            padding = new(0, 0, 1, 1),
+            border = new(0, 0, 1, 1),
+        });
 
     private static readonly LazyStyle ArrowStyle = new(
         0,
@@ -88,7 +98,7 @@ public class PaneHeader(GUIContent content, bool open = true) : BaseControl
         GUI.Box(leftArrowRect, Enabled ? OpenedArrow : ClosedArrow, ArrowStyle);
         GUI.Box(rightArrowRect, Enabled ? OpenedArrow : ClosedArrowRight, ArrowStyle);
 
-        UIUtility.DrawWhiteLine();
+        GUILayout.Box(GUIContent.none, WhiteLineStyle, LineHeight);
 
         GUILayout.Space(3f);
     }

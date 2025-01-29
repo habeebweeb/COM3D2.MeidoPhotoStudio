@@ -5,16 +5,6 @@ public static class UIUtility
     private static readonly List<Texture> CreatedTextures = [];
     private static readonly GUILayoutOption[] LineHeight = [GUILayout.Height(1)];
 
-    private static readonly LazyStyle WhiteLineStyle = new(
-        0,
-        static () => new(GUI.skin.box)
-        {
-            margin = new(0, 0, 0, 0),
-            normal = { background = CreateTexture(2, 2, Color.white with { a = 0.3f }) },
-            padding = new(0, 0, 1, 1),
-            border = new(0, 0, 1, 1),
-        });
-
     private static readonly LazyStyle BlackLineStyle = new(
         0,
         static () => new(GUI.skin.box)
@@ -77,9 +67,6 @@ public static class UIUtility
 
         return texture;
     }
-
-    public static void DrawWhiteLine() =>
-        GUILayout.Box(GUIContent.none, WhiteLineStyle, LineHeight);
 
     public static void DrawBlackLine() =>
         GUILayout.Box(GUIContent.none, BlackLineStyle, LineHeight);
