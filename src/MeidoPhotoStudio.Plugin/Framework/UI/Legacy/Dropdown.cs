@@ -52,7 +52,7 @@ public class Dropdown<T> : DropdownBase<T>
         {
             base.Formatter = value;
 
-            label = Count is 0 ? GUIContent.none : FormattedItem(SelectedItemIndex);
+            UpdateButtonContent();
         }
     }
 
@@ -131,6 +131,13 @@ public class Dropdown<T> : DropdownBase<T>
         DropdownClosed?.Invoke(this, EventArgs.Empty);
     }
 
+    protected override void OnReformatted()
+    {
+        base.OnReformatted();
+
+        UpdateButtonContent();
+    }
+
     private static int Wrap(int value, int min, int max) =>
         value < min ? max :
         value >= max ? min :
@@ -142,7 +149,7 @@ public class Dropdown<T> : DropdownBase<T>
 
         base.SetItems(items, newIndex);
 
-        label = Count is 0 ? GUIContent.none : FormattedItem(SelectedItemIndex);
+        UpdateButtonContent();
 
         if (!notify)
             return;
@@ -156,11 +163,14 @@ public class Dropdown<T> : DropdownBase<T>
 
         base.SelectedItemIndex = index;
 
-        label = Count is 0 ? GUIContent.none : FormattedItem(SelectedItemIndex);
+        UpdateButtonContent();
 
         if (!notify)
             return;
 
         SelectionChanged?.Invoke(this, new(SelectedItem, SelectedItemIndex, previousSelectedItemIndex));
     }
+
+    private void UpdateButtonContent() =>
+        label = Count is 0 ? GUIContent.none : FormattedItem(SelectedItemIndex);
 }

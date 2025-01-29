@@ -73,6 +73,8 @@ public abstract class DropdownBase<T> : BaseControl, IEnumerable<T>, IDropdownHa
             item.Dispose();
 
         dropdownItems = [];
+
+        OnReformatted();
     }
 
     public void Clear() =>
@@ -143,6 +145,10 @@ public abstract class DropdownBase<T> : BaseControl, IEnumerable<T>, IDropdownHa
         SelectedItemIndex = index;
 
     protected virtual void OnDropdownClosed(bool clickedButton)
+    {
+    }
+
+    protected virtual void OnReformatted()
     {
     }
 
