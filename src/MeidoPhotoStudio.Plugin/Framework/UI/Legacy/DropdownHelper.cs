@@ -1,3 +1,5 @@
+using MeidoPhotoStudio.Plugin.Framework.Extensions;
+
 using UInput = UnityEngine.Input;
 
 namespace MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
@@ -12,14 +14,33 @@ internal static class DropdownHelper
             alignment = TextAnchor.UpperRight,
         });
 
+    private static readonly Dictionary<char, Vector2> CharacterDimensions = [];
     private static readonly VirtualList VirtualList = new();
+    private static readonly GUIContent CharacterContent = new();
 
+    private static GUIStyle calculationStyle;
     private static IDropdownHandler dropdownHandler;
     private static Rect buttonRect;
     private static Rect dropdownWindow;
     private static Rect dropdownScrollRect;
 
-    public static LazyStyle DefaultDropdownStyle { get; } = new(
+    static DropdownHelper()
+    {
+        ScreenSizeChecker.ScreenSizeChanged += OnScreenSizeChanged;
+
+        static void OnScreenSizeChanged(object sender, EventArgs e)
+        {
+            calculationStyle = null;
+            CharacterDimensions.Clear();
+            VirtualList.Invalidate();
+
+            CloseDropdown();
+        }
+    }
+
+    public static bool Visible { get; private set; }
+
+    internal static LazyStyle DropdownItemStyle { get; } = new(
         StyleSheet.TextSize,
         static () =>
         {
@@ -53,15 +74,6 @@ internal static class DropdownHelper
             };
         });
 
-    public static bool Visible { get; private set; }
-
-    public static Vector2 CalculateItemDimensions(GUIContent content)
-    {
-        _ = content ?? throw new ArgumentNullException(nameof(content));
-
-        return ((GUIStyle)DefaultDropdownStyle).CalcSize(content);
-    }
-
     public static void OpenDropdown(IDropdownHandler dropdownHandler, Rect buttonRect)
     {
         DropdownHelper.dropdownHandler = dropdownHandler ?? throw new ArgumentNullException(nameof(dropdownHandler));
@@ -87,7 +99,7 @@ internal static class DropdownHelper
         var heightAbove = DropdownHelper.buttonRect.y - 15f;
         var heightBelow = Screen.height - DropdownHelper.buttonRect.yMax - 15f;
 
-        var windowWidth = Mathf.Max(scrollViewWidth, DropdownHelper.buttonRect.width);
+        var windowWidth = Mathf.Max(scrollViewWidth + 12f, DropdownHelper.buttonRect.width);
         var windowHeight = Mathf.Min(scrollViewHeight, Mathf.Max(heightAbove, heightBelow));
         var windowX = Mathf.Clamp(DropdownHelper.buttonRect.x, 0f, Screen.width - windowWidth);
         var windowY = scrollViewHeight > heightBelow && heightAbove > heightBelow
@@ -119,6 +131,80 @@ internal static class DropdownHelper
             UInput.ResetInputAxes();
     }
 
+    internal static Vector2 CalculateItemDimensions(string value)
+    {
+        var lineCount = 0;
+        var (totalWidth, totalHeight) = (0f, 0f);
+        var (lineWidth, lineHeight) = (0f, 0f);
+
+        for (var i = 0; i < value.Length; i++)
+        {
+            var character = value[i];
+            var (characterWidth, characterHeight) = GetCharacterDimensions(character);
+
+            if (character is '\n' or '\r')
+            {
+                if (character is '\r')
+                {
+                    if (i + 1 >= value.Length || value[i + 1] is not '\n')
+                        continue;
+
+                    (_, characterHeight) = GetCharacterDimensions('\n');
+
+                    i++;
+                }
+
+                characterHeight /= 2f;
+
+                if (characterHeight >= lineHeight)
+                    lineHeight = characterHeight;
+
+                if (lineWidth >= totalWidth)
+                    totalWidth = lineWidth;
+
+                totalHeight += lineHeight;
+
+                lineCount++;
+                lineWidth = 0f;
+                lineHeight = 0f;
+            }
+            else
+            {
+                lineWidth += characterWidth;
+
+                if (characterHeight >= lineHeight)
+                    lineHeight = characterHeight;
+
+                if (lineWidth >= totalWidth)
+                    totalWidth = lineWidth;
+
+                if (lineHeight >= totalHeight)
+                    totalHeight = lineHeight;
+            }
+        }
+
+        return new(totalWidth + 12, totalHeight + (lineCount + 1) * 2);
+
+        static Vector2 GetCharacterDimensions(char character)
+        {
+            if (!CharacterDimensions.TryGetValue(character, out var dimensions))
+            {
+                calculationStyle ??= new GUIStyle((GUIStyle)DropdownItemStyle)
+                {
+                    padding = new(0, 0, 0, 0),
+                    margin = new(0, 0, 0, 0),
+                    border = new(0, 0, 0, 0),
+                };
+
+                CharacterContent.text = character.ToString();
+                dimensions = calculationStyle.CalcSize(CharacterContent);
+                CharacterDimensions[character] = dimensions;
+            }
+
+            return dimensions;
+        }
+    }
+
     private static void DropdownWindow(int windowId)
     {
         dropdownHandler.ScrollPosition = VirtualList
@@ -134,7 +220,7 @@ internal static class DropdownHelper
                     dropdownHandler.ItemDimensions(index).y),
                 dropdownHandler.SelectedItemIndex == index,
                 dropdownHandler.FormattedItem(index),
-                DefaultDropdownStyle);
+                DropdownItemStyle);
 
             if (value != (dropdownHandler.SelectedItemIndex == index))
             {

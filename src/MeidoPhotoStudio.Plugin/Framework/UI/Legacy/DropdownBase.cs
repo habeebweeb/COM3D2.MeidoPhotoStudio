@@ -103,7 +103,7 @@ public abstract class DropdownBase<T> : BaseControl, IEnumerable<T>, IDropdownHa
 
         var dropdownItem = GetDropdownItem(index);
 
-        size = DropdownHelper.CalculateItemDimensions(new(dropdownItem.Label));
+        size = DropdownHelper.CalculateItemDimensions(dropdownItem.Label);
 
         if (dropdownItem.HasIcon)
         {
@@ -152,9 +152,6 @@ public abstract class DropdownBase<T> : BaseControl, IEnumerable<T>, IDropdownHa
     {
     }
 
-    private void OnScreenSizeChanged(object sender, EventArgs e)
-    {
-        DropdownHelper.CloseDropdown();
+    private void OnScreenSizeChanged(object sender, EventArgs e) =>
         itemSizeCache = [];
-    }
 }
