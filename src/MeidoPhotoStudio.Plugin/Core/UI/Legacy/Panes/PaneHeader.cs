@@ -11,6 +11,13 @@ public class PaneHeader(GUIContent content, bool open = true) : BaseControl
         yl15CCdv9vHnv4NdawAAAABJRU5ErkJggg==
         """;
 
+    private const string ClosedArrowRightBase64 =
+        """
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAATklEQVQ4y2NgGFLg////9v///39B
+        jkaB////H/gPBaRqbv7///+v/0iAJOf+xwJIci5JBmBzLiEDmGgRVeR7gSqBSLVopFpCokpSpikA
+        AL6D9WxzYwkYAAAAAElFTkSuQmCC
+        """;
+
     private const string OpenedArrowBase64 =
         """
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAaUlEQVQ4y92RsQ2AMAwEbYkC1sg8
@@ -20,27 +27,31 @@ public class PaneHeader(GUIContent content, bool open = true) : BaseControl
 
     private static readonly GUIContent ClosedArrow = new(UIUtility.LoadTextureFromBase64(16, 16, ClosedArrowBase64));
     private static readonly GUIContent OpenedArrow = new(UIUtility.LoadTextureFromBase64(16, 16, OpenedArrowBase64));
+    private static readonly GUIContent ClosedArrowRight = new(UIUtility.LoadTextureFromBase64(16, 16, ClosedArrowRightBase64));
 
     private static readonly LazyStyle ArrowStyle = new(
         0,
         static () => new(GUI.skin.box)
         {
             margin = new(0, 0, 0, 0),
-            padding = new(0, 0, 5, 5),
+            padding = new(0, 0, UIUtility.Scaled(5), UIUtility.Scaled(5)),
             alignment = TextAnchor.MiddleCenter,
             normal = { background = Texture2D.blackTexture },
-        });
+        },
+        static style => style.padding = new(0, 0, UIUtility.Scaled(5), UIUtility.Scaled(5)));
 
     private static readonly LazyStyle ToggleStyle = new(
         StyleSheet.HeadingSize,
         static () => new(GUI.skin.box)
         {
-            padding = new(5, 5, 5, 5),
-            margin = new(0, 0, 5, 0),
+            margin = new(0, 0, 0, 0),
+            padding = new(UIUtility.Scaled(16), UIUtility.Scaled(16), UIUtility.Scaled(5), UIUtility.Scaled(5)),
             normal = { textColor = Color.white },
             fontStyle = FontStyle.Bold,
+            alignment = TextAnchor.MiddleCenter,
             wordWrap = true,
-        });
+        },
+        static style => style.padding = new(UIUtility.Scaled(16), UIUtility.Scaled(16), UIUtility.Scaled(5), UIUtility.Scaled(5)));
 
     private GUIContent content = content;
 
@@ -71,10 +82,14 @@ public class PaneHeader(GUIContent content, bool open = true) : BaseControl
         Enabled = GUILayout.Toggle(Enabled, content, style, layoutOptions);
 
         var toggleRect = GUILayoutUtility.GetLastRect();
-        var arrowRect = toggleRect with { x = 0f, width = UIUtility.Scaled(25f) };
+        var leftArrowRect = toggleRect with { x = UIUtility.Scaled(5), width = UIUtility.Scaled(16) };
+        var rightArrowRect = leftArrowRect with { x = toggleRect.width - UIUtility.Scaled(21) };
 
-        GUI.Box(arrowRect, Enabled ? OpenedArrow : ClosedArrow, ArrowStyle);
+        GUI.Box(leftArrowRect, Enabled ? OpenedArrow : ClosedArrow, ArrowStyle);
+        GUI.Box(rightArrowRect, Enabled ? OpenedArrow : ClosedArrowRight, ArrowStyle);
 
         UIUtility.DrawWhiteLine();
+
+        GUILayout.Space(3f);
     }
 }
