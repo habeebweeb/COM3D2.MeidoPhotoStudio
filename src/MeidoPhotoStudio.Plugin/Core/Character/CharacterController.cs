@@ -201,6 +201,18 @@ public class CharacterController(CharacterModel characterModel, TransformWatcher
 
         Head?.ResetBothEyeRotations();
 
+        if (Clothing?.HairGravityController is GravityController hairGravityController)
+            hairGravityController.Enabled = false;
+
+        if (Clothing?.ClothingGravityController is GravityController clothingGravityController)
+            clothingGravityController.Enabled = false;
+
+        if (IK is IKController ik)
+        {
+            ik.MuneLEnabled = true;
+            ik.MuneREnabled = true;
+        }
+
         if (Maid.body0)
             Maid.body0.BoneHitHeightY = 0f;
 
