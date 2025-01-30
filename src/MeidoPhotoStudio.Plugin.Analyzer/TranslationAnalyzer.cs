@@ -82,23 +82,40 @@ public class TranslationAnalyzer : DiagnosticAnalyzer
                 if (translations.Count is 0)
                     return;
 
-                context.RegisterSyntaxNodeAction(AnalyzeTranslationGetArguments, SyntaxKind.InvocationExpression);
+                context.RegisterSyntaxNodeAction(AnalyzeTranslationAccessArguments, SyntaxKind.ElementAccessExpression);
+                context.RegisterSyntaxNodeAction(AnalyzeLocalizableGUIContentArguments, SyntaxKind.ObjectCreationExpression);
 
-                void AnalyzeTranslationGetArguments(SyntaxNodeAnalysisContext context)
+                void AnalyzeTranslationAccessArguments(SyntaxNodeAnalysisContext context)
                 {
-                    if (context.Node is not InvocationExpressionSyntax invocation || !InvocationIsGet(invocation))
+                    if (context.Node is not ElementAccessExpressionSyntax access)
                         return;
 
+                    if (context.SemanticModel.GetSymbolInfo(access, context.CancellationToken).Symbol is not IPropertySymbol symbol)
+                        return;
+
+                    if (access.ArgumentList?.Arguments is not { Count: 2 } args)
+                        return;
+
+                    AnalyzeTranslationArguments(context, args[0].Expression, args[1].Expression);
+                }
+
+                void AnalyzeLocalizableGUIContentArguments(SyntaxNodeAnalysisContext context)
+                {
+                    if (context.Node is not ObjectCreationExpressionSyntax creation)
+                        return;
+
+                    if (context.SemanticModel.GetTypeInfo(creation, context.CancellationToken) is not { Type.Name: "LocalizableGUIContent" })
+                        return;
+
+                    if (creation.ArgumentList?.Arguments is not { Count: 3 } args)
+                        return;
+
+                    AnalyzeTranslationArguments(context, args[1].Expression, args[2].Expression);
+                }
+
+                void AnalyzeTranslationArguments(SyntaxNodeAnalysisContext context, ExpressionSyntax? categoryExpression, ExpressionSyntax? keyExpression)
+                {
                     var model = context.SemanticModel;
-
-                    if (model.GetSymbolInfo(invocation.Expression, context.CancellationToken).Symbol is not IMethodSymbol methodSymbol)
-                        return;
-
-                    if (methodSymbol.ContainingType is not INamedTypeSymbol { Name: "Translation" })
-                        return;
-
-                    if (!GetCategoryAndKey(invocation, out var categoryExpression, out var keyExpression))
-                        return;
 
                     if (categoryExpression is null || !GetConstantValue(model, categoryExpression, out var category))
                         return;
@@ -115,41 +132,6 @@ public class TranslationAnalyzer : DiagnosticAnalyzer
 
                     if (!categoryTranslations.TryGetValue(key, out var translation))
                         context.ReportDiagnostic(Diagnostic.Create(ValidKeyRule, keyExpression.GetLocation(), key, category));
-
-                    static bool InvocationIsGet(SyntaxNode node)
-                    {
-                        switch (node)
-                        {
-                            case InvocationExpressionSyntax invocationExpressionSyntax:
-                                return InvocationIsGet(invocationExpressionSyntax.Expression);
-                            case MemberAccessExpressionSyntax memberAccessExpressionSyntax:
-                                return InvocationIsGet(memberAccessExpressionSyntax.Name);
-                            case IdentifierNameSyntax identifierNameSyntax:
-                                var text = identifierNameSyntax.Identifier.Text;
-                                return string.Equals(text, "Get", StringComparison.Ordinal);
-                            default:
-                                return false;
-                        }
-                    }
-
-                    static bool GetCategoryAndKey(
-                        InvocationExpressionSyntax invocation,
-                        out ExpressionSyntax? category,
-                        out ExpressionSyntax? key)
-                    {
-                        category = null;
-                        key = null;
-
-                        var args = invocation.ArgumentList.Arguments;
-
-                        if (args.Count is not 2)
-                            return false;
-
-                        category = args[0].Expression;
-                        key = args[1].Expression;
-
-                        return true;
-                    }
 
                     bool GetConstantValue(SemanticModel model, ExpressionSyntax expression, out string value)
                     {

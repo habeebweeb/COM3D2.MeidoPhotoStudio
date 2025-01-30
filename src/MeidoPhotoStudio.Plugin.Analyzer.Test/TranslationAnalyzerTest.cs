@@ -7,10 +7,19 @@ public class TranslationAnalyzerTest
 {
     private const string TranslationSource =
         """
-        public static class Translation
+        public partial class Test
         {
-            public static string Get(string category, string key) =>
-                $"{category}: {key}";
+            private static readonly Translation Translation = new();
+        }
+
+        public class Translation
+        {
+            public string this[string category, string key] =>
+                string.Empty;
+        }
+
+        public class LocalizableGUIContent(Translation translation, string category, string key)
+        {
         }
         """;
 
@@ -48,28 +57,6 @@ public class TranslationAnalyzerTest
         """;
 
     [Fact]
-    public async Task CorrectMethodTest() =>
-        await new CSharpAnalyzerTest<TranslationAnalyzer, DefaultVerifier>()
-        {
-            TestState =
-            {
-                AdditionalFiles = { ("translation.ui.json", TranslationFile), },
-            },
-            TestCode =
-                """
-                public class Test
-                {
-                    public static void Main() =>
-                        Get("Nice", "World");
-
-                    private static void Get(string key, string value)
-                    {
-                    }
-                }
-                """,
-        }.RunAsync();
-
-    [Fact]
     public async Task ValidTranslationsTest() =>
         await new CSharpAnalyzerTest<TranslationAnalyzer, DefaultVerifier>()
         {
@@ -80,10 +67,13 @@ public class TranslationAnalyzerTest
             },
             TestCode =
                 """
-                public class Test
+                public partial class Test
                 {
-                    public static void Main() =>
-                        Translation.Get("buttons", "open");
+                    public static void Main()
+                    {
+                        _ = Translation["buttons", "open"];
+                        _ = new LocalizableGUIContent(Translation, "buttons", "open");
+                    }
                 }
                 """,
         }.RunAsync();
@@ -99,10 +89,13 @@ public class TranslationAnalyzerTest
             },
             TestCode =
                 """
-                public class Test
+                public partial class Test
                 {
-                    public static void Main() =>
-                        Translation.Get({|MPS0001:"oops"|}, "open");
+                    public static void Main()
+                    {
+                        _ = Translation[{|MPS0001:"oops"|}, "open"];
+                        _ = new LocalizableGUIContent(Translation, {|MPS0001:"oops"|}, "open");
+                    }
                 }
                 """,
         }.RunAsync();
@@ -118,10 +111,13 @@ public class TranslationAnalyzerTest
             },
             TestCode =
                 """
-                public class Test
+                public partial class Test
                 {
-                    public static void Main() =>
-                        Translation.Get("buttons", {|MPS0002:"oops"|});
+                    public static void Main()
+                    {
+                        _ = Translation["buttons", {|MPS0002:"oops"|}];
+                        _ = new LocalizableGUIContent(Translation, "buttons", {|MPS0002:"oops"|});
+                    }
                 }
                 """,
         }.RunAsync();
@@ -137,12 +133,15 @@ public class TranslationAnalyzerTest
             },
             TestCode =
                 """
-                public class Test
+                public partial class Test
                 {
                     private const string Category = "buttons";
 
-                    public static void Main() =>
-                        Translation.Get(Category, "open");
+                    public static void Main()
+                    {
+                        _ = Translation[Category, "open"];
+                        _ = new LocalizableGUIContent(Translation, Category, "open");
+                    }
                 }
                 """,
         }.RunAsync();
@@ -158,13 +157,14 @@ public class TranslationAnalyzerTest
             },
             TestCode =
                 """
-                public class Test
+                public partial class Test
                 {
                     public static void Main()
                     {
                         const string category = "buttons";
 
-                        Translation.Get(category, "open");
+                        _ = Translation[category, "open"];
+                        _ = new LocalizableGUIContent(Translation, category, "open");
                     }
                 }
                 """,
@@ -181,7 +181,7 @@ public class TranslationAnalyzerTest
             },
             TestCode =
                 """
-                public class Test
+                public partial class Test
                 {
                     private const string RootCategory = "cool";
                     private const string ButtonCategory = $"{RootCategory}Buttons";
@@ -189,8 +189,10 @@ public class TranslationAnalyzerTest
 
                     public static void Main()
                     {
-                        Translation.Get(ButtonCategory, "open");
-                        Translation.Get(ToggleCategory, "visibility");
+                        _ = Translation[ButtonCategory, "open"];
+                        _ = Translation[ToggleCategory, "visibility"];
+                        _ = new LocalizableGUIContent(Translation, ButtonCategory, "open");
+                        _ = new LocalizableGUIContent(Translation, ToggleCategory, "visibility");
                     }
                 }
                 """,
@@ -207,10 +209,13 @@ public class TranslationAnalyzerTest
             },
             TestCode =
                 """
-                public class Test
+                public partial class Test
                 {
-                    public static void Main() =>
-                        Translation.Get({|MPS0001:"Buttons"|}, "open");
+                    public static void Main()
+                    {
+                        _ = Translation[{|MPS0001:"Buttons"|}, "open"];
+                        _ = new LocalizableGUIContent(Translation, {|MPS0001:"Buttons"|}, "open");
+                    }
                 }
                 """,
         }.RunAsync();
@@ -230,12 +235,14 @@ public class TranslationAnalyzerTest
             },
             TestCode =
                 """
-                public class Test
+                public partial class Test
                 {
                     public static void Main()
                     {
-                        Translation.Get("buttons", "open");
-                        Translation.Get("sliders", {|MPS0002:"yellow"|});
+                        _ = Translation["buttons", "open"];
+                        _ = Translation["sliders", {|MPS0002:"yellow"|}];
+                        _ = new LocalizableGUIContent(Translation, "buttons", "open");
+                        _ = new LocalizableGUIContent(Translation, "sliders", {|MPS0002:"yellow"|});
                     }
                 }
                 """,
