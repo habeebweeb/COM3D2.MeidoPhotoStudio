@@ -4,6 +4,9 @@ public abstract class BasePane : IEnumerable<BasePane>
 {
     private List<BasePane> panes;
 
+    protected int PaneCount =>
+        panes?.Count ?? 0;
+
     protected BaseWindow Parent { get; private set; }
 
     protected IEnumerable<BasePane> Panes =>
@@ -11,9 +14,12 @@ public abstract class BasePane : IEnumerable<BasePane>
 
     private int TextFieldHeight { get; } = Mathf.CeilToInt(StyleSheet.TextSize * 1.85f);
 
+    protected BasePane this[int index] =>
+        panes[index];
+
     public abstract void Draw();
 
-    public void Add<T>(T pane)
+    public virtual void Add<T>(T pane)
         where T : BasePane
     {
         _ = pane ?? throw new ArgumentNullException(nameof(pane));
