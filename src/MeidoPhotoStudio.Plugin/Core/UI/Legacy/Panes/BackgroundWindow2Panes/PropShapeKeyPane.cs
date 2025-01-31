@@ -10,17 +10,18 @@ public class PropShapeKeyPane : BasePane
 {
     private readonly SelectionController<PropController> propSelectionController;
     private readonly Dictionary<string, EventHandler> sliderChangeEvents = [];
-    private readonly PaneHeader paneHeader;
     private readonly Dictionary<string, Slider> sliders = new(StringComparer.Ordinal);
+    private readonly Label noPropsLabel;
 
     public PropShapeKeyPane(Translation translation, SelectionController<PropController> propSelectionController)
     {
+        _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.propSelectionController = propSelectionController ?? throw new ArgumentNullException(nameof(propSelectionController));
 
         this.propSelectionController.Selecting += OnSelectingProp;
         this.propSelectionController.Selected += OnSelectedProp;
 
-        paneHeader = new(new LocalizableGUIContent(translation, "propShapeKeyPane", "header"), true);
+        noPropsLabel = new(new LocalizableGUIContent(translation, "propShapeKeyPane", "noShapeKeysOrPropsLabel"));
     }
 
     private ShapeKeyController CurrentShapeKeyController =>
@@ -28,15 +29,12 @@ public class PropShapeKeyPane : BasePane
 
     public override void Draw()
     {
-        var enabled = CurrentShapeKeyController != null;
+        if (CurrentShapeKeyController is null)
+        {
+            noPropsLabel.Draw();
 
-        if (!enabled)
             return;
-
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
+        }
 
         var sliderWidth = GUILayout.MaxWidth(Parent.WindowRect.width / 2 - 10f);
         var maxWidth = GUILayout.MaxWidth(Parent.WindowRect.width - 10f);

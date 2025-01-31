@@ -53,19 +53,12 @@
     "face": "Face",
     "body": "Body"
   },
-  "characterAnimationPane": {
-    "header": "Animation"
-  },
-  "maidPoseWindow": {
-    "header": "Posing",
-    "enabledToggle": "IK Enabled",
-    "boneToggle": "Precise Mode",
-    "limitJointsToggle": "Limit Joints",
-    "limitDigitsToggle": "Limit Fingers/Toes",
-    "customFloorHeightHeader": "Custom Floor Height",
-    "customFloorHeightEnabledToggle": "Enabled",
-    "flipPoseToggle": "Flip Pose",
-    "preciseTransformToggle": "Precise Transform"
+  "characterPoseSubTabPaneGroups": {
+    "presets": "Presets",
+    "posing": "Posing",
+    "clothing": "Clothing",
+    "attachedAccessories": "Attached Accessories",
+    "gravity": "Gravity"
   },
   "poseGroupDropdown": {
     "normal": "Normal",
@@ -90,6 +83,10 @@
     "normal2": "Normal 2",
     "ero2": "Ero 2"
   },
+  "presetsSubPaneGroup": {
+    "animationPresets": "Animation Presets",
+    "handPresets": "Hand Presets"
+  },
   "posePane": {
     "header": "Animations",
     "searchBarPlaceholder": "Search animations",
@@ -105,6 +102,41 @@
     "baseTab": "Base",
     "customTab": "Custom",
     "savedAnimationLabel": "Saved animation!"
+  },
+  "characterAnimationPane": {
+    "header": "Animation"
+  },
+  "handPane": {
+    "header": "Hand Presets",
+    "searchBarPlaceholder": "Search hand presets",
+    "saveToggle": "Save Preset",
+    "refreshButton": "Refresh",
+    "categoryHeader": "Category",
+    "nameHeader": "Name",
+    "categorySearchBarPlaceholder": "Hand Preset Category",
+    "nameTextFieldPlaceholder": "Hand Preset Name",
+    "saveLeftButton": "Save Left",
+    "saveRightButton": "Save Right",
+    "rightHand": "Right",
+    "leftHand": "Left",
+    "swapHands": "Swap",
+    "noPresetsMessage": "No Hand Presets",
+    "savedHandPresetLabel": "Saved hand preset!"
+  },
+  "posingSubPaneGroup": {
+    "freeLook": "Free Look",
+    "copy": "Copy"
+  },
+  "maidPoseWindow": {
+    "header": "Posing",
+    "enabledToggle": "IK Enabled",
+    "boneToggle": "Precise Mode",
+    "limitJointsToggle": "Limit Joints",
+    "limitDigitsToggle": "Limit Fingers/Toes",
+    "customFloorHeightHeader": "Custom Floor Height",
+    "customFloorHeightEnabledToggle": "Enabled",
+    "flipPoseToggle": "Flip Pose",
+    "preciseTransformToggle": "Precise Transform"
   },
   "freeLookPane": {
     "header": "Free Look",
@@ -176,6 +208,9 @@
     "body": "Body",
     "headwear": "Headwear"
   },
+  "gravitySubPaneGroup": {
+    "floorHeight": "Floor Height"
+  },
   "gravityControlPane": {
     "header": "Gravity",
     "hairToggle": "Hair",
@@ -184,23 +219,6 @@
     "gravityHeader": "Gravity Control",
     "hairDragHandleToggle": "Drag Handle",
     "clothingDragHandleToggle": "Drag Handle"
-  },
-  "handPane": {
-    "header": "Hand Presets",
-    "searchBarPlaceholder": "Search hand presets",
-    "saveToggle": "Save Preset",
-    "refreshButton": "Refresh",
-    "categoryHeader": "Category",
-    "nameHeader": "Name",
-    "categorySearchBarPlaceholder": "Hand Preset Category",
-    "nameTextFieldPlaceholder": "Hand Preset Name",
-    "saveLeftButton": "Save Left",
-    "saveRightButton": "Save Right",
-    "rightHand": "Right",
-    "leftHand": "Left",
-    "swapHands": "Swap",
-    "noPresetsMessage": "No Hand Presets",
-    "savedHandPresetLabel": "Saved hand preset!"
   },
   "copyPosePane": {
     "header": "Copy Pose",
@@ -211,6 +229,10 @@
     "copyLeftHandToRight": "L > R",
     "copyRightHandToLeft": "R > L",
     "copyRightHandToRight": "R > R"
+  },
+  "characterTabFaceSubTabPaneGroups": {
+    "presets": "Blend Sets",
+    "facialExpression": "Facial Expression"
   },
   "maidFaceWindow": {
     "noBlendSets": "No Blend Sets",
@@ -280,6 +302,9 @@
     "saveButton": "Save Blendset",
     "deleteButton": "D"
   },
+  "characterTabBodySubTabPaneGroups": {
+    "bodyShapeKeys": "Shape Keys"
+  },
   "bodyShapeKeyPane": {
     "header": "Body Shape Keys",
   },
@@ -298,6 +323,13 @@
     "positionHeader": "Position",
     "rotationHeader": "Rotation",
     "scaleHeader": "Scale"
+  },
+  "environmentTabPaneGroups": {
+    "sceneManagement": "Scene Management",
+    "backgrounds": "Backgrounds",
+    "camera": "Camera",
+    "lights": "Lights",
+    "effects": "Effects"
   },
   "backgroundWindow": {
     "saveLoadButton": "Save\nLoad",
@@ -327,6 +359,14 @@
     "sceneManagementHeader": "Scene Management",
     "quickSaveButton": "Quick Save",
     "quickLoadButton": "Quick Load"
+  },
+  "propsTabPaneGroups": {
+    "spawnProps": "Props",
+    "manageProps": "Manage Props"
+  },
+  "managePropSubPaneGroup": {
+    "shapeKeys": "Shape Keys",
+    "attachment": "Attachment"
   },
   "propsPane": {
     "addProp": "Add Prop",
@@ -413,7 +453,8 @@
     "preciseTransformToggle": "Precise Transform"
   },
   "propShapeKeyPane": {
-    "header": "Prop Shape Keys"
+    "header": "Prop Shape Keys",
+    "noShapeKeysOrPropsLabel": "No prop or shape keys"
   },
   "lights": {
     "x": "Light X",
@@ -616,15 +657,18 @@
     "fontSize": "Font Size",
     "okButton": "OK",
     "alignmentLabel": "Text Alignment",
-    "alignLeft": "Left",
-    "alignCenter": "Center",
-    "alignRight": "Right"
+  },
+  "messageAlignmentTypes": {
+    "left": "Left",
+    "center": "Center",
+    "right": "Right"
   },
   "systemMessage": {
     "exitConfirm": "Are you sure you want to quit {0}?\nAny unsaved data will be lost.",
     "initializing": "Initializing",
     "noMaids": "No Characters",
-    "noProps": "No Props"
+    "noProps": "No Props",
+    "noTranslations": "There are no translations found in '{0}'"
   },
   "controls": {
     "activate": "Activate MPS",
@@ -706,7 +750,7 @@
     "dragHandle": "Drag Handles",
     "autoSave": "Auto-Save",
     "translation": "Translation",
-    "ui": "UI"
+    "ui": "User Interface"
   },
   "translationSettingsPane": {
     "reloadTranslationButton": "Reload Translation"

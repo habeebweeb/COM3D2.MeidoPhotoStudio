@@ -19,7 +19,6 @@ public class AttachedAccessoryPane : BasePane
 
     private readonly MenuPropRepository menuPropRepository;
     private readonly SelectionController<CharacterController> characterSelectionController;
-    private readonly PaneHeader paneHeader;
     private readonly Dropdown<MenuFilePropModel> accessoryDropdown;
     private readonly Toggle.Group accessoryTypeGroup;
     private readonly Button detachAllAccessoriesButton;
@@ -42,8 +41,6 @@ public class AttachedAccessoryPane : BasePane
         this.characterSelectionController.Selected += OnCharacterSelectionChanged;
 
         translation.Initialized += OnTranslationInitialized;
-
-        paneHeader = new(new LocalizableGUIContent(translation, "attachMpnPropPane", "header"), true);
 
         var upperToggle = new Toggle(
             new LocalizableGUIContent(translation, "attachMpnPropPane", "upperAccessoryTab"), true);
@@ -118,11 +115,6 @@ public class AttachedAccessoryPane : BasePane
         var enabled = Parent.Enabled && characterSelectionController.Current is not null;
 
         GUI.enabled = enabled;
-
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
 
         if (menuDatabaseBusy)
         {

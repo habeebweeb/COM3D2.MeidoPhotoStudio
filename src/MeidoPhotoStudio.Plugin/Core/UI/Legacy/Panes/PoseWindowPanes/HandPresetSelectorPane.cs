@@ -13,7 +13,6 @@ public class HandPresetSelectorPane : BasePane
     private readonly HandPresetRepository handPresetRepository;
     private readonly CharacterUndoRedoService characterUndoRedoService;
     private readonly SelectionController<CharacterController> characterSelectionController;
-    private readonly PaneHeader paneHeader;
     private readonly Dropdown<string> presetCategoryDropdown;
     private readonly Dropdown<HandPresetModel> presetDropdown;
     private readonly Button applyLeftHandButton;
@@ -49,8 +48,6 @@ public class HandPresetSelectorPane : BasePane
         this.handPresetRepository.Refreshed += OnHandPresetRepositoryRefreshed;
 
         translation.Initialized += OnTranslationInitialized;
-
-        paneHeader = new(new LocalizableGUIContent(translation, "handPane", "header"), true);
 
         searchBar = new(SearchSelector, Formatter)
         {
@@ -118,13 +115,6 @@ public class HandPresetSelectorPane : BasePane
     public override void Draw()
     {
         var enabled = Parent.Enabled && characterSelectionController.Current is not null;
-
-        GUI.enabled = enabled;
-
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
 
         GUI.enabled = enabled;
 

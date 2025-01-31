@@ -16,7 +16,6 @@ public class BlendSetSelectorPane : BasePane
     private readonly CustomBlendSetRepository customBlendSetRepository;
     private readonly FacialExpressionBuilder facialExpressionBuilder;
     private readonly SelectionController<CharacterController> characterSelectionController;
-    private readonly PaneHeader paneHeader;
     private readonly Toggle.Group blendSetSourceGroup;
     private readonly Dictionary<BlendSetSource, Toggle> blendSetSourceToggles;
     private readonly Dropdown<string> blendSetCategoryDropdown;
@@ -89,8 +88,6 @@ public class BlendSetSelectorPane : BasePane
 
         blendSetDropdown.SelectionChanged += OnBlendSetChanged;
 
-        paneHeader = new(new LocalizableGUIContent(translation, "maidFaceWindow", "header"), true);
-
         saveBlendSetToggle = new(new LocalizableGUIContent(translation, "maidFaceWindow", "savePaneToggle"), false);
 
         blendSetCategoryComboBox = new(this.customBlendSetRepository.Categories)
@@ -157,11 +154,6 @@ public class BlendSetSelectorPane : BasePane
         var enabled = Parent.Enabled && characterSelectionController.Current is not null;
 
         GUI.enabled = enabled;
-
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
 
         GUILayout.BeginHorizontal();
 

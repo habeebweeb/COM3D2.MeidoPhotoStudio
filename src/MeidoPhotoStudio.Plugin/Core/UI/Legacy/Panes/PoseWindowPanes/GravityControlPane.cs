@@ -11,7 +11,6 @@ public class GravityControlPane : BasePane
     private readonly GravityDragHandleService gravityDragHandleService;
     private readonly GlobalGravityService globalGravityService;
     private readonly SelectionController<CharacterController> characterSelectionController;
-    private readonly PaneHeader paneHeader;
     private readonly Toggle hairGravityEnabledToggle;
     private readonly Toggle hairGravityDragHandleEnabledToggle;
     private readonly Toggle clothingGravityEnabledToggle;
@@ -32,8 +31,6 @@ public class GravityControlPane : BasePane
         this.characterSelectionController.Selecting += OnCharacterSelectionChanging;
         this.characterSelectionController.Selected += OnCharacterSelectionChanged;
         this.globalGravityService.PropertyChanged += OnGlobalGravityPropertyChanged;
-
-        paneHeader = new(new LocalizableGUIContent(translation, "gravityControlPane", "header"), true);
 
         hairGravityEnabledToggle = new(
             new LocalizableGUIContent(translation, "gravityControlPane", "hairToggle"));
@@ -71,11 +68,6 @@ public class GravityControlPane : BasePane
         var enabled = Parent.Enabled && characterSelectionController.Current is not null;
 
         GUI.enabled = enabled;
-
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
 
         GUILayout.BeginHorizontal();
 

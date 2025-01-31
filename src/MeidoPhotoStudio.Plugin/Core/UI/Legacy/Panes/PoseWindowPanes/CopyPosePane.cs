@@ -6,7 +6,6 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
 public class CopyPosePane : BasePane
 {
-    private readonly PaneHeader paneHeader;
     private readonly Dropdown<CharacterController> otherCharacterDropdown;
     private readonly Button copyPoseButton;
     private readonly Button copyBothHandsButton;
@@ -31,8 +30,6 @@ public class CopyPosePane : BasePane
         this.characterSelectionController = characterSelectionController ?? throw new ArgumentNullException(nameof(characterSelectionController));
 
         this.characterService.CalledCharacters += OnCharactersCalled;
-
-        paneHeader = new(new LocalizableGUIContent(translation, "copyPosePane", "header"), true);
 
         otherCharacterDropdown = new(formatter: OtherCharacterFormatter);
 
@@ -71,11 +68,6 @@ public class CopyPosePane : BasePane
     public override void Draw()
     {
         GUI.enabled = Parent.Enabled && CurrentCharacter is not null;
-
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
 
         DrawDropdown(otherCharacterDropdown);
 

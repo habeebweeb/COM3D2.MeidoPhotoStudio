@@ -35,7 +35,6 @@ public class LightsPane : BasePane
     private readonly TransformInputPane transformInputPane;
     private readonly Button resetPositionButton;
     private readonly Button resetPropertiesButton;
-    private readonly PaneHeader paneHeader;
     private readonly Header resetHeader;
     private readonly Label noLightsLabel;
 
@@ -58,7 +57,6 @@ public class LightsPane : BasePane
         lightSelectionController.Selecting += OnSelectingLight;
         lightSelectionController.Selected += OnSelectedLight;
 
-        paneHeader = new(new LocalizableGUIContent(translation, "lightsPane", "header"), true);
         resetHeader = new(new LocalizableGUIContent(translation, "lightsPane", "resetLabel"));
         noLightsLabel = new(new LocalizableGUIContent(translation, "lightsPane", "noLights"));
 
@@ -213,11 +211,6 @@ public class LightsPane : BasePane
 
     public override void Draw()
     {
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
-
         var enabled = Parent.Enabled;
 
         DrawTopBar();

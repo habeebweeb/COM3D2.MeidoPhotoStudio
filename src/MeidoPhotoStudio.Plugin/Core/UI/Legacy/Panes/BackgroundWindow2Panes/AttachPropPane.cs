@@ -52,7 +52,6 @@ public class AttachPropPane : BasePane
     private readonly Dropdown<CharacterController> characterDropdown;
     private readonly Dictionary<AttachPoint, Toggle> attachPointToggles = new(EnumEqualityComparer<AttachPoint>.Instance);
     private readonly Toggle keepWorldPositionToggle;
-    private readonly PaneHeader paneHeader;
     private readonly Label noCharactersOrPropsLabel;
 
     public AttachPropPane(
@@ -70,8 +69,6 @@ public class AttachPropPane : BasePane
         this.propSelectionController.Selected += OnCharacterOrPropSelected;
         this.propAttachmentService.AttachedProp += OnPropAttachedOrDetached;
         this.propAttachmentService.DetachedProp += OnPropAttachedOrDetached;
-
-        paneHeader = new(new LocalizableGUIContent(translation, "attachPropPane", "header"), true);
 
         characterDropdown = new(formatter: CharacterFormatter);
         characterDropdown.SelectionChanged += OnCharacterOrPropSelected;
@@ -104,11 +101,6 @@ public class AttachPropPane : BasePane
 
     public override void Draw()
     {
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
-
         if (characterService.Busy || characterService.Count is 0 || CurrentProp is null)
         {
             noCharactersOrPropsLabel.Draw();

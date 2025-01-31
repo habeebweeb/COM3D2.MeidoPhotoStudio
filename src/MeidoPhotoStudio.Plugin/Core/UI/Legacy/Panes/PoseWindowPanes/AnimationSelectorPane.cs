@@ -20,7 +20,6 @@ public class AnimationSelectorPane : BasePane
     private readonly Dictionary<AnimationSource, Toggle> animationSourceToggles;
     private readonly Dropdown<string> animationCategoryDropdown;
     private readonly Dropdown<IAnimationModel> animationDropdown;
-    private readonly PaneHeader paneHeader;
     private readonly Framework.UI.Legacy.ComboBox animationCategoryComboBox;
     private readonly TextField animationNameTextField;
     private readonly SubPaneHeader saveAnimationToggle;
@@ -86,8 +85,6 @@ public class AnimationSelectorPane : BasePane
 
         animationDropdown = new(AnimationList(currentAnimationSource), formatter: Formatter);
         animationDropdown.SelectionChanged += OnAnimationChanged;
-
-        paneHeader = new(new LocalizableGUIContent(translation, "posePane", "header"), true);
 
         saveAnimationToggle = new(new LocalizableGUIContent(translation, "posePane", "saveToggle"), false);
 
@@ -190,11 +187,6 @@ public class AnimationSelectorPane : BasePane
         var enabled = Parent.Enabled && characterSelectionController.Current is not null;
 
         GUI.enabled = enabled;
-
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
 
         GUILayout.BeginHorizontal();
 

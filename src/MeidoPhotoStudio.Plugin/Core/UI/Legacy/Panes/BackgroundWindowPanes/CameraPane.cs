@@ -11,7 +11,6 @@ public class CameraPane : BasePane
     private readonly Toggle.Group cameraGroup;
     private readonly Slider zRotationSlider;
     private readonly Slider fovSlider;
-    private readonly PaneHeader paneHeader;
 
     public CameraPane(
         Translation translation, CameraController cameraController, CameraSaveSlotController cameraSaveSlotController)
@@ -67,17 +66,10 @@ public class CameraPane : BasePane
                     };
             })
         ];
-
-        paneHeader = new(new LocalizableGUIContent(translation, "cameraPane", "header"), true);
     }
 
     public override void Draw()
     {
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
-
         GUILayout.BeginHorizontal();
 
         foreach (var cameraToggle in cameraGroup)

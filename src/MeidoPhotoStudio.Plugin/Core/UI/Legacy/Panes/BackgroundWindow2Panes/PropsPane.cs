@@ -10,7 +10,6 @@ public class PropsPane : BasePane
     private readonly Dropdown<PropCategory> propTypeDropdown;
     private readonly Dictionary<PropCategory, BasePane> propPanes = new(EnumEqualityComparer<PropCategory>.Instance);
     private readonly List<PropCategory> propTypes = [];
-    private readonly PaneHeader paneHeader;
 
     public PropsPane(Translation translation)
     {
@@ -19,8 +18,6 @@ public class PropsPane : BasePane
         translation.Initialized += OnTranslationInitialized;
 
         propTypeDropdown = new(formatter: CategoryFormatter);
-
-        paneHeader = new(new LocalizableGUIContent(translation, "propsPane", "header"), true);
 
         LabelledDropdownItem CategoryFormatter(PropCategory category, int index) =>
             new(translation["propTypes", category.ToLower()]);
@@ -49,11 +46,6 @@ public class PropsPane : BasePane
 
     public override void Draw()
     {
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
-
         DrawDropdown(propTypeDropdown);
 
         UIUtility.DrawBlackLine();

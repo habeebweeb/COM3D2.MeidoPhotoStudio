@@ -9,7 +9,6 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 public class FreeLookPane : BasePane
 {
     private readonly SelectionController<CharacterController> characterSelectionController;
-    private readonly PaneHeader paneHeader;
     private readonly Toggle freeLookToggle;
     private readonly Slider offsetLookXSlider;
     private readonly Slider offsetLookYSlider;
@@ -23,8 +22,6 @@ public class FreeLookPane : BasePane
 
         this.characterSelectionController.Selecting += OnCharacterSelectionChanging;
         this.characterSelectionController.Selected += OnCharacterSelectionChanged;
-
-        paneHeader = new(new LocalizableGUIContent(translation, "freeLookPane", "header"), true);
 
         freeLookToggle = new(new LocalizableGUIContent(translation, "freeLookPane", "freeLookToggle"), false);
         freeLookToggle.ControlEvent += OnFreeLookToggleChanged;
@@ -60,11 +57,6 @@ public class FreeLookPane : BasePane
         var enabled = Parent.Enabled && CurrentHead is not null;
 
         GUI.enabled = enabled;
-
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
 
         var eitherBindingEnabled = eyeToCameraToggle.Value || headToCameraToggle.Value;
 

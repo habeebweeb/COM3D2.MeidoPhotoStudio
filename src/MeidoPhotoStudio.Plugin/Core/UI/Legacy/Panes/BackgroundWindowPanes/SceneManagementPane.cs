@@ -11,7 +11,6 @@ public class SceneManagementPane : BasePane
     private readonly Button manageScenesButton;
     private readonly Button quickSaveButton;
     private readonly Button quickLoadButton;
-    private readonly PaneHeader paneHeader;
 
     public SceneManagementPane(
         Translation translation, SceneBrowserWindow sceneWindow, QuickSaveService quickSaveService)
@@ -19,8 +18,6 @@ public class SceneManagementPane : BasePane
         _ = translation ?? throw new ArgumentNullException(nameof(translation));
         this.sceneWindow = sceneWindow ?? throw new ArgumentNullException(nameof(sceneWindow));
         this.quickSaveService = quickSaveService ?? throw new ArgumentNullException(nameof(quickSaveService));
-
-        paneHeader = new(new LocalizableGUIContent(translation, "sceneManagementPane", "sceneManagementHeader"));
 
         manageScenesButton = new(new LocalizableGUIContent(translation, "sceneManagementPane", "manageScenesButton"));
         manageScenesButton.ControlEvent += OnManageScenesButtonPushed;
@@ -34,11 +31,6 @@ public class SceneManagementPane : BasePane
 
     public override void Draw()
     {
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
-
         manageScenesButton.Draw();
         UIUtility.DrawBlackLine();
 

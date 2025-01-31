@@ -11,8 +11,6 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
 public class PropManagerPane : BasePane
 {
-    private static readonly string[] GizmoSpaceTranslationKeys = ["gizmoSpaceLocal", "gizmoSpaceWorld"];
-
     private readonly PropService propService;
     private readonly FavouritePropRepository favouritePropRepository;
     private readonly PropDragHandleService propDragHandleService;
@@ -33,7 +31,6 @@ public class PropManagerPane : BasePane
     private readonly Button focusButton;
     private readonly Button addToFavouritesButton;
     private readonly Button removeFromFavouritesButton;
-    private readonly PaneHeader paneHeader;
     private readonly Toggle toggleAllDragHandles;
     private readonly Toggle toggleAllGizmos;
     private readonly Label gizmoSpaceLabel;
@@ -124,7 +121,6 @@ public class PropManagerPane : BasePane
         Add(transformInputPane);
 
         toggleAllHandlesHeader = new(new LocalizableGUIContent(translation, "propManagerPane", "toggleAllHandlesHeader"));
-        paneHeader = new(new LocalizableGUIContent(translation, "propManagerPane", "header"), true);
 
         noPropsLabel = new(new LocalizableGUIContent(translation, "propManagerPane", "noProps"));
 
@@ -146,11 +142,6 @@ public class PropManagerPane : BasePane
 
     public override void Draw()
     {
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
-
         if (propService.Count is 0)
         {
             noPropsLabel.Draw();

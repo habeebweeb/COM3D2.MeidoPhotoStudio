@@ -9,7 +9,6 @@ public class EffectsPane : BasePane
 {
     private readonly Dropdown<EffectType> effectTypesDropdown;
     private readonly Dictionary<EffectType, BasePane> effectsPanes = new(EnumEqualityComparer<EffectType>.Instance);
-    private readonly PaneHeader paneHeader;
 
     public EffectsPane(Translation translation)
     {
@@ -18,8 +17,6 @@ public class EffectsPane : BasePane
         translation.Initialized += OnTranslationInitialized;
 
         effectTypesDropdown = new(EffectTypeFormatter);
-
-        paneHeader = new(new LocalizableGUIContent(translation, "effectsPane", "header"), true);
 
         IDropdownItem EffectTypeFormatter(EffectType type, int index) =>
             new LabelledDropdownItem(translation["effectTypes", type.ToLower()]);
@@ -47,11 +44,6 @@ public class EffectsPane : BasePane
     public override void Draw()
     {
         GUI.enabled = Parent.Enabled;
-
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
 
         DrawDropdown(effectTypesDropdown);
 

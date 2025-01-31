@@ -36,11 +36,9 @@ public class EffectPane<T> : BasePane
 
         effectActiveToggle.Draw();
 
-        GUILayout.FlexibleSpace();
-
         GUI.enabled = guiEnabled && Effect.Active;
 
-        resetEffectButton.Draw();
+        resetEffectButton.Draw(GUILayout.ExpandWidth(false));
 
         GUILayout.EndHorizontal();
     }

@@ -69,7 +69,6 @@ public class DressingPane : BasePane
     private readonly Toggle curlingFrontToggle;
     private readonly Toggle curlingBackToggle;
     private readonly Toggle underwearShiftToggle;
-    private readonly PaneHeader paneHeader;
     private readonly LocalizableGUIContent headsetContent;
     private readonly LocalizableGUIContent headwearContent;
 
@@ -105,8 +104,6 @@ public class DressingPane : BasePane
 
         underwearShiftToggle = new(new LocalizableGUIContent(translation, "dressingPane", "shiftPanties"));
         underwearShiftToggle.ControlEvent += OnUnderwearShiftChanged;
-
-        paneHeader = new(new LocalizableGUIContent(translation, "dressingPane", "header"), true);
 
         Toggle CreateSlotToggle(SlotID slot)
         {
@@ -154,11 +151,6 @@ public class DressingPane : BasePane
         var enabled = Parent.Enabled && characterSelectionController.Current is not null;
 
         GUI.enabled = enabled;
-
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
 
         detailedClothingToggle.Draw();
 

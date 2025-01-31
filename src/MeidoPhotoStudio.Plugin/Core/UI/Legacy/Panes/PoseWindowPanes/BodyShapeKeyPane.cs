@@ -8,7 +8,6 @@ public class BodyShapeKeyPane : BasePane
 {
     private readonly SelectionController<CharacterController> characterSelectionController;
     private readonly ShapeKeysPane shapeKeysPane;
-    private readonly PaneHeader paneHeader;
 
     public BodyShapeKeyPane(
         Translation translation,
@@ -24,8 +23,6 @@ public class BodyShapeKeyPane : BasePane
 
         this.characterSelectionController.Selected += OnCharacterSelectionChanged;
 
-        paneHeader = new(new LocalizableGUIContent(translation, "bodyShapeKeyPane", "header"));
-
         shapeKeysPane = new(translation, bodyShapeKeyConfiguration, shapeKeyRangeConfiguration)
         {
             DrawRefreshRangeButton = true,
@@ -39,11 +36,6 @@ public class BodyShapeKeyPane : BasePane
         var guiEnabled = Parent.Enabled;
 
         GUI.enabled = guiEnabled;
-
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
 
         shapeKeysPane.Draw();
     }

@@ -24,7 +24,6 @@ public class AnimationPane : BasePane
     private readonly NumericalTextField stepAmountField;
     private readonly SelectionController<CharacterController> characterSelectionController;
     private readonly CharacterUndoRedoService characterUndoRedoService;
-    private readonly PaneHeader paneHeader;
     private readonly LazyStyle playPauseButtonStyle = new(StyleSheet.TextSize, static () => new(GUI.skin.button));
 
     public AnimationPane(
@@ -59,8 +58,6 @@ public class AnimationPane : BasePane
 
         stepAmountField = new(0.01f);
         stepAmountField.ControlEvent += OnStepAmountFieldChanged;
-
-        paneHeader = new(new LocalizableGUIContent(translation, "characterAnimationPane", "header"), true);
     }
 
     private static Texture2D PlayIcon =>
@@ -87,11 +84,6 @@ public class AnimationPane : BasePane
         var guiEnabled = Parent.Enabled && currentAnimation is not null;
 
         GUI.enabled = guiEnabled;
-
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
 
         if (currentAnimation is not null)
         {

@@ -13,19 +13,13 @@ public class IKPane : BasePane
     private readonly IKDragHandleService ikDragHandleService;
     private readonly CharacterUndoRedoService characterUndoRedoService;
     private readonly SelectionController<CharacterController> characterSelectionController;
-    private readonly PaneHeader paneHeader;
     private readonly Toggle ikEnabledToggle;
     private readonly Toggle boneModeEnabledToggle;
     private readonly Toggle limitLimbRotationsToggle;
     private readonly Toggle limitDigitRotationsToggle;
-    private readonly Toggle customFloorHeightToggle;
-    private readonly NumericalTextField floorHeightTextfield;
     private readonly Button flipButton;
-    private readonly RepeatButton decreaseFloorHeightButton;
-    private readonly RepeatButton increaseFloorHeightButton;
     private readonly SubPaneHeader transformInputToggle;
     private readonly TransformInputPane transformInputPane;
-    private readonly Header customFloorHeightHeader;
 
     public IKPane(
         Translation translation,
@@ -43,8 +37,6 @@ public class IKPane : BasePane
         this.characterSelectionController.Selecting += OnCharacterSelectionChanging;
         this.characterSelectionController.Selected += OnCharacterSelectionChanged;
 
-        paneHeader = new(new LocalizableGUIContent(translation, "maidPoseWindow", "header"), true);
-
         ikEnabledToggle = new(new LocalizableGUIContent(translation, "maidPoseWindow", "enabledToggle"), true);
         ikEnabledToggle.ControlEvent += OnIKEnabledChanged;
 
@@ -56,23 +48,6 @@ public class IKPane : BasePane
 
         limitDigitRotationsToggle = new(new LocalizableGUIContent(translation, "maidPoseWindow", "limitDigitsToggle"));
         limitDigitRotationsToggle.ControlEvent += OnLimitDigitRotationsChanged;
-
-        customFloorHeightHeader = new(
-            new LocalizableGUIContent(translation, "maidPoseWindow", "customFloorHeightHeader"));
-
-        customFloorHeightToggle = new(
-            new LocalizableGUIContent(translation, "maidPoseWindow", "customFloorHeightEnabledToggle"), false);
-
-        customFloorHeightToggle.ControlEvent += OnCustomFloorHeightToggleChanged;
-
-        decreaseFloorHeightButton = new("<", 3f);
-        decreaseFloorHeightButton.ControlEvent += OnDecreaseFloorHeightButtonPushed;
-
-        increaseFloorHeightButton = new(">", 3f);
-        increaseFloorHeightButton.ControlEvent += OnIncreaseFloorHeightButtonPushed;
-
-        floorHeightTextfield = new(0f);
-        floorHeightTextfield.ControlEvent += OnFloorHeightChanged;
 
         flipButton = new(new LocalizableGUIContent(translation, "maidPoseWindow", "flipPoseToggle"));
         flipButton.ControlEvent += OnFlipButtonPushed;
@@ -99,16 +74,7 @@ public class IKPane : BasePane
 
         GUI.enabled = enabled;
 
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
-
         DrawIK(enabled);
-
-        UIUtility.DrawBlackLine();
-
-        DrawCustomFloorHeight(enabled);
 
         UIUtility.DrawBlackLine();
 
@@ -144,33 +110,6 @@ public class IKPane : BasePane
             GUILayout.EndHorizontal();
         }
 
-        void DrawCustomFloorHeight(bool enabled)
-        {
-            GUI.enabled = enabled;
-
-            customFloorHeightHeader.Draw();
-
-            UIUtility.DrawBlackLine();
-
-            GUILayout.BeginHorizontal();
-
-            var noExpandWidth = GUILayout.ExpandWidth(false);
-
-            customFloorHeightToggle.Draw(noExpandWidth);
-
-            GUI.enabled = enabled && customFloorHeightToggle.Value;
-
-            decreaseFloorHeightButton.Draw(noExpandWidth);
-            increaseFloorHeightButton.Draw(noExpandWidth);
-
-            floorHeightTextfield.Draw(GUILayout.Width(70f));
-
-            if (GUILayout.Button("|", noExpandWidth))
-                floorHeightTextfield.Value = 0f;
-
-            GUILayout.EndHorizontal();
-        }
-
         void DrawFlip(bool enabled)
         {
             GUI.enabled = enabled;
@@ -190,7 +129,6 @@ public class IKPane : BasePane
 
         dragHandleController.PropertyChanged -= OnIKDragHandleControllerPropertyChanged;
         ik.PropertyChanged -= OnIKControllerPropertyChanged;
-        clothing.PropertyChanged -= OnClothingPropertyChanged;
     }
 
     private void OnCharacterSelectionChanged(object sender, SelectionEventArgs<CharacterController> e)
@@ -206,14 +144,11 @@ public class IKPane : BasePane
 
         dragHandleController.PropertyChanged += OnIKDragHandleControllerPropertyChanged;
         ik.PropertyChanged += OnIKControllerPropertyChanged;
-        clothing.PropertyChanged += OnClothingPropertyChanged;
 
         ikEnabledToggle.SetEnabledWithoutNotify(dragHandleController.IKEnabled);
         boneModeEnabledToggle.SetEnabledWithoutNotify(dragHandleController.BoneMode);
         limitLimbRotationsToggle.SetEnabledWithoutNotify(ik.LimitLimbRotations);
         limitDigitRotationsToggle.SetEnabledWithoutNotify(ik.LimitDigitRotations);
-        customFloorHeightToggle.SetEnabledWithoutNotify(clothing.CustomFloorHeight);
-        floorHeightTextfield.SetValueWithoutNotify(clothing.FloorHeight);
     }
 
     private void OnIKDragHandleControllerPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -234,16 +169,6 @@ public class IKPane : BasePane
             limitLimbRotationsToggle.SetEnabledWithoutNotify(ikController.LimitLimbRotations);
         else if (e.PropertyName is nameof(IKController.LimitDigitRotations))
             limitDigitRotationsToggle.SetEnabledWithoutNotify(ikController.LimitDigitRotations);
-    }
-
-    private void OnClothingPropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-        var clothingController = (ClothingController)sender;
-
-        if (e.PropertyName is nameof(ClothingController.CustomFloorHeight))
-            customFloorHeightToggle.SetEnabledWithoutNotify(clothingController.CustomFloorHeight);
-        else if (e.PropertyName is nameof(ClothingController.FloorHeight))
-            floorHeightTextfield.SetValueWithoutNotify(clothingController.FloorHeight);
     }
 
     private void OnIKEnabledChanged(object sender, EventArgs e)
@@ -298,44 +223,6 @@ public class IKPane : BasePane
         {
             character.IK.LimitDigitRotations = limitDigitRotationsToggle.Value;
         }
-    }
-
-    private void OnCustomFloorHeightToggleChanged(object sender, EventArgs e)
-    {
-        if (CurrentCharacter is null)
-            return;
-
-        CurrentCharacter.Clothing.CustomFloorHeight = customFloorHeightToggle.Value;
-    }
-
-    private void OnIncreaseFloorHeightButtonPushed(object sender, EventArgs e)
-    {
-        if (CurrentCharacter is null)
-            return;
-
-        if (!CurrentCharacter.Clothing.CustomFloorHeight)
-            return;
-
-        CurrentCharacter.Clothing.FloorHeight += 0.01f;
-    }
-
-    private void OnDecreaseFloorHeightButtonPushed(object sender, EventArgs e)
-    {
-        if (CurrentCharacter is null)
-            return;
-
-        if (!CurrentCharacter.Clothing.CustomFloorHeight)
-            return;
-
-        CurrentCharacter.Clothing.FloorHeight -= 0.01f;
-    }
-
-    private void OnFloorHeightChanged(object sender, EventArgs e)
-    {
-        if (CurrentCharacter is null)
-            return;
-
-        CurrentCharacter.Clothing.FloorHeight = floorHeightTextfield.Value;
     }
 
     private void OnFlipButtonPushed(object sender, EventArgs e)

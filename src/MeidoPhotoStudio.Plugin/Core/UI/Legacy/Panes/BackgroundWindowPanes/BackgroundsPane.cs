@@ -21,7 +21,6 @@ public class BackgroundsPane : BasePane
     private readonly Slider redSlider;
     private readonly Slider greenSlider;
     private readonly Slider blueSlider;
-    private readonly PaneHeader paneHeader;
     private readonly SearchBar<BackgroundModel> searchBar;
 
     public BackgroundsPane(
@@ -38,8 +37,6 @@ public class BackgroundsPane : BasePane
         this.backgroundService.PropertyChanged += OnBackgroundPropertyChanged;
 
         translation.Initialized += OnTranslationInitialized;
-
-        paneHeader = new(new LocalizableGUIContent(translation, "backgroundsPane", "header"));
 
         searchBar = new(SearchSelector, PropFormatter)
         {
@@ -138,11 +135,6 @@ public class BackgroundsPane : BasePane
 
     public override void Draw()
     {
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
-
         DrawTextFieldWithScrollBarOffset(searchBar);
 
         DrawDropdown(backgroundCategoryDropdown);

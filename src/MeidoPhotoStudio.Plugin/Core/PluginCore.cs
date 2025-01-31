@@ -433,6 +433,11 @@ public partial class PluginCore : MonoBehaviour
 
         TransformClipboard transformClipboard = new();
 
+        var characterPoseTabHeaderGroup = new HeaderGroup();
+        var characterFaceTabHeaderGroup = new HeaderGroup();
+        var propsHeaderGroup = new HeaderGroup();
+        var environmentHeaderGroup = new HeaderGroup();
+
         var mainWindow = new MainWindow(
             translation, tabSelectionController, customMaidSceneService, inputRemapper, settingsWindow)
         {
@@ -455,106 +460,214 @@ public partial class PluginCore : MonoBehaviour
                 {
                     [CharacterPane.CharacterWindowTab.Pose] =
                     [
-                        new AnimationSelectorPane(
-                            translation,
-                            gameAnimationRepository,
-                            customAnimationRepository,
-                            characterUndoRedoService,
-                            characterSelectionController,
-                            customAnimationRepositorySorter),
-                        new IKPane(
-                            translation,
-                            ikDragHandleService,
-                            characterUndoRedoService,
-                            characterSelectionController,
-                            transformClipboard),
-                        new AnimationPane(translation, characterUndoRedoService, characterSelectionController),
-                        new FreeLookPane(translation, characterSelectionController),
-                        new DressingPane(translation, characterSelectionController),
-                        new GravityControlPane(
-                            translation, gravityDragHandleService, globalGravityService, characterSelectionController),
-                        new AttachedAccessoryPane(translation, menuPropRepository, characterSelectionController),
-                        new HandPresetSelectorPane(
-                            translation,
-                            new(Path.Combine(presetsPath, "Hand Presets")),
-                            characterUndoRedoService,
-                            characterSelectionController),
-                        new CopyPosePane(
-                            translation, characterService, characterUndoRedoService, characterSelectionController),
+                        new PaneGroup(
+                            new LocalizableGUIContent(translation, "characterPoseSubTabPaneGroups", "presets"),
+                            group: characterPoseTabHeaderGroup)
+                        {
+                            new SubPaneGroup(
+                                new LocalizableGUIContent(translation, "presetsSubPaneGroup", "animationPresets"),
+                                true)
+                            {
+                                new AnimationSelectorPane(
+                                    translation,
+                                    gameAnimationRepository,
+                                    customAnimationRepository,
+                                    characterUndoRedoService,
+                                    characterSelectionController,
+                                    customAnimationRepositorySorter),
+                                new AnimationPane(translation, characterUndoRedoService, characterSelectionController),
+                            },
+                            new SubPaneGroup(
+                                new LocalizableGUIContent(translation, "presetsSubPaneGroup", "handPresets"))
+                            {
+                                new HandPresetSelectorPane(
+                                    translation,
+                                    new(Path.Combine(presetsPath, "Hand Presets")),
+                                    characterUndoRedoService,
+                                    characterSelectionController),
+                            },
+                        },
+                        new PaneGroup(
+                            new LocalizableGUIContent(translation, "characterPoseSubTabPaneGroups", "posing"),
+                            group: characterPoseTabHeaderGroup)
+                        {
+                            new IKPane(
+                                translation,
+                                ikDragHandleService,
+                                characterUndoRedoService,
+                                characterSelectionController,
+                                transformClipboard),
+                            new SubPaneGroup(new LocalizableGUIContent(translation, "posingSubPaneGroup", "freeLook"))
+                            {
+                                new FreeLookPane(translation, characterSelectionController),
+                            },
+                            new SubPaneGroup(new LocalizableGUIContent(translation, "posingSubPaneGroup", "copy"))
+                            {
+                                new CopyPosePane(
+                                    translation,
+                                    characterService,
+                                    characterUndoRedoService,
+                                    characterSelectionController),
+                            },
+                        },
+                        new PaneGroup(
+                            new LocalizableGUIContent(translation, "characterPoseSubTabPaneGroups", "clothing"),
+                            group: characterPoseTabHeaderGroup)
+                        {
+                            new DressingPane(translation, characterSelectionController),
+                        },
+                        new PaneGroup(
+                            new LocalizableGUIContent(translation, "characterPoseSubTabPaneGroups", "attachedAccessories"),
+                            group: characterPoseTabHeaderGroup)
+                        {
+                            new AttachedAccessoryPane(translation, menuPropRepository, characterSelectionController),
+                        },
+                        new PaneGroup(
+                            new LocalizableGUIContent(translation, "characterPoseSubTabPaneGroups", "gravity"),
+                            group: characterPoseTabHeaderGroup)
+                        {
+                            new GravityControlPane(
+                                translation,
+                                gravityDragHandleService,
+                                globalGravityService,
+                                characterSelectionController),
+                            new SubPaneGroup(
+                                new LocalizableGUIContent(translation, "gravitySubPaneGroup", "floorHeight"))
+                            {
+                                new CustomFloorHeightPane(translation, characterSelectionController),
+                            },
+                        }
                     ],
                     [CharacterPane.CharacterWindowTab.Face] =
                     [
-                        new BlendSetSelectorPane(
-                            translation,
-                            gameBlendSetRepository,
-                            customBlendSetRepository,
-                            facialExpressionBuilder,
-                            characterSelectionController),
-                        new ExpressionPane(
-                            translation,
-                            characterSelectionController,
-                            faceShapeKeyConfiguration,
-                            faceShapekeyRangeConfiguration),
+                        new PaneGroup(
+                            new LocalizableGUIContent(translation, "characterTabFaceSubTabPaneGroups", "presets"),
+                            group: characterFaceTabHeaderGroup)
+                        {
+                            new BlendSetSelectorPane(
+                                translation,
+                                gameBlendSetRepository,
+                                customBlendSetRepository,
+                                facialExpressionBuilder,
+                                characterSelectionController),
+                        },
+                        new PaneGroup(
+                            new LocalizableGUIContent(translation, "characterTabFaceSubTabPaneGroups", "facialExpression"),
+                            group: characterFaceTabHeaderGroup)
+                        {
+                            new ExpressionPane(
+                                translation,
+                                characterSelectionController,
+                                faceShapeKeyConfiguration,
+                                faceShapekeyRangeConfiguration),
+                        }
                     ],
                     [CharacterPane.CharacterWindowTab.Body] =
                     [
-                        new BodyShapeKeyPane(
-                            translation,
-                            characterSelectionController,
-                            bodyShapeKeyConfiguration,
-                            bodyShapeKeyRangeConfiguration)
+                        new PaneGroup(
+                            new LocalizableGUIContent(translation, "characterTabBodySubTabPaneGroups", "bodyShapeKeys"))
+                        {
+                            new BodyShapeKeyPane(
+                                translation,
+                                characterSelectionController,
+                                bodyShapeKeyConfiguration,
+                                bodyShapeKeyRangeConfiguration),
+                        },
                     ],
                 },
             },
             [MainWindow.Tab.Environment] = new BGWindowPane()
             {
-                new SceneManagementPane(translation, sceneBrowser, quickSaveService),
-                new BackgroundsPane(translation, backgroundService, backgroundRepository, backgroundDragHandleService),
-                new CameraPane(translation, cameraController, cameraSaveSlotController),
-                new LightsPane(translation, lightRepository, lightSelectionController, transformClipboard),
-                new EffectsPane(translation)
+                new PaneGroup(
+                    new LocalizableGUIContent(translation, "environmentTabPaneGroups", "sceneManagement"),
+                    group: environmentHeaderGroup)
                 {
-                    [EffectsPane.EffectType.Bloom] = new BloomPane(translation, bloomController),
-                    [EffectsPane.EffectType.DepthOfField] = new DepthOfFieldPane(translation, depthOfFieldController),
-                    [EffectsPane.EffectType.Vignette] = new VignettePane(translation, vignetteController),
-                    [EffectsPane.EffectType.Fog] = new FogPane(translation, fogController),
-                    [EffectsPane.EffectType.Blur] = new BlurPane(translation, blurController),
-                    [EffectsPane.EffectType.SepiaTone] = new SepiaTonePane(translation, sepiaToneController),
+                    new SceneManagementPane(translation, sceneBrowser, quickSaveService),
+                },
+                new PaneGroup(
+                    new LocalizableGUIContent(translation, "environmentTabPaneGroups", "backgrounds"),
+                    group: environmentHeaderGroup)
+                {
+                    new BackgroundsPane(
+                        translation, backgroundService, backgroundRepository, backgroundDragHandleService),
+                },
+                new PaneGroup(
+                    new LocalizableGUIContent(translation, "environmentTabPaneGroups", "camera"),
+                    group: environmentHeaderGroup)
+                {
+                    new CameraPane(translation, cameraController, cameraSaveSlotController),
+                },
+                new PaneGroup(
+                    new LocalizableGUIContent(translation, "environmentTabPaneGroups", "lights"),
+                    group: environmentHeaderGroup)
+                {
+                    new LightsPane(translation, lightRepository, lightSelectionController, transformClipboard),
+                },
+                new PaneGroup(
+                    new LocalizableGUIContent(translation, "environmentTabPaneGroups", "effects"),
+                    group: environmentHeaderGroup)
+                {
+                    new EffectsPane(translation)
+                    {
+                        [EffectsPane.EffectType.Bloom] = new BloomPane(translation, bloomController),
+                        [EffectsPane.EffectType.DepthOfField] = new DepthOfFieldPane(
+                            translation, depthOfFieldController),
+                        [EffectsPane.EffectType.Vignette] = new VignettePane(translation, vignetteController),
+                        [EffectsPane.EffectType.Fog] = new FogPane(translation, fogController),
+                        [EffectsPane.EffectType.Blur] = new BlurPane(translation, blurController),
+                        [EffectsPane.EffectType.SepiaTone] = new SepiaTonePane(translation, sepiaToneController),
+                    },
                 },
             },
             [MainWindow.Tab.Props] = new PropsWindowPane()
             {
-                new PropsPane(translation)
+                new PaneGroup(
+                    new LocalizableGUIContent(translation, "propsTabPaneGroups", "spawnProps"), group: propsHeaderGroup)
                 {
-                    [PropsPane.PropCategory.Game] = new GamePropsPane(translation, propService, gamePropRepository),
-                    [PropsPane.PropCategory.Desk] = new DeskPropsPane(translation, propService, deskPropRepository),
-                    [PropsPane.PropCategory.Other] = new OtherPropsPane(translation, propService, otherPropRepository),
-                    [PropsPane.PropCategory.HandItem] = new HandItemPropsPane(
-                        translation, propService, menuPropRepository),
-                    [PropsPane.PropCategory.Background] = new BackgroundPropsPane(
-                        translation,
-                        propService,
-                        backgroundPropRepository),
-                    [PropsPane.PropCategory.Menu] = new MenuPropsPane(
-                        translation,
-                        propService,
-                        menuPropRepository,
-                        menuPropsConfiguration,
-                        iconCache),
-                    [PropsPane.PropCategory.MyRoom] = new MyRoomPropsPane(
-                        translation, propService, myRoomPropRepository, iconCache),
-                    [PropsPane.PropCategory.Favourite] = new FavouritePropsPane(
-                        translation, propService, favouritePropRepository, iconCache),
+                    new PropsPane(translation)
+                    {
+                        [PropsPane.PropCategory.Game] = new GamePropsPane(translation, propService, gamePropRepository),
+                        [PropsPane.PropCategory.Desk] = new DeskPropsPane(translation, propService, deskPropRepository),
+                        [PropsPane.PropCategory.Other] = new OtherPropsPane(
+                            translation, propService, otherPropRepository),
+                        [PropsPane.PropCategory.HandItem] = new HandItemPropsPane(
+                            translation, propService, menuPropRepository),
+                        [PropsPane.PropCategory.Background] = new BackgroundPropsPane(
+                            translation,
+                            propService,
+                            backgroundPropRepository),
+                        [PropsPane.PropCategory.Menu] = new MenuPropsPane(
+                            translation,
+                            propService,
+                            menuPropRepository,
+                            menuPropsConfiguration,
+                            iconCache),
+                        [PropsPane.PropCategory.MyRoom] = new MyRoomPropsPane(
+                            translation, propService, myRoomPropRepository, iconCache),
+                        [PropsPane.PropCategory.Favourite] = new FavouritePropsPane(
+                            translation, propService, favouritePropRepository, iconCache),
+                    },
                 },
-                new PropManagerPane(
-                    translation,
-                    propService,
-                    favouritePropRepository,
-                    propDragHandleService,
-                    propSelectionController,
-                    transformClipboard),
-                new PropShapeKeyPane(translation, propSelectionController),
-                new AttachPropPane(translation, characterService, propAttachmentService, propSelectionController),
+                new PaneGroup(
+                    new LocalizableGUIContent(translation, "propsTabPaneGroups", "manageProps"),
+                    group: propsHeaderGroup)
+                {
+                    new PropManagerPane(
+                        translation,
+                        propService,
+                        favouritePropRepository,
+                        propDragHandleService,
+                        propSelectionController,
+                        transformClipboard),
+                    new SubPaneGroup(new LocalizableGUIContent(translation, "managePropSubPaneGroup", "shapeKeys"))
+                    {
+                        new PropShapeKeyPane(translation, propSelectionController),
+                    },
+                    new SubPaneGroup(new LocalizableGUIContent(translation, "managePropSubPaneGroup", "attachment"))
+                    {
+                        new AttachPropPane(translation, characterService, propAttachmentService, propSelectionController),
+                    },
+                },
             },
         };
 

@@ -34,7 +34,6 @@ public class ExpressionPane : BasePane
     private readonly Dictionary<string, BaseControl> controls = new(StringComparer.Ordinal);
     private readonly Toggle blinkToggle;
     private readonly Button refreshRangeButton;
-    private readonly PaneHeader paneHeader;
     private readonly SubPaneHeader baseGameShapeKeyHeader;
     private readonly SubPaneHeader customShapeKeyHeader;
     private readonly ShapeKeysPane shapeKeysPane;
@@ -53,8 +52,6 @@ public class ExpressionPane : BasePane
         this.shapeKeyRangeConfiguration.Refreshed += OnFaceShapeKeyRangeConfigurationRefreshed;
         this.characterSelectionController.Selecting += OnCharacterSelectionChanging;
         this.characterSelectionController.Selected += OnCharacterSelectionChanged;
-
-        paneHeader = new(new LocalizableGUIContent(translation, "expressionPane", "header"), true);
 
         blinkToggle = new(new LocalizableGUIContent(translation, "expressionPane", "blinkToggle"), true);
         blinkToggle.ControlEvent += OnBlinkToggleChanged;
@@ -115,11 +112,6 @@ public class ExpressionPane : BasePane
         var guiEnabled = Parent.Enabled && CurrentFace is not null;
 
         GUI.enabled = guiEnabled;
-
-        paneHeader.Draw();
-
-        if (!paneHeader.Enabled)
-            return;
 
         GUILayout.BeginHorizontal();
 
