@@ -42,8 +42,8 @@
   },
   "characterSwitcher": {
     "editToggle": "Edit",
-    "focusBodyButton": "Focus Character",
-    "focusFaceButton": "Focus on Face"
+    "focusBodyButton": "Focus Body",
+    "focusFaceButton": "Focus Face"
   },
   "characterPane": {
     "noCharactersLabel": "No Characters Called"

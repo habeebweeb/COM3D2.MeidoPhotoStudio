@@ -7,7 +7,7 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
 public class CharacterSwitcherPane : BasePane
 {
-    private const float BoxSize = 70;
+    private const float BoxSize = 80f;
 
     private readonly CharacterService characterService;
     private readonly SelectionController<CharacterController> characterSelectionController;
@@ -69,17 +69,11 @@ public class CharacterSwitcherPane : BasePane
         if (characterService.Count is 0)
             return;
 
-        var buttonHeight = GUILayout.Height(UIUtility.Scaled(BoxSize));
-
-        var buttonOptions = new[]
-        {
-            buttonHeight, GUILayout.ExpandWidth(false),
-        };
+        var boxSize = UIUtility.Scaled(BoxSize);
 
         var guiEnabled = Parent.Enabled && characterService.Count > 0;
 
         GUILayout.BeginHorizontal();
-
         if (customMaidSceneService.EditScene)
         {
             var originalColour = GUI.color;
@@ -96,40 +90,47 @@ public class CharacterSwitcherPane : BasePane
             GUI.enabled = guiEnabled;
         }
 
-        GUILayout.FlexibleSpace();
-
         GUI.enabled = guiEnabled;
 
-        GUILayout.Label($"{characterSelectionController.Current?.Slot + 1}", slotStyle);
-
-        GUILayout.EndHorizontal();
+        GUILayout.FlexibleSpace();
 
         GUILayout.BeginHorizontal();
 
-        if (GUILayout.Button("<", buttonStyle, buttonOptions))
-            characterDropdown.CyclePrevious();
+        focusBodyButton.Draw(GUILayout.ExpandWidth(false));
+        focusFaceButton.Draw(GUILayout.ExpandWidth(false));
+
+        GUILayout.EndHorizontal();
+
+        GUILayout.FlexibleSpace();
+
+        GUILayout.Label($"{characterSelectionController.Current?.Slot + 1}", slotStyle);
+        GUILayout.EndHorizontal();
+
+        GUILayout.BeginHorizontal();
 
         GUILayout.FlexibleSpace();
 
         var windowWidth = Parent.WindowRect.width;
-        var dropdownWidth = windowWidth - 95f;
+        var dropdownWidth = windowWidth - UIUtility.Scaled(125);
 
-        characterDropdown.Draw(GUILayout.Width(dropdownWidth), GUILayout.Height(UIUtility.Scaled(BoxSize)));
+        characterDropdown.Draw(GUILayout.Width(dropdownWidth), GUILayout.Height(boxSize));
 
-        GUILayout.FlexibleSpace();
+        GUILayout.BeginVertical(GUILayout.Height(boxSize));
 
-        if (GUILayout.Button(">", buttonStyle, buttonOptions))
+        var buttonOptions = new[]
+        {
+            GUILayout.Width(UIUtility.Scaled(25)), GUILayout.ExpandHeight(true),
+        };
+
+        if (GUILayout.Button("^", buttonStyle, buttonOptions))
+            characterDropdown.CyclePrevious();
+
+        if (GUILayout.Button("v", buttonStyle, buttonOptions))
             characterDropdown.CycleNext();
 
-        GUILayout.EndHorizontal();
+        GUILayout.EndVertical();
 
-        UIUtility.DrawBlackLine();
-
-        GUILayout.BeginHorizontal();
-
-        focusBodyButton.Draw();
-
-        focusFaceButton.Draw();
+        GUILayout.FlexibleSpace();
 
         GUILayout.EndHorizontal();
 
