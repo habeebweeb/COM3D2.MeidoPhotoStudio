@@ -15,6 +15,7 @@ public class InputSettingsPane : BasePane
     private readonly InputRemapper inputRemapper;
     private readonly Dictionary<Shortcut, GUIContent> shortcutMapping;
     private readonly Dictionary<Shortcut, LocalizableGUIContent> shortcutName;
+    private readonly HeaderGroup headerGroup;
     private readonly PaneHeader generalControlsHeader;
     private readonly PaneHeader cameraControlsHeader;
     private readonly PaneHeader transformDragHandleControlsHeader;
@@ -43,10 +44,27 @@ public class InputSettingsPane : BasePane
         this.inputConfiguration = inputConfiguration ?? throw new ArgumentNullException(nameof(inputConfiguration));
         this.inputRemapper = inputRemapper ? inputRemapper : throw new ArgumentNullException(nameof(inputRemapper));
 
-        generalControlsHeader = new(new LocalizableGUIContent(translation, "inputSettingsPane", "generalControlsHeader"));
-        cameraControlsHeader = new(new LocalizableGUIContent(translation, "inputSettingsPane", "cameraControlsHeader"));
-        transformDragHandleControlsHeader = new(new LocalizableGUIContent(translation, "inputSettingsPane", "transformDragHandleControlsHeader"));
-        characterControlsHeader = new(new LocalizableGUIContent(translation, "inputSettingsPane", "characterControlsHeader"));
+        headerGroup = new();
+
+        generalControlsHeader = new(new LocalizableGUIContent(translation, "inputSettingsPane", "generalControlsHeader"))
+        {
+            Group = headerGroup,
+        };
+
+        cameraControlsHeader = new(new LocalizableGUIContent(translation, "inputSettingsPane", "cameraControlsHeader"))
+        {
+            Group = headerGroup,
+        };
+
+        transformDragHandleControlsHeader = new(new LocalizableGUIContent(translation, "inputSettingsPane", "transformDragHandleControlsHeader"))
+        {
+            Group = headerGroup,
+        };
+
+        characterControlsHeader = new(new LocalizableGUIContent(translation, "inputSettingsPane", "characterControlsHeader"))
+        {
+            Group = headerGroup,
+        };
 
         var shortcutValues = (Shortcut[])Enum.GetValues(typeof(Shortcut));
 
