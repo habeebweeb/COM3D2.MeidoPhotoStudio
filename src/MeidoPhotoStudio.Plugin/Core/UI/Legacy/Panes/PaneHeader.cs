@@ -63,7 +63,9 @@ public class PaneHeader(GUIContent content, bool open = true) : BaseControl
         },
         static style => style.padding = new(UIUtility.Scaled(16), UIUtility.Scaled(16), UIUtility.Scaled(5), UIUtility.Scaled(5)));
 
+    private HeaderGroup groupController;
     private GUIContent content = content;
+    private bool enabled = open;
 
     public PaneHeader(string label, bool open = true)
         : this(new GUIContent(label ?? string.Empty), open)
@@ -82,14 +84,29 @@ public class PaneHeader(GUIContent content, bool open = true) : BaseControl
         set => content = value ?? new();
     }
 
-    public bool Enabled { get; set; } = open;
+    public bool Enabled
+    {
+        get => enabled;
+        set => SetEnabled(value);
+    }
+
+    public HeaderGroup Group
+    {
+        get => groupController;
+        set
+        {
+            groupController?.Deregister(this);
+            groupController = value;
+            groupController?.Register(this);
+        }
+    }
 
     public override void Draw(params GUILayoutOption[] layoutOptions) =>
         Draw(ToggleStyle, layoutOptions);
 
     public void Draw(GUIStyle style, params GUILayoutOption[] layoutOptions)
     {
-        Enabled = GUILayout.Toggle(Enabled, content, style, layoutOptions);
+        var enabled = GUILayout.Toggle(this.enabled, content, style, layoutOptions);
 
         var toggleRect = GUILayoutUtility.GetLastRect();
         var leftArrowRect = toggleRect with { x = UIUtility.Scaled(5), width = UIUtility.Scaled(16) };
@@ -100,6 +117,25 @@ public class PaneHeader(GUIContent content, bool open = true) : BaseControl
 
         GUILayout.Box(GUIContent.none, WhiteLineStyle, LineHeight);
 
-        GUILayout.Space(3f);
+        GUILayout.Space(UIUtility.Scaled(3));
+
+        if (enabled != this.enabled)
+            Enabled = enabled;
+    }
+
+    public void SetEnabledWithoutNotify(bool enabled) =>
+        SetEnabled(enabled, false);
+
+    private void SetEnabled(bool enabled, bool notify = true)
+    {
+        if (this.enabled == enabled)
+            return;
+
+        this.enabled = enabled;
+
+        if (!notify)
+            return;
+
+        OnControlEvent(EventArgs.Empty);
     }
 }
