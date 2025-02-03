@@ -4,31 +4,7 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
 public class PaneHeader(GUIContent content, bool open = true) : BaseControl
 {
-    private const string ClosedArrowBase64 =
-        """
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAUklEQVQ4y83SsQ2AMBBD0YiKObIP
-        O7ET87AG7aNKhRDRHSj8ASx926X8CmyomQA4sGKOBjR2LJmARr+We/q0PHPRmt6e8ROFcInhGVNH
-        yl15CCdv9vHnv4NdawAAAABJRU5ErkJggg==
-        """;
-
-    private const string ClosedArrowRightBase64 =
-        """
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAATklEQVQ4y2NgGFLg////9v///39B
-        jkaB////H/gPBaRqbv7///+v/0iAJOf+xwJIci5JBmBzLiEDmGgRVeR7gSqBSLVopFpCokpSpikA
-        AL6D9WxzYwkYAAAAAElFTkSuQmCC
-        """;
-
-    private const string OpenedArrowBase64 =
-        """
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAaUlEQVQ4y92RsQ2AMAwEbYkC1sg8
-        sAsbkJnCPFmDpDsaKkSMEV2+smT5ZJ9F+gmw4096AgSgOIYPILS2iA7AZp0xAdkYzsD45mIxAPMf
-        oenLR+5C2+IMSHSJcwg1xQ2thqoWYL3qKv3mBOnbF8kKK4jEAAAAAElFTkSuQmCC
-        """;
-
     private static readonly GUILayoutOption[] LineHeight = [GUILayout.Height(1)];
-    private static readonly GUIContent ClosedArrow = new(UIUtility.LoadTextureFromBase64(16, 16, ClosedArrowBase64));
-    private static readonly GUIContent OpenedArrow = new(UIUtility.LoadTextureFromBase64(16, 16, OpenedArrowBase64));
-    private static readonly GUIContent ClosedArrowRight = new(UIUtility.LoadTextureFromBase64(16, 16, ClosedArrowRightBase64));
     private static readonly LazyStyle WhiteLineStyle = new(
         0,
         static () => new(GUI.skin.box)
@@ -112,8 +88,8 @@ public class PaneHeader(GUIContent content, bool open = true) : BaseControl
         var leftArrowRect = toggleRect with { x = UIUtility.Scaled(5), width = UIUtility.Scaled(16) };
         var rightArrowRect = leftArrowRect with { x = toggleRect.width - UIUtility.Scaled(21) };
 
-        GUI.Box(leftArrowRect, Enabled ? OpenedArrow : ClosedArrow, ArrowStyle);
-        GUI.Box(rightArrowRect, Enabled ? OpenedArrow : ClosedArrowRight, ArrowStyle);
+        GUI.Box(leftArrowRect, Enabled ? Symbols.DownTriangle : Symbols.RightTriangle, ArrowStyle);
+        GUI.Box(rightArrowRect, Enabled ? Symbols.DownTriangle : Symbols.LeftTriangle, ArrowStyle);
 
         GUILayout.Box(GUIContent.none, WhiteLineStyle, LineHeight);
 
