@@ -13,7 +13,6 @@ public class CharacterSwitcherPane : BasePane
     private readonly SelectionController<CharacterController> characterSelectionController;
     private readonly CustomMaidSceneService customMaidSceneService;
     private readonly EditModeMaidService editModeMaidService;
-    private readonly LazyStyle buttonStyle = new(StyleSheet.TextSize, static () => new(GUI.skin.button));
 
     private readonly LazyStyle slotStyle = new(
         StyleSheet.TextSize,
@@ -122,10 +121,10 @@ public class CharacterSwitcherPane : BasePane
             GUILayout.Width(UIUtility.Scaled(25)), GUILayout.ExpandHeight(true),
         };
 
-        if (GUILayout.Button("^", buttonStyle, buttonOptions))
+        if (GUILayout.Button(Symbols.UpChevron, Symbols.IconButtonStyle, buttonOptions))
             characterDropdown.CyclePrevious();
 
-        if (GUILayout.Button("v", buttonStyle, buttonOptions))
+        if (GUILayout.Button(Symbols.DownChevron, Symbols.IconButtonStyle, buttonOptions))
             characterDropdown.CycleNext();
 
         GUILayout.EndVertical();
