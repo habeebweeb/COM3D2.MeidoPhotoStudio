@@ -24,6 +24,14 @@ public static class Symbols
     private static GUIContent plus;
     private static GUIContent minus;
 
+    public static LazyStyle IconButtonStyle { get; } = new(
+        0,
+        static () => new(GUI.skin.button)
+        {
+            padding = new(UIUtility.Scaled(5), UIUtility.Scaled(5), UIUtility.Scaled(5), UIUtility.Scaled(5)),
+        },
+        static style => style.padding = new(UIUtility.Scaled(5), UIUtility.Scaled(5), UIUtility.Scaled(5), UIUtility.Scaled(5)));
+
     public static GUIContent LeftTriangle =>
         leftTriangle ??= new(UIUtility.LoadTextureFromBase64(16, 16, LeftTriangleBase64));
 
