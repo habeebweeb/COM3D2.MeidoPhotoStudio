@@ -19,7 +19,13 @@ public class NumericalTextField : BaseControl
 
     public event EventHandler LostFocus;
 
-    public static LazyStyle Style { get; } = new(StyleSheet.TextSize, static () => new(GUI.skin.textField));
+    public static LazyStyle Style { get; } = new(
+        StyleSheet.TextSize,
+        static () => new(GUI.skin.textField)
+        {
+            alignment = TextAnchor.MiddleLeft,
+            padding = new(5, 5, 5, 5),
+        });
 
     public float Value
     {
