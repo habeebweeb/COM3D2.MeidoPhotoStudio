@@ -36,6 +36,12 @@ public class PropManagerPane : BasePane
     private readonly Label gizmoSpaceLabel;
     private readonly Header toggleAllHandlesHeader;
     private readonly Label noPropsLabel;
+    private readonly LazyStyle noPropsLabelStyle = new(
+        StyleSheet.TextSize,
+        static () => new(Label.Style)
+        {
+            alignment = TextAnchor.MiddleCenter,
+        });
 
     private bool isFavouriteProp;
 
@@ -144,7 +150,7 @@ public class PropManagerPane : BasePane
     {
         if (propService.Count is 0)
         {
-            noPropsLabel.Draw();
+            noPropsLabel.Draw(noPropsLabelStyle);
 
             return;
         }

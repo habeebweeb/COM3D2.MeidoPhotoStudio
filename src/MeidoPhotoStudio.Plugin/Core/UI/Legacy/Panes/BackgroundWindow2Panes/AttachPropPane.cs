@@ -53,6 +53,12 @@ public class AttachPropPane : BasePane
     private readonly Dictionary<AttachPoint, Toggle> attachPointToggles = new(EnumEqualityComparer<AttachPoint>.Instance);
     private readonly Toggle keepWorldPositionToggle;
     private readonly Label noCharactersOrPropsLabel;
+    private readonly LazyStyle noPropsLabelStyle = new(
+        StyleSheet.TextSize,
+        static () => new(Label.Style)
+        {
+            alignment = TextAnchor.MiddleCenter,
+        });
 
     public AttachPropPane(
         Translation translation,
@@ -103,7 +109,7 @@ public class AttachPropPane : BasePane
     {
         if (characterService.Busy || characterService.Count is 0 || CurrentProp is null)
         {
-            noCharactersOrPropsLabel.Draw();
+            noCharactersOrPropsLabel.Draw(noPropsLabelStyle);
 
             return;
         }

@@ -26,10 +26,10 @@ public class CustomFloorHeightPane : BasePane
 
         customFloorHeightToggle.ControlEvent += OnCustomFloorHeightToggleChanged;
 
-        decreaseFloorHeightButton = new("<", 3f);
+        decreaseFloorHeightButton = new(Symbols.Minus, 3f);
         decreaseFloorHeightButton.ControlEvent += OnDecreaseFloorHeightButtonPushed;
 
-        increaseFloorHeightButton = new(">", 3f);
+        increaseFloorHeightButton = new(Symbols.Plus, 3f);
         increaseFloorHeightButton.ControlEvent += OnIncreaseFloorHeightButtonPushed;
 
         floorHeightTextfield = new(0f);
@@ -50,16 +50,16 @@ public class CustomFloorHeightPane : BasePane
 
         GUILayout.BeginHorizontal();
 
-        var noExpandWidth = GUILayout.ExpandWidth(false);
-
-        customFloorHeightToggle.Draw(noExpandWidth);
+        customFloorHeightToggle.Draw();
 
         GUI.enabled = enabled && customFloorHeightToggle.Value;
 
-        decreaseFloorHeightButton.Draw(noExpandWidth);
-        increaseFloorHeightButton.Draw(noExpandWidth);
+        var buttonSize = GUILayout.Width(UIUtility.Scaled(25));
 
-        floorHeightTextfield.Draw(GUILayout.Width(70f));
+        decreaseFloorHeightButton.Draw(Symbols.IconButtonStyle, buttonSize);
+        increaseFloorHeightButton.Draw(Symbols.IconButtonStyle, buttonSize);
+
+        floorHeightTextfield.Draw(GUILayout.Width(UIUtility.Scaled(65)));
 
         resetFloorHeightButton.Draw(GUILayout.ExpandWidth(false));
 

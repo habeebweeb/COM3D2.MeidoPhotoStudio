@@ -42,7 +42,7 @@ public class CharacterPlacementPane : BasePane
         header.Draw();
 
         GUILayout.BeginHorizontal();
-        placementDropdown.Draw(GUILayout.Width(150));
+        placementDropdown.Draw(GUILayout.Width(Parent.WindowRect.width - UIUtility.Scaled(120)));
         applyPlacementButton.Draw();
         GUILayout.EndHorizontal();
 

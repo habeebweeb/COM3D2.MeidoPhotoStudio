@@ -12,6 +12,12 @@ public class PropShapeKeyPane : BasePane
     private readonly Dictionary<string, EventHandler> sliderChangeEvents = [];
     private readonly Dictionary<string, Slider> sliders = new(StringComparer.Ordinal);
     private readonly Label noPropsLabel;
+    private readonly LazyStyle noPropsLabelStyle = new(
+        StyleSheet.TextSize,
+        static () => new(Label.Style)
+        {
+            alignment = TextAnchor.MiddleCenter,
+        });
 
     public PropShapeKeyPane(Translation translation, SelectionController<PropController> propSelectionController)
     {
@@ -31,7 +37,7 @@ public class PropShapeKeyPane : BasePane
     {
         if (CurrentShapeKeyController is null)
         {
-            noPropsLabel.Draw();
+            noPropsLabel.Draw(noPropsLabelStyle);
 
             return;
         }

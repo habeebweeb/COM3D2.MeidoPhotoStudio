@@ -170,7 +170,7 @@ public class Slider : BaseControl
             }
 
             if (HasTextField)
-                textField.Draw(GUILayout.Width(60f));
+                textField.Draw(GUILayout.Width(UIUtility.Scaled(65)));
 
             if (HasReset && GUILayout.Button("|", ResetButtonStyle, GUILayout.ExpandWidth(false)))
                 OnResetButtonPushed();
