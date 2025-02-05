@@ -2,7 +2,39 @@ namespace MeidoPhotoStudio.Plugin.Framework.UI.Legacy;
 
 public abstract class BasePane : IEnumerable<BasePane>
 {
+    private static readonly GUILayoutOption[] ComboBoxLayoutOptions = new GUILayoutOption[2];
+    private static readonly GUILayoutOption[] ComboBoxButtonLayoutOptions = new GUILayoutOption[2];
+    private static readonly GUILayoutOption[] DropdownArrowLayoutOptions = new GUILayoutOption[2];
+    private static readonly GUILayoutOption[] TextFieldLayoutOptions = new GUILayoutOption[2];
+
+    private static int textFieldHeight;
+
     private List<BasePane> panes;
+
+    static BasePane()
+    {
+        ScreenSizeChecker.ScreenSizeChanged += OnScreenSizeChanged;
+
+        RefreshLayoutOptions();
+
+        static void OnScreenSizeChanged(object sender, EventArgs e) =>
+            RefreshLayoutOptions();
+
+        static void RefreshLayoutOptions()
+        {
+            textFieldHeight = Mathf.Max(21, UIUtility.Scaled(StyleSheet.TextSize) + 10);
+
+            DropdownArrowLayoutOptions[0] = GUILayout.Width(UIUtility.Scaled(23));
+            DropdownArrowLayoutOptions[1] = GUILayout.Height(UIUtility.Scaled(StyleSheet.TextSize) + 12);
+
+            ComboBoxLayoutOptions[1] = GUILayout.Height(textFieldHeight);
+
+            ComboBoxButtonLayoutOptions[0] = GUILayout.Width(UIUtility.Scaled(23));
+            ComboBoxButtonLayoutOptions[1] = GUILayout.Height(textFieldHeight);
+
+            TextFieldLayoutOptions[1] = GUILayout.Height(textFieldHeight);
+        }
+    }
 
     protected int PaneCount =>
         panes?.Count ?? 0;
@@ -11,8 +43,6 @@ public abstract class BasePane : IEnumerable<BasePane>
 
     protected IEnumerable<BasePane> Panes =>
         panes ?? [];
-
-    private int TextFieldHeight { get; } = Mathf.CeilToInt(StyleSheet.TextSize * 1.85f);
 
     protected BasePane this[int index] =>
         panes[index];
@@ -73,34 +103,40 @@ public abstract class BasePane : IEnumerable<BasePane>
     {
         GUILayout.BeginHorizontal();
 
-        var buttonAndScrollbarSize = 33 * 2 + 15;
+        var buttonAndScrollbarSize = UIUtility.Scaled(23) * 2 + 27 + 15;
         var dropdownButtonWidth = Parent.WindowRect.width - buttonAndScrollbarSize;
 
         dropdown.Draw(GUILayout.Width(dropdownButtonWidth));
 
-        var arrowLayoutOptions = GUILayout.MaxWidth(20);
-
-        if (GUILayout.Button("<", arrowLayoutOptions))
+        if (GUILayout.Button(Symbols.LeftChevron, Symbols.IconButtonStyle, DropdownArrowLayoutOptions))
             dropdown.CyclePrevious();
 
-        if (GUILayout.Button(">", arrowLayoutOptions))
+        if (GUILayout.Button(Symbols.RightChevron, Symbols.IconButtonStyle, DropdownArrowLayoutOptions))
             dropdown.CycleNext();
 
         GUILayout.EndHorizontal();
     }
 
-    protected void DrawComboBox(ComboBox comboBox) =>
-        comboBox.Draw(
-            GUILayout.Width(Parent.WindowRect.width - 56f),
-            GUILayout.Height(Mathf.Max(23f, UIUtility.Scaled(TextFieldHeight))));
+    protected void DrawComboBox(ComboBox comboBox)
+    {
+        var buttonAndScrollbarSize = UIUtility.Scaled(23) + 22 + 15;
 
-    protected void DrawTextFieldMaxWidth(BaseControl textField) =>
-        textField.Draw(
-            GUILayout.Width(Parent.WindowRect.width - 10f),
-            GUILayout.Height(Mathf.Max(23f, UIUtility.Scaled(TextFieldHeight))));
+        ComboBoxLayoutOptions[0] = GUILayout.Width(Parent.WindowRect.width - buttonAndScrollbarSize);
 
-    protected void DrawTextFieldWithScrollBarOffset(BaseControl textField) =>
-        textField.Draw(
-            GUILayout.Width(Parent.WindowRect.width - 35f),
-            GUILayout.Height(Mathf.Max(23f, UIUtility.Scaled(TextFieldHeight))));
+        comboBox.Draw(TextField.Style, Symbols.IconButtonStyle, ComboBoxLayoutOptions, ComboBoxButtonLayoutOptions);
+    }
+
+    protected void DrawTextFieldMaxWidth(BaseControl textField)
+    {
+        TextFieldLayoutOptions[0] = GUILayout.Width(Parent.WindowRect.width - 8f);
+
+        textField.Draw(TextFieldLayoutOptions);
+    }
+
+    protected void DrawTextFieldWithScrollBarOffset(BaseControl textField)
+    {
+        TextFieldLayoutOptions[0] = GUILayout.Width(Parent.WindowRect.width - 32f);
+
+        textField.Draw(TextFieldLayoutOptions);
+    }
 }

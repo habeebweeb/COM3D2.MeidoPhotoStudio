@@ -7,7 +7,7 @@ public class ComboBox : DropdownBase<string>
     private static readonly Func<string, int, IDropdownItem> DefaultFormatter = static (string item, int index) =>
         new LabelledDropdownItem(string.IsNullOrEmpty(item) ? string.Empty : item);
 
-    private static readonly LazyStyle ButtonStyle = new(StyleSheet.TextSize, static () => new(GUI.skin.button));
+    private static readonly GUILayoutOption[] ButtonLayoutOptions = new GUILayoutOption[1];
 
     private readonly SearchBar<string> searchBar;
 
@@ -63,16 +63,24 @@ public class ComboBox : DropdownBase<string>
         set => searchBar.PlaceholderContent = value;
     }
 
-    public override void Draw(params GUILayoutOption[] layoutOptions) =>
-        Draw(TextField.Style, ButtonStyle, layoutOptions);
+    public override void Draw(params GUILayoutOption[] layoutOptions)
+    {
+        ButtonLayoutOptions[0] = GUILayout.Width(UIUtility.Scaled(20));
 
-    public void Draw(GUIStyle textFieldStyle, GUIStyle buttonStyle, params GUILayoutOption[] layoutOptions)
+        Draw(TextField.Style, Button.Style, layoutOptions, ButtonLayoutOptions);
+    }
+
+    public void Draw(
+        GUIStyle textFieldStyle,
+        GUIStyle buttonStyle,
+        GUILayoutOption[] comboBoxLayoutOptions,
+        GUILayoutOption[] buttonLayoutOptions)
     {
         GUILayout.BeginHorizontal();
 
-        searchBar.Draw(textFieldStyle, layoutOptions);
+        searchBar.Draw(textFieldStyle, comboBoxLayoutOptions);
 
-        var clicked = GUILayout.Button("v", buttonStyle, GUILayout.MaxWidth(20));
+        var clicked = GUILayout.Button(Symbols.DownChevron, buttonStyle, buttonLayoutOptions);
 
         if (clicked)
         {
