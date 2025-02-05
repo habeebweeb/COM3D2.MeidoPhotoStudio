@@ -104,7 +104,8 @@
     "savedAnimationLabel": "Saved animation!"
   },
   "characterAnimationPane": {
-    "header": "Animation"
+    "header": "Animation",
+    "stepAmountLabel": "Step Amount"
   },
   "handPane": {
     "header": "Hand Presets",

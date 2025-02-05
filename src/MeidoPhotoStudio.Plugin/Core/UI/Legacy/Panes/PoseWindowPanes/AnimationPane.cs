@@ -8,23 +8,25 @@ namespace MeidoPhotoStudio.Plugin.Core.UI.Legacy;
 
 public class AnimationPane : BasePane
 {
-    private const string PlayIconBase64 =
-        "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAM0lEQVQ4EWP4//8/AyWYYdAZAAMUG0C0QYQMIGgQsQbgNIhUAzAMorsB9A9E+iekIZiZABgcOPIp+HO6AAAAAElFTkSuQmCC";
+    private const string PlayBase64 = "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAQElEQVQ4y2NgGF7g////R/7//+9CiQEwQJ5B/zEBaQb9xw2IM+g/YYBhEBO1Y4HqXiA7EMmOxgP///+3ZxhZAAAgvb6MbsgO0gAAAABJRU5ErkJggg==";
+    private const string PauseBase64 = "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAJklEQVQ4y2NgGPKAEV3g/////+GSjIyMuMRggIlSF4waMGrAMAEAsQQIFCtKuVwAAAAASUVORK5CYII=";
+    private const string StepBackwardBase64 = "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAXUlEQVQ4y93RsQmAQAxA0UN0AMdwD/dxGgtncRR3cALh2YYr5DjOQn+X4n9IktK/wYAtzKBUHrFHoTiACUcuFAUw4xQoDmDBJeMp0L1x+foVmhyxyRuD0GOtDnyDG80KxesR6EkbAAAAAElFTkSuQmCC";
+    private const string StepForwardBase64 = "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAU0lEQVQ4y93RMQ2AQBBE0QsBAcjAB35ODQVakIIHFJA8GorrB5r73Rbzk50ppS+8NPeOKRHAgTkRwIklEcCFNRHAjdpmhr9X+OyFqMRoxg1j6ZsHiw3F6zNQ9OgAAAAASUVORK5CYII=";
 
-    private const string PauseIconBase64 =
-        "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAIUlEQVQ4EWP4//8/AyWYYVAagAzwiY0aMGoAbQ0YYpkJANk+OPKm3865AAAAAElFTkSuQmCC";
+    private static GUIContent playContent;
+    private static GUIContent pauseContent;
 
-    private static Texture2D playIcon;
-    private static Texture2D pauseIcon;
-
+    private readonly SelectionController<CharacterController> characterSelectionController;
+    private readonly CharacterUndoRedoService characterUndoRedoService;
     private readonly Slider animationSlider;
     private readonly Toggle playPauseButton;
     private readonly RepeatButton stepLeftButton;
     private readonly RepeatButton stepRightButton;
+    private readonly Label stepAmountLabel;
     private readonly NumericalTextField stepAmountField;
-    private readonly SelectionController<CharacterController> characterSelectionController;
-    private readonly CharacterUndoRedoService characterUndoRedoService;
-    private readonly LazyStyle playPauseButtonStyle = new(StyleSheet.TextSize, static () => new(GUI.skin.button));
+    private readonly RepeatButton decreaseStepAmountButton;
+    private readonly RepeatButton increaseStepAmountButton;
+    private readonly Button resetStepAmountButton;
 
     public AnimationPane(
         Translation translation,
@@ -50,21 +52,32 @@ public class AnimationPane : BasePane
         playPauseButton = new(PauseIcon, true);
         playPauseButton.ControlEvent += OnPlayPauseButtonPushed;
 
-        stepLeftButton = new("<", 3f);
+        stepLeftButton = new(new GUIContent(UIUtility.LoadTextureFromBase64(16, 16, StepBackwardBase64)), 3f);
         stepLeftButton.ControlEvent += OnStepLeftButtonPushed;
 
-        stepRightButton = new(">", 3f);
+        stepRightButton = new(new GUIContent(UIUtility.LoadTextureFromBase64(16, 16, StepForwardBase64)), 3f);
         stepRightButton.ControlEvent += OnStepRightButtonPushed;
+
+        stepAmountLabel = new(new LocalizableGUIContent(translation, "characterAnimationPane", "stepAmountLabel"));
 
         stepAmountField = new(0.01f);
         stepAmountField.ControlEvent += OnStepAmountFieldChanged;
+
+        decreaseStepAmountButton = new(Symbols.Minus, 3f);
+        decreaseStepAmountButton.ControlEvent += OnDecreaseStepAmountButtonPushed;
+
+        increaseStepAmountButton = new(Symbols.Plus, 3f);
+        increaseStepAmountButton.ControlEvent += OnIncreaseStepAmountButtonPushed;
+
+        resetStepAmountButton = new("|");
+        resetStepAmountButton.ControlEvent += OnResetStepAmountButtonPushed;
     }
 
-    private static Texture2D PlayIcon =>
-        playIcon ? playIcon : playIcon = UIUtility.LoadTextureFromBase64(16, 16, PlayIconBase64);
+    private static GUIContent PlayIcon =>
+        playContent ??= new(UIUtility.LoadTextureFromBase64(16, 16, PlayBase64));
 
-    private static Texture2D PauseIcon =>
-        pauseIcon ? pauseIcon : pauseIcon = UIUtility.LoadTextureFromBase64(16, 16, PauseIconBase64);
+    private static GUIContent PauseIcon =>
+        pauseContent ??= new(UIUtility.LoadTextureFromBase64(16, 16, PauseBase64));
 
     private CharacterUndoRedoController CharacterUndoRedo =>
         Character is null ? null : characterUndoRedoService[Character];
@@ -113,18 +126,32 @@ public class AnimationPane : BasePane
 
         GUILayout.BeginHorizontal();
 
+        var height = GUILayout.Height(Mathf.Max(21, UIUtility.Scaled(StyleSheet.TextSize) + 10));
         var noExpandWidth = GUILayout.ExpandWidth(false);
 
-        playPauseButton.Draw(playPauseButtonStyle, GUILayout.Width(45f));
+        playPauseButton.Draw(Symbols.IconButtonStyle, GUILayout.Width(UIUtility.Scaled(45)), height);
 
         GUI.enabled = guiEnabled && animationValid && animationStopped;
 
-        stepLeftButton.Draw(noExpandWidth);
-        stepRightButton.Draw(noExpandWidth);
+        stepLeftButton.Draw(noExpandWidth, height);
+        stepRightButton.Draw(noExpandWidth, height);
 
-        GUILayout.FlexibleSpace();
+        GUILayout.EndHorizontal();
 
-        stepAmountField.Draw(GUILayout.Width(60f));
+        UIUtility.DrawBlackLine();
+
+        GUILayout.BeginHorizontal();
+
+        var buttonSize = GUILayout.Width(UIUtility.Scaled(25));
+
+        stepAmountLabel.Draw(noExpandWidth);
+
+        decreaseStepAmountButton.Draw(Symbols.IconButtonStyle, buttonSize, height);
+        increaseStepAmountButton.Draw(Symbols.IconButtonStyle, buttonSize, height);
+
+        stepAmountField.Draw(GUILayout.Width(UIUtility.Scaled(65)), height);
+
+        resetStepAmountButton.Draw(noExpandWidth, height);
 
         GUILayout.EndHorizontal();
 
@@ -272,6 +299,15 @@ public class AnimationPane : BasePane
             stepAmountField.SetValueWithoutNotify(0f);
     }
 
+    private void OnDecreaseStepAmountButtonPushed(object sender, EventArgs e) =>
+        stepAmountField.Value -= 0.01f;
+
+    private void OnIncreaseStepAmountButtonPushed(object sender, EventArgs e) =>
+        stepAmountField.Value += 0.01f;
+
+    private void OnResetStepAmountButtonPushed(object sender, EventArgs e) =>
+        stepAmountField.Value = 0.01f;
+
     private void UpdatePlayPauseButtonIcon() =>
-        playPauseButton.Icon = Playing ? PauseIcon : PlayIcon;
+        playPauseButton.Content = Playing ? PauseIcon : PlayIcon;
 }
