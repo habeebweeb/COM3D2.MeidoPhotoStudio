@@ -67,7 +67,7 @@ public class NumericalTextField : BaseControl
         textFieldValue = newText;
 
         if (!float.TryParse(textFieldValue, out var newValue))
-            newValue = 0f;
+            newValue = Value;
 
         if (!Mathf.Approximately(Value, newValue))
             SetValue(newValue, updateTextField: false);
@@ -86,7 +86,7 @@ public class NumericalTextField : BaseControl
 
         this.value = value;
 
-        if (!HasFocus && updateTextField)
+        if (updateTextField)
             textFieldValue = FormatValue(this.value);
 
         if (notify)

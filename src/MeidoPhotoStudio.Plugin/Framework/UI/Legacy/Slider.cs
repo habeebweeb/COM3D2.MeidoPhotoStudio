@@ -237,7 +237,7 @@ public class Slider : BaseControl
     private static float Bound(float value, float left, float right) =>
         left > (double)right ? Mathf.Clamp(value, right, left) : Mathf.Clamp(value, left, right);
 
-    private void SetValue(float value, bool notify = true)
+    private void SetValue(float value, bool notify = true, bool updateTextField = true)
     {
         var newValue = Bound(value, Left, Right);
 
@@ -246,7 +246,8 @@ public class Slider : BaseControl
 
         this.value = temporaryValue = newValue;
 
-        textField?.SetValueWithoutNotify(this.value);
+        if (updateTextField)
+            textField?.SetValueWithoutNotify(this.value);
 
         if (notify)
             OnControlEvent(EventArgs.Empty);
@@ -264,5 +265,5 @@ public class Slider : BaseControl
     }
 
     private void TextFieldInputChangedHandler(object sender, EventArgs e) =>
-        SetValue(textField.Value);
+        SetValue(textField.Value, updateTextField: false);
 }
