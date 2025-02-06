@@ -95,7 +95,10 @@ public partial class PluginCore : MonoBehaviour
         // Translation
         translation = new Translation(
             Path.Combine(configRoot, "Translations"),
-            translationConfiguration.CurrentLanguage.Value);
+            translationConfiguration.CurrentLanguage.Value)
+        {
+            LogMissingTranslations = translationConfiguration.LogMissingTranslations.Value,
+        };
 
         // Utilities
         screenSizeChecker = gameObject.AddComponent<ScreenSizeChecker>();

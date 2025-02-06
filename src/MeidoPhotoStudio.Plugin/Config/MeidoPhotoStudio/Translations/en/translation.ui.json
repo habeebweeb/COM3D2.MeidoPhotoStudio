@@ -754,7 +754,10 @@
     "ui": "User Interface"
   },
   "translationSettingsPane": {
-    "reloadTranslationButton": "Reload Translation"
+    "reloadTranslationButton": "Reload Translation",
+    "selectedLanguageLabel": "Select language",
+    "refreshAvailableLanguagesButton": "Refresh",
+    "logMissingTranslationsToggle": "Log missing translations"
   },
   "inputSettingsPane": {
     "generalControlsHeader": "General",

@@ -8,11 +8,11 @@ public class TranslationConfiguration
     {
         _ = configFile ?? throw new ArgumentNullException(nameof(configFile));
 
-        SuppressWarnings = configFile.Bind(
+        LogMissingTranslations = configFile.Bind(
             "Translation",
-            "SuppressWarnings",
-            true,
-            "Suppress translation warnings from showing up in the console");
+            "Log Missing Translations",
+            false,
+            "Log translations that are missing");
 
         CurrentLanguage = configFile.Bind(
             "Translation",
@@ -23,5 +23,5 @@ public class TranslationConfiguration
 
     public ConfigEntry<string> CurrentLanguage { get; }
 
-    public ConfigEntry<bool> SuppressWarnings { get; }
+    public ConfigEntry<bool> LogMissingTranslations { get; }
 }
