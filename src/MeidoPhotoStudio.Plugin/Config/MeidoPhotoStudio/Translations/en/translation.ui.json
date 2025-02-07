@@ -6,7 +6,6 @@
     "props": "Props"
   },
   "maidCallWindow": {
-    "okButton": "OK",
     "clearButton": "Clear Selected",
     "callButton": "Call",
     "searchBarPlaceholder": "Search characters",
@@ -26,7 +25,6 @@
     "header": "Placement Presets"
   },
   "placementDropdown": {
-    "normal": "Normal",
     "horizontalRow": "Horizontal Row",
     "verticalRow": "Vertical Row",
     "diagonalRow": "Diagonal",
@@ -88,7 +86,6 @@
     "handPresets": "Hand Presets"
   },
   "posePane": {
-    "header": "Animations",
     "searchBarPlaceholder": "Search animations",
     "categoryHeader": "Category",
     "noAnimations": "No Animations",
@@ -98,17 +95,14 @@
     "saveToggle": "Save Pose",
     "refreshButton": "Refresh",
     "saveButton": "Save Pose",
-    "deleteButton": "D",
     "baseTab": "Base",
     "customTab": "Custom",
     "savedAnimationLabel": "Saved animation!"
   },
   "characterAnimationPane": {
-    "header": "Animation",
     "stepAmountLabel": "Step Amount"
   },
   "handPane": {
-    "header": "Hand Presets",
     "searchBarPlaceholder": "Search hand presets",
     "saveToggle": "Save Preset",
     "refreshButton": "Refresh",
@@ -129,18 +123,15 @@
     "copy": "Copy"
   },
   "maidPoseWindow": {
-    "header": "Posing",
     "enabledToggle": "IK Enabled",
     "boneToggle": "Precise Mode",
     "limitJointsToggle": "Limit Joints",
     "limitDigitsToggle": "Limit Fingers/Toes",
-    "customFloorHeightHeader": "Custom Floor Height",
     "customFloorHeightEnabledToggle": "Enabled",
     "flipPoseToggle": "Flip Pose",
     "preciseTransformToggle": "Precise Transform"
   },
   "freeLookPane": {
-    "header": "Free Look",
     "freeLookToggle": "Enabled",
     "headToCamToggle": "Head",
     "eyeToCamToggle": "Eye",
@@ -149,17 +140,13 @@
     "bindLabel": "Bind"
   },
   "attachMpnPropPane": {
-    "attachButton": "Attach",
-    "detachButton": "Detach",
     "detachAllButton": "Detach All",
     "upperAccessoryTab": "Upper",
     "lowerAccessoryTab": "Lower",
     "noAccessory": "No Accessory",
-    "noAccessories": "No Accessories",
-    "header": "Attached Accessories"
+    "noAccessories": "No Accessories"
   },
   "dressingPane": {
-    "header": "Clothing",
     "detailedClothing": "Detailed Clothing",
     "curlingFront": "Curl Front",
     "curlingBack": "Curl Rear",
@@ -170,7 +157,6 @@
   },
   "clothing": {
     "null_mpn": " --- ",
-    "handItem": "Hand Items",
     "accHat": "Hat",
     "headset": "Headdress",
     "wear": "Top",
@@ -213,16 +199,13 @@
     "floorHeight": "Floor Height"
   },
   "gravityControlPane": {
-    "header": "Gravity",
     "hairToggle": "Hair",
     "clothingToggle": "Clothing",
     "globalToggle": "Global",
-    "gravityHeader": "Gravity Control",
     "hairDragHandleToggle": "Drag Handle",
     "clothingDragHandleToggle": "Drag Handle"
   },
   "copyPosePane": {
-    "header": "Copy Pose",
     "copyHandHeader": "Copy Hands",
     "copyButton": "Copy Pose",
     "copyBothHands": "Copy Both Hands",
@@ -237,7 +220,6 @@
   },
   "maidFaceWindow": {
     "noBlendSets": "No Blend Sets",
-    "header": "Face Blend Sets",
     "searchBarPlaceholder": "Search blend sets",
     "savePaneToggle": "Save Blend Set",
     "saveButton": "Save Blend Set",
@@ -251,7 +233,6 @@
     "savedBlendSetLabel": "Saved blendset!"
   },
   "expressionPane": {
-    "header": "Facial Expression",
     "refreshShapeKeyRangeButton": "Refresh Slider Range",
     "blinkToggle": "Blink",
     "baseGameExpressionKeys": "Base Expression Keys",
@@ -297,17 +278,8 @@
     "hoho": "Blush 2",
     "hohol": "Blush 3"
   },
-  "faceSave": {
-    "categoryHeader": "Category",
-    "nameHeader": "Name",
-    "saveButton": "Save Blendset",
-    "deleteButton": "D"
-  },
   "characterTabBodySubTabPaneGroups": {
     "bodyShapeKeys": "Shape Keys"
-  },
-  "bodyShapeKeyPane": {
-    "header": "Body Shape Keys",
   },
   "shapeKeysPane": {
     "deleteShapeKeysToggle": "Delete",
@@ -332,16 +304,7 @@
     "lights": "Lights",
     "effects": "Effects"
   },
-  "backgroundWindow": {
-    "saveLoadButton": "Save\nLoad",
-    "manageScenesButton": "Manage Scenes",
-    "lightLabel": "Light",
-    "red": "Red",
-    "green": "Green",
-    "blue": "Blue"
-  },
   "backgroundsPane": {
-    "header": "Backgrounds",
     "searchBarPlaceholder": "Search backgrounds",
     "dragHandleVisible": "Drag Handle",
     "backgroundVisible": "Visible",
@@ -357,7 +320,6 @@
   },
   "sceneManagementPane": {
     "manageScenesButton": "Manage Scenes",
-    "sceneManagementHeader": "Scene Management",
     "quickSaveButton": "Quick Save",
     "quickLoadButton": "Quick Load"
   },
@@ -371,13 +333,7 @@
   },
   "propsPane": {
     "addProp": "Add Prop",
-    "header": "Props",
     "noProps": "No props"
-  },
-  "propsPaneTabs": {
-    "props": "Props",
-    "myRoom": "MyRoom",
-    "mod": "Mods"
   },
   "propTypes": {
     "game": "Game",
@@ -388,9 +344,6 @@
     "menu": "Mod",
     "handItem": "Hand items",
     "favourite": "Favourite Props"
-  },
-  "myRoomPane": {
-    "header": "My Room"
   },
   "backgroundPropsPane": {
     "searchBarPlaceholder": "Search backgrounds"
@@ -434,7 +387,6 @@
     "renameTextFieldPlaceholder": "New name"
   },
   "propManagerPane": {
-    "header": "Manage Props",
     "dragPointToggle": "Cube",
     "gizmoToggle": "Gizmo",
     "toggleAllHandlesHeader": "Toggle All Handles",
@@ -454,7 +406,6 @@
     "preciseTransformToggle": "Precise Transform"
   },
   "propShapeKeyPane": {
-    "header": "Prop Shape Keys",
     "noShapeKeysOrPropsLabel": "No prop or shape keys"
   },
   "lights": {
@@ -469,19 +420,15 @@
     "blue": "Blue"
   },
   "cameraPane": {
-    "header": "Camera",
     "zRotation": "Z Rotation",
     "fov": "FOV"
   },
   "lightsPane": {
-    "header": "Lights",
     "add": "+",
     "delete": "Del",
     "resetPosition": "Position",
     "resetProperties": "Properties",
     "clear": "Clear",
-    "colour": "Hide BG",
-    "disable": "Off",
     "resetLabel": "Reset",
     "noLights": "No Lights",
     "on": "On",
@@ -495,13 +442,7 @@
     "light": "Light"
   },
   "effectsPane": {
-    "header": "Effects",
     "onToggle": "On",
-    "bloom": "Bloom",
-    "dof": "DOF",
-    "vignette": "Blur",
-    "fog": "Fog",
-    "sepia": "Sepia",
     "reset": "Reset Effect"
   },
   "effectTypes": {
@@ -547,44 +488,8 @@
     "blurIterations": "Blur Iterations",
     "downsample": "Downsample"
   },
-  "background2Window": {
-    "envButton": "Environments",
-    "itemLabel": "Item",
-    "smallBGLabel": "BG (Prop)",
-    "propLabel": "Clothes",
-  },
-  "clothingDropdown": {
-    "myRoom": "My Room Custom",
-    "hat": "Hat",
-    "headset": "Headset",
-    "top": "Top",
-    "bottom": "Bottom",
-    "onepiece": "One-Piece",
-    "swimsuit": "Swimsuit",
-    "bra": "Bra",
-    "panties": "Panties",
-    "socks": "Socks",
-    "shoes": "Shoes",
-    "hairAccessory": "Hair Accessory",
-    "glasses": "Glasses",
-    "eyeMask": "Eye Mask",
-    "nose": "Nose",
-    "ear": "Ear",
-    "gloves": "Gloves",
-    "necklace": "Necklace",
-    "choker": "Choker",
-    "ribbon": "Ribbon",
-    "nipple": "Nipple",
-    "arms": "Arms",
-    "belly": "Belly",
-    "ankle": "Ankle",
-    "back": "Back",
-    "tail": "Tail",
-    "genitals": "Genitals"
-  },
   "attachPropPane": {
     "keepWorldPosition": "Keep current position",
-    "header": "Prop Attachment",
     "noCharactersOrPropsLabel": "No characters or props",
     "head": "Head",
     "neck": "Neck",
@@ -611,10 +516,8 @@
   "sceneManagerModal": {
     "deleteDirectoryConfirm": "Are you sure you want to permanently delete '{0}' and all of its files?",
     "deleteFileConfirm": "Are you sure you want to permanently delete '{0}'?",
-    "deleteDirectoryButton": "Delete Folder",
     "deleteFileCommit": "Delete Scene",
     "fileLoadCommit": "Load",
-    "infoKankyo": "Kankyo",
     "infoMaidSingular": "{0} Maid",
     "infoMaidPlural": "{0} Maids",
     "deleteButton": "Delete",
@@ -642,7 +545,6 @@
   },
   "sceneManager": {
     "createDirectoryButton": "Add Folder",
-    "deleteDirectoryButton": "Delete",
     "saveSceneButton": "Save Scene",
     "refreshButton": "Refresh",
     "sortName": "Name",
@@ -667,27 +569,9 @@
   "systemMessage": {
     "exitConfirm": "Are you sure you want to quit {0}?\nAny unsaved data will be lost.",
     "initializing": "Initializing",
-    "noMaids": "No Characters",
-    "noProps": "No Props",
     "noTranslations": "There are no translations found in '{0}'"
   },
   "controls": {
-    "activate": "Activate MPS",
-    "toggleUI": "Hide/Show UI",
-    "toggleMessage": "Message Box",
-    "meidoUndressing": "Undressing",
-    "cameraLayer": "Camera Layer",
-    "cameraReset": "Reset Camera",
-    "cameraSave": "Save Camera",
-    "cameraLoad": "Load Camera",
-    "dragSelect": "Select",
-    "dragDelete": "Delete",
-    "dragMove": "Move",
-    "dragRotate": "Rotate",
-    "dragScale": "Scale",
-    "saveScene": "Quick Save",
-    "loadScene": "Quick Load",
-    "openSceneManager": "Open Scene Manager",
     "activatePlugin": "Activate MPS",
     "screenshot": "Take Screenshot",
     "toggleMessageWindow": "Toggle Message Window",
