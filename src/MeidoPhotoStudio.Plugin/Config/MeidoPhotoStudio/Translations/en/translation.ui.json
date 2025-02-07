@@ -738,6 +738,7 @@
     "spineBoneGizmoRotation": "Spine Bone Gizmo Rotation",
     "hipBoneRotation": "Hip Bone Rotation",
     "moveLocalY": "Move Local Y",
+    "moveGravityWorldY": "Move Gravity World Y",
     "undo": "Undo",
     "redo": "Redo",
     "cycleNextAnimation": "Cycle Next Animation",

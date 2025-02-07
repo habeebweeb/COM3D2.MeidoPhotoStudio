@@ -144,7 +144,7 @@ public class InputSettingsPane : BasePane
             if (!DrawHeader(characterControlsHeader))
                 return;
 
-            for (var hotkey = Hotkey.DragFinger; hotkey <= Hotkey.MoveLocalY; hotkey++)
+            for (var hotkey = Hotkey.DragFinger; hotkey <= Hotkey.MoveGravityWorldY; hotkey++)
                 DrawControl(hotkey);
         }
 
