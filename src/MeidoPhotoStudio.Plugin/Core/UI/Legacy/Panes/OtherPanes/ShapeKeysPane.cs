@@ -18,7 +18,6 @@ public class ShapeKeysPane : BasePane
     private readonly Button refreshRangeButton;
     private readonly Toggle deleteShapeKeysToggle;
     private readonly Framework.UI.Legacy.ComboBox addShapeKeyComboBox;
-    private readonly Button addShapeKeyButton;
     private readonly Label noShapeKeysLabel;
     private readonly LazyStyle deleteShapeKeyButtonStyle = new(StyleSheet.TextSize, static () => new(GUI.skin.button));
     private readonly LazyStyle shapeKeyLabelStyle = new(StyleSheet.TextSize, static () => new(GUI.skin.label));
@@ -30,7 +29,6 @@ public class ShapeKeysPane : BasePane
         });
 
     private IShapeKeyController shapeKeyController;
-    private bool validShapeKey;
     private string[] shapeKeys;
     private bool hasShapeKeys;
 
@@ -57,10 +55,7 @@ public class ShapeKeysPane : BasePane
             PlaceholderContent = new LocalizableGUIContent(translation, "shapeKeysPane", "searchShapeKeyPlaceholder"),
         };
 
-        addShapeKeyComboBox.ChangedValue += OnAddShapeKeyComboBoxValueChanged;
-
-        addShapeKeyButton = new(new LocalizableGUIContent(translation, "shapeKeysPane", "addShapeKeyButton"));
-        addShapeKeyButton.ControlEvent += OnAddShapeKeyButtonPushed;
+        addShapeKeyComboBox.SelectedValue += OnAddShapeKeyComboBoxValueSelected;
 
         refreshRangeButton = new(new LocalizableGUIContent(translation, "shapeKeysPane", "refreshShapeKeyRangeButton"));
         refreshRangeButton.ControlEvent += OnRefreshRangeButtonPushed;
@@ -144,10 +139,6 @@ public class ShapeKeysPane : BasePane
             GUI.enabled = guiEnabled;
 
             deleteShapeKeysToggle.Draw();
-
-            GUI.enabled = guiEnabled && hasShapeKeys && !deleteShapeKeysToggle.Value && validShapeKey;
-
-            addShapeKeyButton.Draw(GUILayout.ExpandWidth(false));
 
             GUILayout.EndHorizontal();
         }
@@ -249,20 +240,9 @@ public class ShapeKeysPane : BasePane
         slider.SetValueWithoutNotify(controller[e.Key]);
     }
 
-    private void OnAddShapeKeyComboBoxValueChanged(object sender, EventArgs e)
+    private void OnAddShapeKeyComboBoxValueSelected(object sender, EventArgs e)
     {
         if (ShapeKeyController is null)
-            return;
-
-        validShapeKey = shapeKeySet.Contains(addShapeKeyComboBox.Value);
-    }
-
-    private void OnAddShapeKeyButtonPushed(object sender, EventArgs e)
-    {
-        if (string.IsNullOrEmpty(addShapeKeyComboBox.Value))
-            return;
-
-        if (!shapeKeySet.Contains(addShapeKeyComboBox.Value))
             return;
 
         shapeKeyConfiguration.AddShapeKey(addShapeKeyComboBox.Value);
@@ -326,8 +306,6 @@ public class ShapeKeysPane : BasePane
 
         shapeKeySet.Clear();
         shapeKeySet.UnionWith(shapeKeyList);
-
-        validShapeKey = shapeKeySet.Contains(addShapeKeyComboBox.Value);
 
         addShapeKeyComboBox.SetItems(shapeKeyList);
     }
