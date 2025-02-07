@@ -29,6 +29,8 @@ public class ComboBox : DropdownBase<string>
             this.Where(item => item.Contains(query, StringComparison.OrdinalIgnoreCase));
     }
 
+    public event EventHandler SelectedValue;
+
     public event EventHandler ChangedValue
     {
         add => searchBar.ChangedValue += value;
@@ -103,18 +105,17 @@ public class ComboBox : DropdownBase<string>
         base.OnItemSelected(index);
 
         searchBar.SetQueryWithoutShowingResults(this[SelectedItemIndex]);
+
+        SelectedValue?.Invoke(this, EventArgs.Empty);
     }
 
-    protected override void OnDropdownClosed(bool clickedButton)
-    {
+    protected override void OnDropdownClosed(bool clickedButton) =>
         clickedWhileOpen = clickedButton;
 
-        if (!clickedButton)
-            return;
-
-        searchBar.SetQueryWithoutShowingResults(this[SelectedItemIndex]);
-    }
-
-    private void OnValueSelected(object sender, SearchBarSelectionEventArgs<string> e) =>
+    private void OnValueSelected(object sender, SearchBarSelectionEventArgs<string> e)
+    {
         searchBar.SetQueryWithoutShowingResults(e.Item);
+
+        SelectedValue?.Invoke(this, EventArgs.Empty);
+    }
 }
