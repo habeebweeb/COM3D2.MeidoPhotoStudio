@@ -512,6 +512,7 @@ public class IKController : INotifyPropertyChanged
                 var rotationLimit = bone.GetOrAddComponent<ToggleableRotationLimitHinge>();
 
                 rotationLimit.Limited = jointIsDigit ? LimitDigitRotations : LimitLimbRotations;
+                rotationLimit.Animation = character.Animation;
 
                 rotationLimit.axis = jointIsDigit ? Vector3.back : Vector3.forward;
                 rotationLimit.min = jointIsDigit ? -180f : 0f;
