@@ -22,7 +22,7 @@ public abstract class BasePane : IEnumerable<BasePane>
 
         static void RefreshLayoutOptions()
         {
-            textFieldHeight = Mathf.Max(21, UIUtility.Scaled(StyleSheet.TextSize) + 10);
+            textFieldHeight = UIUtility.Scaled(StyleSheet.TextSize) + 15;
 
             DropdownArrowLayoutOptions[0] = GUILayout.Width(UIUtility.Scaled(23));
             DropdownArrowLayoutOptions[1] = GUILayout.Height(UIUtility.Scaled(StyleSheet.TextSize) + 12);
