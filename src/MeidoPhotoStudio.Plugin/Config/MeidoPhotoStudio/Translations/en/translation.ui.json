@@ -636,7 +636,8 @@
     "dragHandle": "Drag Handles",
     "autoSave": "Auto-Save",
     "translation": "Translation",
-    "ui": "User Interface"
+    "ui": "User Interface",
+    "shapeKeys": "Shape Keys"
   },
   "translationSettingsPane": {
     "reloadTranslationButton": "Reload Translation",
@@ -673,5 +674,18 @@
     "mainWindowWidthHint": "Width must be at least {0} units wide",
     "saveButton": "Save",
     "resetButton": "Reset"
+  },
+  "shapeKeySettingsPane": {
+    "faceTab": "Face Shape Keys",
+    "bodyTab": "Body Shape Keys",
+    "searchBarPlaceholder": "Filter shape keys",
+    "shapeKeyHeaderLabel": "Shape Key",
+    "lowerHeaderLabel": "Lower",
+    "upperHeaderLabel": "Upper",
+    "reloadConfigurationButton": "Reload Configuration",
+    "resetRangeButton": "Reset",
+    "saveChangesButton": "Save Changes",
+    "resetChangesButton": "Reset Changes",
+    "noShapeKeysLabel": "No shape keys"
   }
 }

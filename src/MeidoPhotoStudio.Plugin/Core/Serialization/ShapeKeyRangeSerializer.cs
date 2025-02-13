@@ -30,6 +30,20 @@ public class ShapeKeyRangeSerializer : IShapeKeyRangeSerializer
         using var streamWriter = new StreamWriter(fileStream, Encoding.UTF8);
         using var jsonWriter = new JsonTextWriter(streamWriter);
 
+        jsonWriter.WriteComment(
+            """
+            This file contains the ranges for shape keys.
+
+            By default the range is 0 to 1 if not defined.
+
+            The format for a range is:
+
+            "shape_key_name": {
+              "lower": 0,
+              "upper": 1.5
+            }
+            """);
+
         Serializer.Serialize(jsonWriter, ranges);
     }
 

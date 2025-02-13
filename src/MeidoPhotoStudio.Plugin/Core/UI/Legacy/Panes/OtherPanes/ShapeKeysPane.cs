@@ -15,7 +15,6 @@ public class ShapeKeysPane : BasePane
     private readonly Dictionary<string, Slider> sliders = new(StringComparer.Ordinal);
     private readonly HashSet<string> shapeKeySet = new(StringComparer.Ordinal);
     private readonly Toggle modifyShapeKeysToggle;
-    private readonly Button refreshRangeButton;
     private readonly Toggle deleteShapeKeysToggle;
     private readonly Framework.UI.Legacy.ComboBox addShapeKeyComboBox;
     private readonly Label noShapeKeysLabel;
@@ -39,6 +38,8 @@ public class ShapeKeysPane : BasePane
         this.shapeKeyRangeConfiguration = shapeKeyRangeConfiguration ?? throw new ArgumentNullException(nameof(shapeKeyRangeConfiguration));
 
         this.shapeKeyRangeConfiguration.Refreshed += OnShapeKeyRangeConfigurationRefreshed;
+        this.shapeKeyRangeConfiguration.ChangedRange += OnShapeKeyRangeChanged;
+        this.shapeKeyRangeConfiguration.RemovedRange += OnShapeKeyRangeChanged;
 
         this.shapeKeyConfiguration.AddedShapeKey += OnShapeKeyAdded;
         this.shapeKeyConfiguration.RemovedShapeKey += OnShapeKeyRemoved;
@@ -57,16 +58,11 @@ public class ShapeKeysPane : BasePane
 
         addShapeKeyComboBox.SelectedValue += OnAddShapeKeyComboBoxValueSelected;
 
-        refreshRangeButton = new(new LocalizableGUIContent(translation, "shapeKeysPane", "refreshShapeKeyRangeButton"));
-        refreshRangeButton.ControlEvent += OnRefreshRangeButtonPushed;
-
         noShapeKeysLabel = new(new LocalizableGUIContent(translation, "shapeKeysPane", "noShapeKeysLabel"));
 
         foreach (var hashKey in shapeKeys)
             _ = AddSlider(hashKey);
     }
-
-    public bool DrawRefreshRangeButton { get; set; }
 
     public IShapeKeyController ShapeKeyController
     {
@@ -111,20 +107,7 @@ public class ShapeKeysPane : BasePane
 
         var guiEnabled = Parent.Enabled;
 
-        if (DrawRefreshRangeButton)
-        {
-            GUILayout.BeginHorizontal();
-
-            modifyShapeKeysToggle.Draw();
-
-            refreshRangeButton.Draw(GUILayout.ExpandWidth(false));
-
-            GUILayout.EndHorizontal();
-        }
-        else
-        {
-            modifyShapeKeysToggle.Draw();
-        }
+        modifyShapeKeysToggle.Draw();
 
         if (modifyShapeKeysToggle.Value)
         {
@@ -185,9 +168,6 @@ public class ShapeKeysPane : BasePane
         }
     }
 
-    private void OnRefreshRangeButtonPushed(object sender, EventArgs e) =>
-        shapeKeyRangeConfiguration.Refresh();
-
     private void OnShapeKeyAdded(object sender, ShapeKeyConfigurationEventArgs e)
     {
         var slider = AddSlider(e.ChangedShapeKey);
@@ -222,6 +202,14 @@ public class ShapeKeysPane : BasePane
             slider.Left = range.Lower;
             slider.Right = range.Upper;
         }
+    }
+
+    private void OnShapeKeyRangeChanged(object sender, ShapeKeyRangeConfigurationEventArgs e)
+    {
+        if (!sliders.TryGetValue(e.ChangedShapeKey, out var slider))
+            return;
+
+        slider.SetBounds(e.Range.Lower, e.Range.Upper);
     }
 
     private void OnMultipleShapeKeysChanged(object sender, EventArgs e) =>

@@ -86,8 +86,12 @@ public partial class PluginCore : MonoBehaviour
 
         var translationConfiguration = new TranslationConfiguration(configuration);
         var faceShapeKeyConfiguration = new FaceShapeKeyConfiguration(configuration);
-        var dragHandleConfiguration = new DragHandleConfiguration(configuration);
+        var faceShapekeyRangeConfiguration = new ShapeKeyRangeConfiguration(
+            new ShapeKeyRangeSerializer(Path.Combine(databasePath, "face_shapekey_range.json")));
+
         var bodyShapeKeyConfiguration = new BodyShapeKeyConfiguration(configuration);
+        var bodyShapeKeyRangeConfiguration = new ShapeKeyRangeConfiguration(new ShapeKeyRangeSerializer(Path.Combine(databasePath, "body_shapekey_range.json")));
+        var dragHandleConfiguration = new DragHandleConfiguration(configuration);
         var menuPropsConfiguration = new MenuPropsConfiguration(configuration);
         var autoSaveConfiguration = new AutoSaveConfiguration(configuration);
         var uiConfiguration = new UIConfiguration(configuration);
@@ -162,10 +166,6 @@ public partial class PluginCore : MonoBehaviour
         var characterCallController = new CallController(characterRepository, characterService, customMaidSceneService, editModeMaidService);
         var characterSelectionController = new SelectionController<CharacterController>(characterService);
         var facialExpressionBuilder = new FacialExpressionBuilder(faceShapeKeyConfiguration);
-        var faceShapekeyRangeConfiguration = new ShapeKeyRangeConfiguration(
-            new ShapeKeyRangeSerializer(Path.Combine(databasePath, "face_shapekey_range.json")));
-
-        var bodyShapeKeyRangeConfiguration = new ShapeKeyRangeConfiguration(new ShapeKeyRangeSerializer(Path.Combine(databasePath, "body_shapekey_range.json")));
 
         AddPluginActiveInputHandler(new CharacterDressingCycler(characterService, inputConfiguration));
 
@@ -429,6 +429,12 @@ public partial class PluginCore : MonoBehaviour
                 gravityDragHandleService,
                 lightDragHandleRepository,
                 backgroundDragHandleService),
+            [SettingsWindow.SettingType.ShapeKeys] = new ShapeKeysSettingsPane(
+                translation,
+                faceShapeKeyConfiguration,
+                faceShapekeyRangeConfiguration,
+                bodyShapeKeyConfiguration,
+                bodyShapeKeyRangeConfiguration),
             [SettingsWindow.SettingType.AutoSave] = new AutoSaveSettingsPane(
                 translation, autoSaveConfiguration, autoSaveService),
             [SettingsWindow.SettingType.Translation] = new TranslationSettingsPane(translationConfiguration, translation),

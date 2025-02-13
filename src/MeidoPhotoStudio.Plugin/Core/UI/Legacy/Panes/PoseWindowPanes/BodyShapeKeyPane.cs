@@ -23,10 +23,7 @@ public class BodyShapeKeyPane : BasePane
 
         this.characterSelectionController.Selected += OnCharacterSelectionChanged;
 
-        shapeKeysPane = new(translation, bodyShapeKeyConfiguration, shapeKeyRangeConfiguration)
-        {
-            DrawRefreshRangeButton = true,
-        };
+        shapeKeysPane = new(translation, bodyShapeKeyConfiguration, shapeKeyRangeConfiguration);
 
         Add(shapeKeysPane);
     }

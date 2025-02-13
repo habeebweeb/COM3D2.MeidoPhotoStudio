@@ -8,6 +8,7 @@ public class SettingsWindow : BaseWindow
 {
     private const int CategoryListWidth = 200;
     private const float ResizeHandleSize = 15f;
+
     private readonly Translation translation;
     private readonly InputRemapper inputRemapper;
     private readonly List<SettingType> settingCategories = [];
@@ -20,16 +21,6 @@ public class SettingsWindow : BaseWindow
         static () => new(GUI.skin.button)
         {
             alignment = TextAnchor.MiddleLeft,
-        });
-
-    private readonly LazyStyle headerStyle = new(
-        StyleSheet.TextSize,
-        static () => new(GUI.skin.label)
-        {
-            padding = new(0, 0, 2, 0),
-            fontStyle = FontStyle.Bold,
-            normal = { textColor = Color.white },
-            wordWrap = true,
         });
 
     private readonly LazyStyle buildVersionStyle = new(
@@ -57,20 +48,21 @@ public class SettingsWindow : BaseWindow
 
         pluginInformationLabel = new(Plugin.BuildVersion);
 
-        var minimumWidth = UIUtility.Scaled(CategoryListWidth * 2.75f + 38);
-        var minimumHeight = UIUtility.Scaled(400);
+        var minimumWidth = MinimumWidth;
+        var minimumHeight = MinimumHeight;
 
         WindowRect = new(
             Screen.width * 0.5f - minimumWidth / 2f,
-            Screen.height * 0.5f - Screen.height * 0.6f / 2f,
+            Screen.height * 0.5f - Screen.height * 0.7f / 2f,
             minimumWidth,
-            Screen.height * 0.6f);
+            Screen.height * 0.7f);
     }
 
     public enum SettingType
     {
         Controls,
         DragHandle,
+        ShapeKeys,
         AutoSave,
         Translation,
         UI,
@@ -78,6 +70,12 @@ public class SettingsWindow : BaseWindow
 
     public override bool Enabled =>
         base.Enabled && !inputRemapper.Listening;
+
+    private static int MinimumWidth =>
+        UIUtility.Scaled(CategoryListWidth * 3.25f) + 38;
+
+    private static int MinimumHeight =>
+        UIUtility.Scaled(500);
 
     public BasePane this[SettingType settingType]
     {
@@ -178,8 +176,8 @@ public class SettingsWindow : BaseWindow
                 var mousePosition = Event.current.mousePosition;
 
                 var (windowWidth, windowHeight) = mousePosition;
-                var minimumWidth = UIUtility.Scaled(CategoryListWidth * 2.75f + 38);
-                var minimumHeight = UIUtility.Scaled(400);
+                var minimumWidth = MinimumWidth;
+                var minimumHeight = MinimumHeight;
 
                 WindowRect = WindowRect with
                 {
@@ -194,8 +192,8 @@ public class SettingsWindow : BaseWindow
     {
         base.OnScreenDimensionsChanged(newScreenDimensions);
 
-        var minimumWidth = UIUtility.Scaled(CategoryListWidth * 2.75f + 38);
-        var minimumHeight = UIUtility.Scaled(400);
+        var minimumWidth = MinimumWidth;
+        var minimumHeight = MinimumHeight;
 
         WindowRect = WindowRect with
         {

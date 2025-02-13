@@ -9,6 +9,12 @@ public class ShapeKeyRangeConfiguration(IShapeKeyRangeSerializer shapeKeyRangeSe
 
     public event EventHandler Refreshed;
 
+    public event EventHandler<ShapeKeyRangeConfigurationEventArgs> ChangedRange;
+
+    public event EventHandler<ShapeKeyRangeConfigurationEventArgs> AddedRange;
+
+    public event EventHandler<ShapeKeyRangeConfigurationEventArgs> RemovedRange;
+
     private Dictionary<string, ShapeKeyRange> Ranges =>
         ranges ??= Initialize(shapeKeyRangeSerializer);
 
@@ -27,6 +33,54 @@ public class ShapeKeyRangeConfiguration(IShapeKeyRangeSerializer shapeKeyRangeSe
             ? throw new ArgumentException($"'{nameof(shapeKey)}' cannot be null or empty.", nameof(shapeKey))
             : Ranges.ContainsKey(shapeKey);
 
+    public bool AddRange(string shapeKey, ShapeKeyRange range)
+    {
+        if (string.IsNullOrEmpty(shapeKey))
+            throw new ArgumentException($"'{nameof(shapeKey)}' cannot be null or empty.", nameof(shapeKey));
+
+        if (Ranges.ContainsKey(shapeKey))
+            return false;
+
+        Ranges[shapeKey] = range;
+
+        AddedRange?.Invoke(this, new(shapeKey, range));
+
+        return true;
+    }
+
+    public bool RemoveRange(string shapeKey)
+    {
+        if (string.IsNullOrEmpty(shapeKey))
+            throw new ArgumentException($"'{nameof(shapeKey)}' cannot be null or empty.", nameof(shapeKey));
+
+        if (!Ranges.ContainsKey(shapeKey))
+            return false;
+
+        Ranges.Remove(shapeKey);
+
+        RemovedRange?.Invoke(this, new(shapeKey, new(0f, 1f)));
+
+        return true;
+    }
+
+    public void SetRange(string shapeKey, ShapeKeyRange range)
+    {
+        if (string.IsNullOrEmpty(shapeKey))
+            throw new ArgumentException($"'{nameof(shapeKey)}' cannot be null or empty.", nameof(shapeKey));
+
+        if (!Ranges.ContainsKey(shapeKey))
+            return;
+
+        range = FixRange(range);
+
+        Ranges[shapeKey] = range;
+
+        ChangedRange?.Invoke(this, new(shapeKey, range));
+    }
+
+    public void Save() =>
+        shapeKeyRangeSerializer.Serialize(Ranges);
+
     public void Refresh()
     {
         ranges = Initialize(shapeKeyRangeSerializer);
@@ -34,15 +88,13 @@ public class ShapeKeyRangeConfiguration(IShapeKeyRangeSerializer shapeKeyRangeSe
         Refreshed?.Invoke(this, EventArgs.Empty);
     }
 
-    private static Dictionary<string, ShapeKeyRange> Initialize(IShapeKeyRangeSerializer shapeKeyRangeSerializer)
-    {
-        return shapeKeyRangeSerializer
+    private static Dictionary<string, ShapeKeyRange> Initialize(IShapeKeyRangeSerializer shapeKeyRangeSerializer) =>
+        shapeKeyRangeSerializer
             .Deserialize()
             .ToDictionary(static kvp => kvp.Key, static kvp => FixRange(kvp.Value), StringComparer.Ordinal);
 
-        static ShapeKeyRange FixRange(ShapeKeyRange range) =>
-            range.Lower == range.Upper ? new(0f, 1f) :
-            range.Lower > range.Upper ? new(range.Upper, range.Lower) :
-            range;
-    }
+    private static ShapeKeyRange FixRange(ShapeKeyRange range) =>
+        range.Lower == range.Upper ? new(0f, 1f) :
+        range.Lower > range.Upper ? new(range.Upper, range.Lower) :
+        range;
 }

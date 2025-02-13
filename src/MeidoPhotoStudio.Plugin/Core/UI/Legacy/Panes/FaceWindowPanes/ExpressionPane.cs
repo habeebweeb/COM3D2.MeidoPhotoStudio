@@ -33,7 +33,6 @@ public class ExpressionPane : BasePane
     private readonly ShapeKeyRangeConfiguration shapeKeyRangeConfiguration;
     private readonly Dictionary<string, BaseControl> controls = new(StringComparer.Ordinal);
     private readonly Toggle blinkToggle;
-    private readonly Button refreshRangeButton;
     private readonly SubPaneHeader baseGameShapeKeyHeader;
     private readonly SubPaneHeader customShapeKeyHeader;
     private readonly ShapeKeysPane shapeKeysPane;
@@ -50,14 +49,14 @@ public class ExpressionPane : BasePane
         this.shapeKeyRangeConfiguration = shapeKeyRangeConfiguration ?? throw new ArgumentNullException(nameof(shapeKeyRangeConfiguration));
 
         this.shapeKeyRangeConfiguration.Refreshed += OnFaceShapeKeyRangeConfigurationRefreshed;
+        this.shapeKeyRangeConfiguration.ChangedRange += OnShapeKeyRangeChanged;
+        this.shapeKeyRangeConfiguration.RemovedRange += OnShapeKeyRangeChanged;
+
         this.characterSelectionController.Selecting += OnCharacterSelectionChanging;
         this.characterSelectionController.Selected += OnCharacterSelectionChanged;
 
         blinkToggle = new(new LocalizableGUIContent(translation, "expressionPane", "blinkToggle"), true);
         blinkToggle.ControlEvent += OnBlinkToggleChanged;
-
-        refreshRangeButton = new(new LocalizableGUIContent(translation, "expressionPane", "refreshShapeKeyRangeButton"));
-        refreshRangeButton.ControlEvent += OnRefreshRangeButtonPushed;
 
         baseGameShapeKeyHeader = new(new LocalizableGUIContent(translation, "expressionPane", "baseGameExpressionKeys"));
 
@@ -113,13 +112,7 @@ public class ExpressionPane : BasePane
 
         GUI.enabled = guiEnabled;
 
-        GUILayout.BeginHorizontal();
-
         blinkToggle.Draw();
-
-        refreshRangeButton.Draw(GUILayout.ExpandWidth(false));
-
-        GUILayout.EndHorizontal();
 
         if (CurrentFace is null)
             return;
@@ -189,9 +182,6 @@ public class ExpressionPane : BasePane
         }
     }
 
-    private void OnRefreshRangeButtonPushed(object sender, EventArgs e) =>
-        shapeKeyRangeConfiguration.Refresh();
-
     private void OnBlinkToggleChanged(object sender, EventArgs e)
     {
         if (CurrentFace is null)
@@ -210,6 +200,14 @@ public class ExpressionPane : BasePane
             slider.Left = range.Lower;
             slider.Right = range.Upper;
         }
+    }
+
+    private void OnShapeKeyRangeChanged(object sender, ShapeKeyRangeConfigurationEventArgs e)
+    {
+        if (!controls.TryGetValue(e.ChangedShapeKey, out var control) || control is not Slider slider)
+            return;
+
+        slider.SetBounds(e.Range.Lower, e.Range.Upper);
     }
 
     private void OnCharacterSelectionChanging(object sender, SelectionEventArgs<CharacterController> e)

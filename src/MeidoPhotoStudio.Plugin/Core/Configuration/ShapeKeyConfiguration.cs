@@ -39,6 +39,12 @@ public class ShapeKeyConfiguration
     public IEnumerable<string> BlockedShapeKeys =>
         blockedShapeKeysConfigEntry.Value;
 
+    public int ShapeKeyCount =>
+        shapeKeysConfigEntry.Value.Count;
+
+    public int ShapeKeyBlockListCount =>
+        blockedShapeKeysConfigEntry.Value.Count;
+
     public bool AddShapeKey(string shapeKey)
     {
         if (string.IsNullOrEmpty(shapeKey))
@@ -109,6 +115,9 @@ public class ShapeKeyConfiguration
 
             shapeKeys.Sort(StringComparer.Ordinal);
         }
+
+        public int Count =>
+            shapeKeys.Count;
 
         public bool Add(string shapeKey)
         {
